@@ -1,0 +1,7 @@
+{
+  "cSpell.words": [
+    "gamepad",
+    "GAMEPAD"
+  ],
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
+}
