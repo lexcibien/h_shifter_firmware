@@ -1,7 +1,16 @@
 {
   "cSpell.words": [
+    "arduino",
+    "atmelavr",
+    "buildcache",
+    "clangtidy",
+    "cppcheck",
     "gamepad",
-    "GAMEPAD"
+    "GAMEPAD",
+    "leonardo",
+    "mheironimus",
+    "unflags",
+    "Werror"
   ],
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
 }
