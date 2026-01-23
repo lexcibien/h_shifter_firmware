@@ -19,9 +19,7 @@ const uint8_t PIN_BTN11 = 11;
 
 // Número de botões lógicos reportados pelo Joystick
 const uint8_t BUTTON_COUNT = 10; // Marchas (6 + R) e botões da manopla (3)
-
-// Estado anterior dos botões (índices 0..BUTTON_COUNT-1)
-bool prevButtonState[BUTTON_COUNT] = { 0 };
+const bool initAutoSendState = true;
 
 // GameController: apenas botões (sem eixos analógicos nem hats)
 Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
@@ -34,7 +32,7 @@ Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
 void setup() {
   Serial.begin(115200);
 
-  GameController.begin();
+  GameController.begin(initAutoSendState);
 
   pinMode(PIN_BTN4, INPUT_PULLUP);
   pinMode(PIN_BTN5, INPUT_PULLUP);
@@ -48,6 +46,9 @@ void setup() {
 }
 
 void loop() {
+  // Estado anterior dos botões (índices 0..BUTTON_COUNT-1)
+  static bool prevButtonState[BUTTON_COUNT] = { false };
+
   // Leitura das entradas (LOW = acionado)
   bool btn4 = (digitalRead(PIN_BTN4) == LOW);
   bool btn5 = (digitalRead(PIN_BTN5) == LOW);
@@ -60,7 +61,7 @@ void loop() {
   bool btn11 = (digitalRead(PIN_BTN11) == LOW);
 
   // Calcula novo estado dos botões
-  bool newButtonState[BUTTON_COUNT] = { 0 };
+  bool newButtonState[BUTTON_COUNT] = { false };
 
   bool comb4Used = false;
   bool comb7Used = false;
@@ -77,14 +78,14 @@ void loop() {
 
   //TODO Sei que a marcha ré não funciona assim, pois precisa que btn8 esteja sempre pressionado, talvez fazer algo mecânico para resolver isso.
   if (btn8 && comb4Used) newButtonState[6] = true;
-  
+
   // Botões da manopla de caminhão
   if (btn9) newButtonState[7] = true;
   if (btn10) newButtonState[8] = true;
   if (btn11) newButtonState[9] = true;
 
   // --- Atualiza somente se houver alteração ---
-  for (int i = 0; i < BUTTON_COUNT; i++) {
+  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     if (newButtonState[i] != prevButtonState[i]) {
       GameController.setButton(i, newButtonState[i]);
       prevButtonState[i] = newButtonState[i];
