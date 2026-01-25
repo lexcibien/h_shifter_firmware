@@ -44,6 +44,7 @@ Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
 bool handleConnected = false;
 
 void setup() {
+  using enum ControllerButtons;
   Serial.begin(115200);
 
   GameController.begin(initAutoSendState);
@@ -71,13 +72,14 @@ void setup() {
   }
 
   if (!handleConnected) {
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_SPLIT), 0);
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_RANGE), 0);
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE), 0);
+    GameController.setButton(static_cast<uint8_t>(SW_SPLIT), 0);
+    GameController.setButton(static_cast<uint8_t>(SW_RANGE), 0);
+    GameController.setButton(static_cast<uint8_t>(BTN_ENGINE_BRAKE), 0);
   }
 }
 
 void loop() {
+  using enum ControllerButtons;
   static bool prevButtonState[BUTTON_COUNT] = { false };
 
   bool btn4 = (digitalRead(PIN_BTN4) == LOW);
@@ -96,23 +98,23 @@ void loop() {
   bool comb7Used = false;
 
   // Combinações para marchas laterais
-  if (btn4 && btn5) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_1)] = true; comb4Used = true; }
-  if (btn5 && btn7) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_2)] = true; comb7Used = true; }
-  if (btn4 && btn6) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_5)] = true; comb4Used = true; }
-  if (btn6 && btn7) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_6)] = true; comb7Used = true; }
+  if (btn4 && btn5) { newButtonState[static_cast<uint8_t>(GEAR_1)] = true; comb4Used = true; }
+  if (btn5 && btn7) { newButtonState[static_cast<uint8_t>(GEAR_2)] = true; comb7Used = true; }
+  if (btn4 && btn6) { newButtonState[static_cast<uint8_t>(GEAR_5)] = true; comb4Used = true; }
+  if (btn6 && btn7) { newButtonState[static_cast<uint8_t>(GEAR_6)] = true; comb7Used = true; }
 
   // Marchas centrais
-  if (btn4 && !comb4Used) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_3)] = true;
-  if (btn7 && !comb7Used) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_4)] = true;
+  if (btn4 && !comb4Used) newButtonState[static_cast<uint8_t>(GEAR_3)] = true;
+  if (btn7 && !comb7Used) newButtonState[static_cast<uint8_t>(GEAR_4)] = true;
 
-  //TODO Sei que a marcha ré não funciona assim, pois precisa que btn8 esteja sempre pressionado, talvez fazer algo mecânico para resolver isso.
-  if (btn8 && comb4Used) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_R)] = true;
+  //* Sei que a marcha ré não funciona assim, pois precisa que btn8 esteja sempre pressionado, talvez fazer algo mecânico para resolver isso.
+  if (btn8 && comb4Used) newButtonState[static_cast<uint8_t>(GEAR_R)] = true;
 
   // Botões da manopla de caminhão
   if (handleConnected) {
-    if (btn9) newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SPLIT)] = true;
-    if (btn10) newButtonState[static_cast<uint8_t>(ControllerButtons::SW_RANGE)] = true;
-    if (btn11) newButtonState[static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE)] = true;
+    if (btn9) newButtonState[static_cast<uint8_t>(SW_SPLIT)] = true;
+    if (btn10) newButtonState[static_cast<uint8_t>(SW_RANGE)] = true;
+    if (btn11) newButtonState[static_cast<uint8_t>(BTN_ENGINE_BRAKE)] = true;
   }
 
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
