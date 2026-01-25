@@ -9,6 +9,8 @@ esse sistema desengata
   - [ ] Adicionar dois botões adicionais para o sequencial quando ativado (ver se dá de fazer condicional ou permanente, se ele perde
 a configuração no jogo)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
+- [ ] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
+  - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
   
 ## Hardware
 
