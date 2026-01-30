@@ -1,5 +1,4 @@
 # Generated files
-compile_commands.json
 .pio
 .vscode/ipch
 .vscode/c_cpp_properties.json
@@ -8,6 +7,12 @@ compile_commands.json
 
 # Prerequisites
 *.d
+
+# macOS
+.DS_Store
+
+# Understand project
+Understand
 
 # Compiled Object files
 *.slo
