@@ -2,6 +2,7 @@
     // See http://go.microsoft.com/fwlink/?LinkId=827846
     // for the documentation about the extensions.json format
     "recommendations": [
+        "SonarSource.sonarlint-vscode",
         "platformio.platformio-ide"
     ],
     "unwantedRecommendations": [

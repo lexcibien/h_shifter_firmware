@@ -3,6 +3,7 @@
 // Versão simplificada: remove leituras dos pedais e foca apenas no H-shifter.
 // Código original: DAZ projects.
 
+#include "../boards/pinouts/pins_arduino.h"
 #include <Joystick.h>
 
 enum class ControllerButtons : int {
@@ -18,35 +19,32 @@ enum class ControllerButtons : int {
   BTN_ENGINE_BRAKE
 };
 
-// Botões do H-shifter 
-const uint8_t PIN_BTN4 = 4;
-const uint8_t PIN_BTN5 = 5;
-const uint8_t PIN_BTN6 = 6;
-const uint8_t PIN_BTN7 = 7;
-const uint8_t PIN_BTN8 = 8; // Botão de marcha ré
-
-// Botões da manopla de caminhão
-const uint8_t PIN_BTN9 = 9;
-const uint8_t PIN_BTN10 = 10;
-const uint8_t PIN_BTN11 = 11;
-
 // Número de botões lógicos reportados pelo Joystick
 const uint8_t BUTTON_COUNT = 10; // Marchas (6 + R) e botões da manopla (3)
 const bool initAutoSendState = true;
 
+#if ARDUINO_RASPBERRY_PI_PICO_2
+Joystick_ GameController;
+#elif ARDUINO_AVR_LEONARDO
 Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
   BUTTON_COUNT, 0,
   false, false, false,
   false, false, false,
   false, false,
   false, false, false);
+#endif
+
 
 bool handleConnected = false;
 
 void setup() {
   Serial.begin(115200);
 
+#if ARDUINO_RASPBERRY_PI_PICO_2
+  GameController.begin();
+#elif ARDUINO_AVR_LEONARDO
   GameController.begin(initAutoSendState);
+#endif
 
   pinMode(PIN_BTN4, INPUT_PULLUP);
   pinMode(PIN_BTN5, INPUT_PULLUP);
@@ -105,7 +103,7 @@ void loop() {
   if (btn4 && !comb4Used) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_3)] = true;
   if (btn7 && !comb7Used) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_4)] = true;
 
-  //TODO Sei que a marcha ré não funciona assim, pois precisa que btn8 esteja sempre pressionado, talvez fazer algo mecânico para resolver isso.
+  //* Sei que a marcha ré não funciona assim, pois precisa que btn8 esteja sempre pressionado, talvez fazer algo mecânico para resolver isso.
   if (btn8 && comb4Used) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_R)] = true;
 
   // Botões da manopla de caminhão
