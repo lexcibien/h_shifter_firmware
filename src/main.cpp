@@ -25,15 +25,15 @@ enum class ControllerButtons : int {
 const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::BUTTON_COUNT); // Marchas (6 + R) e botões da manopla (3)
 const bool initAutoSendState = true;
 
-#if ARDUINO_RASPBERRY_PI_PICO_2
-Joystick_ GameController;
-#elif ARDUINO_AVR_LEONARDO
+#if ARDUINO_AVR_LEONARDO
 Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
   BUTTON_COUNT, 0,
   false, false, false,
   false, false, false,
   false, false,
   false, false, false);
+#elif ARDUINO_RASPBERRY_PI_PICO_2
+Joystick_ GameController;
 #endif
 
 
@@ -42,7 +42,12 @@ bool handleConnected = false;
 void setup() {
   Serial.begin(115200);
 
+#if ARDUINO_AVR_LEONARDO
   GameController.begin(initAutoSendState);
+#elif ARDUINO_RASPBERRY_PI_PICO_2
+  GameController.begin();
+  GameController.useManualSend(!initAutoSendState);
+#endif
 
   pinMode(SW_FRONT, INPUT_PULLUP);
   pinMode(SW_LEFT, INPUT_PULLUP);
