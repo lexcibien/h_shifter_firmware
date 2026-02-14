@@ -11,9 +11,13 @@ a configuração no jogo)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 - [ ] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
   - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
-  
+
 ## Hardware
 
-- [ ] Reimprimir peças em PLA+
-- [ ] Colocar um conector no chicote para a manopla
+- [X] Reimprimir peças em PLA+
+- [X] Colocar um conector no chicote para a manopla
 - [ ] Adicionar um switch para trocar de H para sequencial
+- [ ] Adicionar display 14 segmentos
+  - [ ] Mostrar marchas
+- [ ] Adicionar display redondo
+  - [ ] Mostrar mapa
