@@ -18,6 +18,7 @@ a configuração no jogo)
 - [X] Colocar um conector no chicote para a manopla
 - [ ] Adicionar um switch para trocar de H para sequencial
 - [ ] Adicionar display 14 segmentos
+  - [ ] Usar um multiplexador 595 para reduzir quantidade de pinos necessários
   - [ ] Mostrar marchas
 - [ ] Adicionar display redondo
   - [ ] Mostrar mapa
