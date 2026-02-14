@@ -1,8 +1,3 @@
-// Firmware para H-shifter (Arduino Leonardo).
-// Lê 4 entradas do câmbio e apresenta 6 botões virtuais ao PC como gamepad.
-// Versão simplificada: remove leituras dos pedais e foca apenas no H-shifter.
-// Código original: DAZ projects.
-
 #include "../boards/pinouts/pins_arduino.h"
 #include "Arduino.h"
 #include <Joystick.h>
