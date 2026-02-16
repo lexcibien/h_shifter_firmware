@@ -15,4 +15,7 @@ const uint8_t SW_RANGE = 8;
 const uint8_t SW_SPLIT = 9;
 const uint8_t BTN_ENGINE_BRAKE = 10;
 
+const uint8_t SW_ENABLE_REVERSE = 11;
+const uint8_t SW_ENABLE_SEQUENTIAL = 12;
+
 #endif // PINS_ARDUINO_H

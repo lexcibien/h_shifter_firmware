@@ -9,11 +9,11 @@ esse sistema desengata
   - [ ] Adicionar dois botões adicionais para o sequencial quando ativado (ver se dá de fazer condicional ou permanente, se ele perde
 a configuração no jogo)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
-- [ ] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
-  - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
 
 ## Hardware
 
+- [ ] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
+  - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
 - [X] Reimprimir peças em PLA+
 - [X] Colocar um conector no chicote para a manopla
 - [ ] Adicionar um switch para trocar de H para sequencial
@@ -21,4 +21,5 @@ a configuração no jogo)
   - [ ] Usar um multiplexador 595 para reduzir quantidade de pinos necessários
   - [ ] Mostrar marchas
 - [ ] Adicionar display redondo
-  - [ ] Mostrar mapa
+  - [ ] Mostrar mapa ou direções
+  - [ ] Usar biblioteca TFT_eSPI ou squareline studio LVGL

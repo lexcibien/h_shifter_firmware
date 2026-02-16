@@ -13,6 +13,8 @@ enum class ControllerButtons : int {
   SW_RANGE,
   SW_SPLIT,
   BTN_ENGINE_BRAKE,
+  SW_SEQ_PLUS,
+  SW_SEQ_MINUS,
   BUTTON_COUNT // Marchas (6 + R) e botões da manopla (3)
 };
 
@@ -50,17 +52,23 @@ __attribute__((noreturn)) void setup() {
   pinMode(SW_BACK, INPUT_PULLUP);
   pinMode(SW_REVERSE, INPUT_PULLUP);
 
+  pinMode(SW_ENABLE_REVERSE, INPUT_PULLUP);
+  pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
+
   delay(2000);
 
   int adc = analogRead(SW_RANGE);
   handleConnected = (adc > 300 && adc < 600);
+
+  bool swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == LOW);
+  bool swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
 
   if (!handleConnected) {
     GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_RANGE), LOW);
     GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_SPLIT), LOW);
     GameController.setButton(static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE), LOW);
 
-    Serial.println("WARN: Truck shifter handle not connected");
+    Serial.println("INFO: Truck shifter handle not connected");
   } else {
     pinMode(SW_RANGE, INPUT_PULLUP);
     pinMode(SW_SPLIT, INPUT_PULLUP);
@@ -68,6 +76,9 @@ __attribute__((noreturn)) void setup() {
 
     Serial.println("OK: Handle detected");
   }
+
+  Serial.println(swEnableReverse ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
+  Serial.println(swEnableSequential ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
 
   while (true) {
     static bool prevButtonState[BUTTON_COUNT] = { LOW };
@@ -93,11 +104,17 @@ __attribute__((noreturn)) void setup() {
     if (swFront && swRight) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_5)] = HIGH; combFrontUsed = true; }
     if (swRight && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_6)] = HIGH; combBackUsed = true; }
 
+    // Marchas centrais sequenciais
+    if (swEnableSequential) {
+      if (swFront && !combFrontUsed) { newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SEQ_MINUS)] = HIGH; }
+      if (swBack && !combBackUsed) { newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SEQ_PLUS)] = HIGH; }
+    }
+
     // Marchas centrais
     if (swFront && !combFrontUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_3)] = HIGH;
     if (swBack && !combBackUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_4)] = HIGH;
 
-    if (swReverse && swLeft && swFront) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_R)] = HIGH; isReverseGear = true; }
+    if (swEnableReverse && swReverse && swLeft && swFront) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_R)] = HIGH; isReverseGear = true; }
 
     if (!swFront && !swLeft && !swRight && !swBack) { isReverseGear = false; }
 
