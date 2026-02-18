@@ -19,7 +19,7 @@ enum class ControllerButtons : int {
 };
 
 // Número de botões lógicos reportados pelo Joystick
-const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::BUTTON_COUNT); // Marchas (6 + R) e botões da manopla (3)
+const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::BUTTON_COUNT); // Marchas (6 + R), sequenciais e botões da manopla (3)
 const bool initAutoSendState = true;
 
 __attribute__((noreturn)) void setup() {
@@ -57,7 +57,7 @@ __attribute__((noreturn)) void setup() {
 
   delay(2000);
 
-  int adc = analogRead(SW_RANGE);
+  int adc = analogRead(SW_KNOB_RANGE);
   handleConnected = (adc > 300 && adc < 600);
 
   bool swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == LOW);
@@ -70,9 +70,9 @@ __attribute__((noreturn)) void setup() {
 
     Serial.println("INFO: Truck shifter handle not connected");
   } else {
-    pinMode(SW_RANGE, INPUT_PULLUP);
-    pinMode(SW_SPLIT, INPUT_PULLUP);
-    pinMode(BTN_ENGINE_BRAKE, INPUT_PULLUP);
+    pinMode(SW_KNOB_RANGE, INPUT_PULLUP);
+    pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
+    pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
 
     Serial.println("OK: Handle detected");
   }
@@ -89,9 +89,9 @@ __attribute__((noreturn)) void setup() {
     bool swBack = (digitalRead(SW_BACK) == LOW);
     bool swReverse = (digitalRead(SW_REVERSE) == LOW);
 
-    bool swRange = (digitalRead(SW_RANGE) == LOW);
-    bool swSplit = (digitalRead(SW_SPLIT) == LOW);
-    bool btnEngineBrake = (digitalRead(BTN_ENGINE_BRAKE) == LOW);
+    bool swRange = (digitalRead(SW_KNOB_RANGE) == LOW);
+    bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
+    bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
 
     bool newButtonState[BUTTON_COUNT] = { LOW };
 
