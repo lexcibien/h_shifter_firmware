@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include <Joystick.h>
 
-enum class ControllerButtons : int {
+enum ControllerButtons {
   GEAR_1 = 0,
   GEAR_2,
   GEAR_3,
@@ -19,8 +19,10 @@ enum class ControllerButtons : int {
 };
 
 // Número de botões lógicos reportados pelo Joystick
-const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::BUTTON_COUNT); // Marchas (6 + R), sequenciais e botões da manopla (3)
+const uint8_t BUTTON_COUNT = ControllerButtons::BUTTON_COUNT; // Marchas (6 + R), sequenciais e botões da manopla (3)
 const bool initAutoSendState = true;
+
+bool detectHandleConnection();
 
 __attribute__((noreturn)) void setup() {
 #if ARDUINO_AVR_LEONARDO
@@ -57,16 +59,15 @@ __attribute__((noreturn)) void setup() {
 
   delay(2000);
 
-  int adc = analogRead(SW_KNOB_RANGE);
-  handleConnected = (adc > 300 && adc < 600);
+  handleConnected = detectHandleConnection();
 
   bool swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == LOW);
   bool swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
 
   if (!handleConnected) {
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_RANGE), LOW);
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_SPLIT), LOW);
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE), LOW);
+    GameController.setButton(SW_RANGE, LOW);
+    GameController.setButton(SW_SPLIT, LOW);
+    GameController.setButton(BTN_ENGINE_BRAKE, LOW);
 
     Serial.println("INFO: Truck shifter handle not connected");
   } else {
@@ -99,30 +100,30 @@ __attribute__((noreturn)) void setup() {
     bool combBackUsed = false;
 
     // Combinações para marchas laterais
-    if (swFront && swLeft && !isReverseGear) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_1)] = HIGH; combFrontUsed = true; }
-    if (swLeft && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_2)] = HIGH; combBackUsed = true; }
-    if (swFront && swRight) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_5)] = HIGH; combFrontUsed = true; }
-    if (swRight && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_6)] = HIGH; combBackUsed = true; }
+    if (swFront && swLeft && !isReverseGear) { newButtonState[GEAR_1] = HIGH; combFrontUsed = true; }
+    if (swLeft && swBack) { newButtonState[GEAR_2] = HIGH; combBackUsed = true; }
+    if (swFront && swRight) { newButtonState[GEAR_5] = HIGH; combFrontUsed = true; }
+    if (swRight && swBack) { newButtonState[GEAR_6] = HIGH; combBackUsed = true; }
 
     // Marchas centrais sequenciais
     if (swEnableSequential) {
-      if (swFront && !combFrontUsed) { newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SEQ_MINUS)] = HIGH; }
-      if (swBack && !combBackUsed) { newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SEQ_PLUS)] = HIGH; }
+      if (swFront && !combFrontUsed) { newButtonState[SW_SEQ_MINUS] = HIGH; }
+      if (swBack && !combBackUsed) { newButtonState[SW_SEQ_PLUS] = HIGH; }
     }
 
     // Marchas centrais
-    if (swFront && !combFrontUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_3)] = HIGH;
-    if (swBack && !combBackUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_4)] = HIGH;
+    if (swFront && !combFrontUsed) newButtonState[GEAR_3] = HIGH;
+    if (swBack && !combBackUsed) newButtonState[GEAR_4] = HIGH;
 
-    if (swEnableReverse && swReverse && swLeft && swFront) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_R)] = HIGH; isReverseGear = true; }
+    if (swEnableReverse && swReverse && swLeft && swFront) { newButtonState[GEAR_R] = HIGH; isReverseGear = true; }
 
     if (!swFront && !swLeft && !swRight && !swBack) { isReverseGear = false; }
 
     // Botões da manopla de caminhão
     if (handleConnected) {
-      if (swRange) newButtonState[static_cast<uint8_t>(ControllerButtons::SW_RANGE)] = HIGH;
-      if (swSplit) newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SPLIT)] = HIGH;
-      if (btnEngineBrake) newButtonState[static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE)] = HIGH;
+      if (swRange) newButtonState[SW_RANGE] = HIGH;
+      if (swSplit) newButtonState[SW_SPLIT] = HIGH;
+      if (btnEngineBrake) newButtonState[BTN_ENGINE_BRAKE] = HIGH;
     }
 
     for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
@@ -136,3 +137,8 @@ __attribute__((noreturn)) void setup() {
 }
 
 void loop() {/* Unused */ }
+
+bool detectHandleConnection() {
+  int adc = analogRead(SW_KNOB_RANGE);
+  return (adc > 300 && adc < 600);
+}
