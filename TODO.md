@@ -5,8 +5,8 @@
 - [ ] Adicionar marcha ré
   - [ ] Talvez colocar um switch na base e um mecanismo na manopla que quando puxa e engata a 6a marcha, ativa a marcha ré, quando volta,
 esse sistema desengata
-- [ ] Fazer a lógica com o switch para habilitar/desabilitar câmbio sequencial
-  - [ ] Adicionar dois botões adicionais para o sequencial quando ativado (ver se dá de fazer condicional ou permanente, se ele perde
+- [X] Fazer a lógica com o switch para habilitar/desabilitar câmbio sequencial
+  - [X] Adicionar dois botões adicionais para o sequencial quando ativado (ver se dá de fazer condicional ou permanente, se ele perde
 a configuração no jogo)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 
@@ -20,6 +20,10 @@ a configuração no jogo)
 - [ ] Adicionar display 14 segmentos
   - [ ] Usar um multiplexador 595 para reduzir quantidade de pinos necessários
   - [ ] Mostrar marchas
-- [ ] Adicionar display redondo
+  - [ ] Substituir pelo display oLED?
+- [ ] Adicionar display redondo - Apenas rpipico2
   - [ ] Mostrar mapa ou direções
   - [ ] Usar biblioteca TFT_eSPI ou squareline studio LVGL
+  - [ ] Decidir entre rpipico2 ou leonardo, já que é apenas para 32 bits (overkill?)
+    - Substituir pelo display oLED?
+  - [ ] Arrumar a agulha do exemplo com esse [código](https://github.com/VolosR/BoatGauges)
