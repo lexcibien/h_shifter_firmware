@@ -2,6 +2,7 @@
   "cSpell.words": [
     "arduino",
     "atmelavr",
+    "bodmer",
     "buildcache",
     "clangtidy",
     "cppcheck",
@@ -9,11 +10,13 @@
     "DPICO",
     "DRPIPICO",
     "DUSBCON",
+    "ESPI",
     "gamepad",
     "GAMEPAD",
     "Iboards",
     "leonardo",
     "mheironimus",
+    "pinouts",
     "rpipico",
     "unflags",
     "Werror"
