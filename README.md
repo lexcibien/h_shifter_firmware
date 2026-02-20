@@ -55,24 +55,13 @@ Para compilar esse branch, são necessários alguns passos:
 
 Depois disso irá compilar sem erros.
 
-## Display - Apenas RP2350
+## Display
 
-Segui esses vídeos:
+### Conexão Arduino Leonardo
 
-- [Biblioteca](https://www.manualdomaker.com/article/display-lcd-gc-9-a01-redondo/)
-- [Conexão de pinos](https://www.youtube.com/watch?v=2wPPcgb-Vvg)
-
-Dentro do arquivo `.pio/libdeps/<env>/TFT_eSPI/User_Setup_Select.h`, adicionar essas linhas acima de `#ifndef USER_SETUP_LOADED`:
-
-```cpp
-#ifdef TFT_ESPI_USER_SETUP_PATH  // Use external User_Setup.h if defined
-
-  #define USER_SETUP_LOADED
-
-  // Define TFT_ESPI_USER_SETUP_PATH as a string literal
-  // Example (PlatformIO):
-  // -D TFT_ESPI_USER_SETUP_PATH=\"../configs/your_board/User_Setup.h\"
-  #include TFT_ESPI_USER_SETUP_PATH
-
-#endif
-```
+| LEONARDO | SSD1306 |
+|----------|---------|
+| GND      | GND     |
+| 3V3      | VCC     |
+| D3       | SCL     |
+| D2       | SDA     |

@@ -20,6 +20,6 @@ a configuração no jogo)
 - [ ] Adicionar display 14 segmentos
   - [ ] Usar um multiplexador 595 para reduzir quantidade de pinos necessários
   - [ ] Mostrar marchas
-- [ ] Adicionar display redondo
+- [ ] Adicionar display retangular
   - [ ] Mostrar mapa ou direções
-  - [ ] Usar biblioteca TFT_eSPI ou squareline studio LVGL
+  - [ ] Mostrar informações da viagem ou veículo

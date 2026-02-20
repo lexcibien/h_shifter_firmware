@@ -2,7 +2,6 @@
   "cSpell.words": [
     "arduino",
     "atmelavr",
-    "bodmer",
     "buildcache",
     "clangtidy",
     "cppcheck",
@@ -10,16 +9,18 @@
     "DPICO",
     "DRPIPICO",
     "DUSBCON",
-    "ESPI",
     "gamepad",
     "GAMEPAD",
     "Iboards",
     "leonardo",
     "mheironimus",
+    "ncen",
+    "olikraus",
     "pinouts",
     "rpipico",
     "unflags",
-    "Werror"
+    "Werror",
+    "XBMP"
   ],
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
 }
