@@ -16,6 +16,7 @@
     "mheironimus",
     "rpipico",
     "unflags",
+    "waveshare",
     "Werror"
   ],
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"

@@ -11,7 +11,7 @@
     ],
     "mcu": "atmega32u4",
     "usb_product": "Shifter Truck Arduino",
-    "variant": "leonardo"
+    "variant": "pinouts"
   },
   "bootloader": {
     "efuse": "0xCB",

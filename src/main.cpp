@@ -19,7 +19,7 @@ enum ControllerButtons {
 };
 
 // Número de botões lógicos reportados pelo Joystick
-const uint8_t BUTTON_COUNT = ControllerButtons::BUTTON_COUNT; // Marchas (6 + R), sequenciais e botões da manopla (3)
+const uint8_t CONST_BUTTON_COUNT = ControllerButtons::BUTTON_COUNT; // Marchas (6 + R), sequenciais e botões da manopla (3)
 const bool initAutoSendState = true;
 
 bool detectHandleConnection();
@@ -27,12 +27,12 @@ bool detectHandleConnection();
 __attribute__((noreturn)) void setup() {
 #if ARDUINO_AVR_LEONARDO
   Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
-    BUTTON_COUNT, 0,
+    CONST_BUTTON_COUNT, 0,
     false, false, false,
     false, false, false,
     false, false,
     false, false, false);
-#elif ARDUINO_RASPBERRY_PI_PICO_2
+#elif ARDUINO_RASPBERRY_PI_PICO_2 || ARDUINO_WAVESHARE_RP2040_ZERO
   Joystick_ GameController;
 #endif
 
@@ -43,7 +43,7 @@ __attribute__((noreturn)) void setup() {
 
 #if ARDUINO_AVR_LEONARDO
   GameController.begin(initAutoSendState);
-#elif ARDUINO_RASPBERRY_PI_PICO_2
+#elif ARDUINO_RASPBERRY_PI_PICO_2 || ARDUINO_WAVESHARE_RP2040_ZERO
   GameController.begin();
   GameController.useManualSend(!initAutoSendState);
 #endif
@@ -82,7 +82,7 @@ __attribute__((noreturn)) void setup() {
   Serial.println(swEnableSequential ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
 
   while (true) {
-    static bool prevButtonState[BUTTON_COUNT] = { LOW };
+    static bool prevButtonState[CONST_BUTTON_COUNT] = { LOW };
 
     bool swFront = (digitalRead(SW_FRONT) == LOW);
     bool swLeft = (digitalRead(SW_LEFT) == LOW);
@@ -94,7 +94,7 @@ __attribute__((noreturn)) void setup() {
     bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
     bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
 
-    bool newButtonState[BUTTON_COUNT] = { LOW };
+    bool newButtonState[CONST_BUTTON_COUNT] = { LOW };
 
     bool combFrontUsed = false;
     bool combBackUsed = false;
@@ -126,7 +126,7 @@ __attribute__((noreturn)) void setup() {
       if (btnEngineBrake) newButtonState[BTN_ENGINE_BRAKE] = HIGH;
     }
 
-    for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+    for (uint8_t i = 0; i < CONST_BUTTON_COUNT; i++) {
       if (newButtonState[i] != prevButtonState[i]) {
         GameController.setButton(i, newButtonState[i]);
         prevButtonState[i] = newButtonState[i];
