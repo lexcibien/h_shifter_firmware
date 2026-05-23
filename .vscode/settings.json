@@ -1,22 +1,22 @@
 {
   "cSpell.words": [
-    "arduino",
-    "atmelavr",
-    "buildcache",
-    "clangtidy",
-    "cppcheck",
-    "DLEONARDO",
     "DPICO",
-    "DRPIPICO",
-    "DUSBCON",
-    "gamepad",
-    "GAMEPAD",
-    "Iboards",
-    "leonardo",
-    "mheironimus",
-    "rpipico",
-    "unflags",
-    "Werror"
+    "eabi",
+    "FIRSTANALOGGPIO",
+    "gpio",
+    "GPIOCNT",
+    "isystem",
+    "MOSI",
+    "NEOPIXEL",
+    "stdlib",
+    "STREQUAL",
+    "tinyusb",
+    "TINYUSB",
+    "tusb",
+    "Waveshare"
   ],
-  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+  "cmake.environment": {
+    "PICO_SDK_PATH": "/home/lexcibien/pico/pico-sdk"
+  }
 }
