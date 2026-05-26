@@ -1,37 +1,36 @@
-cmake_minimum_required(VERSION 3.12)
+# Firmware para H-shifter (Arduino Leonardo)
+
+cmake_minimum_required(VERSION 3.13)
 
 # Pull in SDK (must be before project)
 include(pico_sdk_import.cmake)
 
 project(
   H_SHIFTER_JAPATECH
-  VERSION 1.0.0
+  VERSION 1.0.1
   DESCRIPTION "Firmware para o câmbio com Arduino Leonardo, lê 4 entradas do câmbio e apresenta 6 botões virtuais ao PC como gamepad"
-  LANGUAGES C CXX
+  LANGUAGES C CXX ASM
 )
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(PICO_SDK_VERSION_STRING VERSION_LESS "2.2.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.2.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-# If you want debug output from USB (pass -DPICO_STDIO_USB=1) this ensures you don't lose any debug output while USB is set up
-if(NOT DEFINED PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS)
-  set(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS 3000)
-endif()
-
 # Initialize the SDK
 pico_sdk_init()
 
-add_compile_options(-Wall
+# Compiler flags for the firmware target
+set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
+  -Wall
   -Wno-format # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
   -Wno-unused-function # we have some for the docs that aren't called
+  -fstack-usage
+  -Os
 )
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-Wno-maybe-uninitialized)
-endif()
 
 if(TARGET tinyusb_device)
   set(FAMILY rp2350)
@@ -40,45 +39,49 @@ if(TARGET tinyusb_device)
   # Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config
   set(TOP ${PICO_TINYUSB_PATH})
 
-  file(GLOB_RECURSE PROJECT_SOURCES
-    CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_LIST_DIR}/src/*.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/lib/*.c
-    ${CMAKE_CURRENT_LIST_DIR}/lib/*.cpp
-  )
-
-  add_executable(H_SHIFTER_JAPATECH)
-
-  # target_sources(H_SHIFTER_JAPATECH PUBLIC
-  #   ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
-  #   ${CMAKE_CURRENT_LIST_DIR}/src/USB.cpp
-  #   ${CMAKE_CURRENT_LIST_DIR}/src/usb_descriptors.c
-  # )
-  target_sources(H_SHIFTER_JAPATECH PUBLIC ${PROJECT_SOURCES})
-
-  # Make sure TinyUSB can find tusb_config.h
-  target_include_directories(H_SHIFTER_JAPATECH PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/src
-    ${CMAKE_CURRENT_LIST_DIR}/lib
+  set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+  file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
+  add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
+  target_include_directories(H_SHIFTER_JAPATECH PRIVATE
+    ${SRC_DIR}
+    ${LIB_DIR}/Joystick
+    ${LIB_DIR}/TinyUSB
     ${CMAKE_CURRENT_LIST_DIR}/boards
-    ${CMAKE_CURRENT_LIST_DIR}
   )
 
-  # In addition to pico_stdlib required for common PicoSDK functionality, add dependency on tinyusb_device
-  # for TinyUSB device support and tinyusb_board for the additional board support library used by the example
-  target_link_libraries(H_SHIFTER_JAPATECH PUBLIC pico_stdlib pico_unique_id tinyusb_device tinyusb_board hardware_pwm hardware_clocks hardware_gpio hardware_pll hardware_adc)
+  target_compile_options(H_SHIFTER_JAPATECH PRIVATE ${H_SHIFTER_JAPATECH_COMPILE_OPTIONS})
+  if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(H_SHIFTER_JAPATECH PRIVATE -Wno-maybe-uninitialized)
+  endif()
 
-  # Provide Arduino-style board macro to sources (so headers using #if ARDUINO_RASPBERRY_PI_PICO_2 work)
   target_compile_definitions(H_SHIFTER_JAPATECH PUBLIC
-    USB_MANUFACTURER="Alex"
-    USB_PRODUCT="Truck"
+    USB_MANUFACTURER="Japatech Projects"
+    USB_PRODUCT="Shifter Truck Arduino"
     USBD_MAX_POWER_MA=250
     ARDUINO_RASPBERRY_PI_PICO_2=1
   )
 
+  target_link_libraries(H_SHIFTER_JAPATECH PUBLIC
+    pico_stdlib
+    pico_unique_id
+    tinyusb_device
+    tinyusb_board
+    hardware_pwm
+    hardware_clocks
+    hardware_gpio
+    hardware_pll
+    hardware_adc
+  )
+
   pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
   pico_add_extra_outputs(H_SHIFTER_JAPATECH)
+
+  add_custom_target(flash
+    COMMAND picotool load -f -x ${CMAKE_BINARY_DIR}/H_SHIFTER_JAPATECH.bin -o 0x10000000
+    DEPENDS H_SHIFTER_JAPATECH
+  )
+
 else()
   message("Skipping TinyUSB device examples as TinyUSB is unavailable")
 endif()
