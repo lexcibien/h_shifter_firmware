@@ -30,12 +30,12 @@ private:
     bool _autosend;
     bool _use8bit;
     hid_gamepad_report_t data;
-    int map8or10bit(int const value);
+    int map8or10bit(int const value) const;
     uint8_t _id;
 public:
     Joystick_(void);
     void begin(void);
-    void end(void);
+    void end(void) const;
 
     //set a selected button to pressed/released
     void button(uint8_t button, bool val);
@@ -53,7 +53,7 @@ public:
     void slider(int val);
 
     //additional hat function to use the hat position instead of the angle
-    enum HatPosition { IDLE = 0, UP = 1, UP_RIGHT = 2, RIGHT = 3, DOWN_RIGHT = 4, DOWN = 5, DOWN_LEFT = 6, LEFT = 7, UP_LEFT = 8 };
+    enum class HatPosition: uint8_t { IDLE = 0, UP = 1, UP_RIGHT = 2, RIGHT = 3, DOWN_RIGHT = 4, DOWN = 5, DOWN_LEFT = 6, LEFT = 7, UP_LEFT = 8 };
     void hat(HatPosition position);
 
     //set the hat value, from 0-360. -1 is rest position
@@ -65,7 +65,7 @@ public:
     //if set, the gamepad report is not automatically sent after an update of axes/buttons; use send_now to update
     void useManualSend(bool mode);
     //immediately send an HID report
-    void send_now(void);
+    void send_now(void) const;
     //define the mapping of axes values
     //default: axes methods are accepting values from 0-1023 (compatibility to other Joystick libraries)
     // and are mapped internally to int8_t
@@ -73,7 +73,7 @@ public:
     void use8bit(bool mode);
 
     //get the gamepad report which is sent last.
-    void getReport(hid_gamepad_report_t *report);
+    void getReport(hid_gamepad_report_t *report) const;
 };
 extern Joystick_ Joystick;
 

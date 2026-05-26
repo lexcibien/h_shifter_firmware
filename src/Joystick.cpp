@@ -32,6 +32,7 @@
 
 #include "class/hid/hid_device.h"
 #include <tusb_gamepad16.h>
+#include <utility>
 
 static const uint8_t desc_hid_report_joystick[] = { TUD_HID_REPORT_DESC_GAMEPAD16(HID_REPORT_ID(1)) };
 
@@ -41,7 +42,7 @@ void Joystick_::begin() {
     USB.connect();
 }
 
-void Joystick_::end() {
+void Joystick_::end() const {
 
         USB.disconnect();
         USB.unregisterHIDDevice(_id);
@@ -63,7 +64,6 @@ Joystick_::Joystick_(void) {
     _use8bit = false;
     _autosend = true;
     memset(&data, 0, sizeof(data));
-    //_X_axis = _Y_axis = _Z_axis = _Zrotate = _sliderLeft = _sliderRight = _hat = data.buttons = 0;
 }
 
 /** define the mapping of axes values
@@ -84,7 +84,7 @@ void Joystick_::useManualSend(bool mode) {
     Depending on the setting via use8bit(), either values from 0-1023 or -127 - 127
     are mapped.
 */
-int Joystick_::map8or10bit(int const value) {
+int Joystick_::map8or10bit(int const value) const {
     if (_use8bit) {
         if (value < -127) {
             return -127;
@@ -182,7 +182,7 @@ void Joystick_::position(int X, int Y) {
 
 //additional hat function to use the hat position instead of the angle
 void Joystick_::hat(HatPosition position) {
-    data.hat = (uint8_t) position;
+    data.hat = std::to_underlying(position);
     if (_autosend) {
         send_now();
     }
@@ -211,12 +211,12 @@ void Joystick_::hat(int angle) {
 }
 
 //send back the Joystick report
-void Joystick_::getReport(hid_gamepad_report_t *report) {
+void Joystick_::getReport(hid_gamepad_report_t *report) const {
     memcpy(report, &data, sizeof(data));
 }
 
 // immediately send an HID report
-void Joystick_::send_now(void) {
+void Joystick_::send_now(void) const {
     tud_task();
     if (USB.HIDReady()) {
         tud_hid_n_report(0, USB.findHIDReportID(_id), &data, sizeof(data));

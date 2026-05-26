@@ -3,6 +3,7 @@
 #include <Joystick.h>
 #include <hardware/adc.h>
 #include <utility>
+#include <usb_descriptors.h>
 
 #define __GPIOCNT 30
 #define __FIRSTANALOGGPIO 26
