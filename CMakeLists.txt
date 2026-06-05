@@ -1,13 +1,12 @@
 # Firmware para H-shifter (Arduino Leonardo)
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.35)
 
 # Pull in SDK (must be before project)
 include(pico_sdk_import.cmake)
 
 project(
   H_SHIFTER_JAPATECH
-  VERSION 1.0.1
   DESCRIPTION "Firmware para o câmbio com Arduino Leonardo, lê 4 entradas do câmbio e apresenta 6 botões virtuais ao PC como gamepad"
   LANGUAGES C CXX ASM
 )
@@ -77,9 +76,18 @@ if(TARGET tinyusb_device)
   pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
   pico_add_extra_outputs(H_SHIFTER_JAPATECH)
 
+  add_custom_target(size_report
+    COMMAND ${CMAKE_COMMAND} -E echo "=== Memory Usage Report ==="
+    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py
+  )
+
+  add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD COMMAND ${CMAKE_COMMAND} --build . --target size_report)
+
+  set(FIRMWARE_NAME ${PROJECT_NAME})
   add_custom_target(flash
-    COMMAND picotool load -f -x ${CMAKE_BINARY_DIR}/H_SHIFTER_JAPATECH.bin -o 0x10000000
-    DEPENDS H_SHIFTER_JAPATECH
+    COMMAND picotool load -f -x
+    ${CMAKE_BINARY_DIR}/${FIRMWARE_NAME}.bin -o 0x10000000
+    DEPENDS ${FIRMWARE_NAME}
   )
 
 else()

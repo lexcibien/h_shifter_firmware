@@ -8,6 +8,7 @@
     "isystem",
     "MOSI",
     "NEOPIXEL",
+    "picotool",
     "stdlib",
     "STREQUAL",
     "tinyusb",
@@ -15,8 +16,22 @@
     "tusb",
     "Waveshare"
   ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "clangd.enable": true,
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+  "clangd.arguments": [
+    "--background-index",
+    "--clang-tidy",
+    "--completion-style=detailed",
+    "--pch-storage=memory",
+    "--query-driver=/Applications/ArmGNUToolchain/**/arm-none-eabi-*"
+  ],
+  "cmake.configureOnOpen": true,
+  "clangd.path": "/opt/homebrew/Cellar/llvm/22.1.6/bin/clangd",
   "cmake.environment": {
-    "PICO_SDK_PATH": "/home/lexcibien/pico/pico-sdk"
+    "PICO_SDK_PATH": "~/pico/pico-sdk"
   }
 }
