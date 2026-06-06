@@ -19,7 +19,7 @@ def find_linker_scripts(search_dirs=None):
     found = []
     try:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        candidate = os.path.normpath(os.path.join(script_dir, "..", "assets", "memmap_default.ld"))
+        candidate = os.path.normpath(os.path.join(script_dir, "..", "memmap_default.ld"))
         if os.path.isfile(candidate):
             found.append(candidate)
         return found
