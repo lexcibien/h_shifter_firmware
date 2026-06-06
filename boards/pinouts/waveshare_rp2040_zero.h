@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define __GPIOCNT 30
+#define __FIRSTANALOGGPIO 26
+
 // Waveshare RP2040 Zero
 // https://www.waveshare.com/wiki/RP2040-Zero
 // https://www.waveshare.com/w/upload/4/4c/RP2040_Zero.pdf

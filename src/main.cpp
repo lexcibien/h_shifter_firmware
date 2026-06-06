@@ -5,9 +5,6 @@
 #include <utility>
 #include <usb_descriptors.h>
 
-#define __GPIOCNT 30
-#define __FIRSTANALOGGPIO 26
-
 using std::to_underlying;
 
 enum class ControllerButtons : uint8_t {
