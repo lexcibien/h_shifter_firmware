@@ -30,7 +30,6 @@
     "--query-driver=/Applications/ArmGNUToolchain/**/arm-none-eabi-*"
   ],
   "cmake.configureOnOpen": true,
-  "clangd.path": "/opt/homebrew/Cellar/llvm/22.1.6/bin/clangd",
   "cmake.environment": {
     "PICO_SDK_PATH": "~/pico/pico-sdk"
   }
