@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include <Joystick.h>
 
 enum ControllerButtons : uint8_t {
@@ -46,6 +45,7 @@ void setup() {
   pinMode(SW_ENABLE_REVERSE, INPUT_PULLUP);
   pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   delay(2000);
 
   handleConnected = detectHandleConnection();
@@ -122,10 +122,12 @@ void loop() {
       prevButtonState[i] = newButtonState[i];
     }
   }
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   delay(20);
 }
 
 bool detectHandleConnection() {
   int adc = analogRead(SW_KNOB_RANGE);
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   return (adc > 300 && adc < 600);
 }
