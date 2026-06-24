@@ -1,8 +1,7 @@
-#include "../boards/pinouts/pins_arduino.h"
 #include "Arduino.h"
 #include <Joystick.h>
 
-enum class ControllerButtons : int {
+enum ControllerButtons : uint8_t {
   GEAR_1 = 0,
   GEAR_2,
   GEAR_3,
@@ -10,39 +9,33 @@ enum class ControllerButtons : int {
   GEAR_5,
   GEAR_6,
   GEAR_R,
-  SW_RANGE,
-  SW_SPLIT,
-  BTN_ENGINE_BRAKE,
-  BUTTON_COUNT // Marchas (6 + R) e botões da manopla (3)
+  RANGE,
+  SPLIT,
+  ENGINE_BRAKE,
+  SW_SEQ_PLUS,
+  SW_SEQ_MINUS,
+  COUNT // Marchas (6 + R) e botões da manopla (3)
 };
 
 // Número de botões lógicos reportados pelo Joystick
-const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::BUTTON_COUNT); // Marchas (6 + R) e botões da manopla (3)
+const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::COUNT); // Marchas (6 + R) e botões da manopla (3)
 const bool initAutoSendState = true;
 
-#if ARDUINO_AVR_LEONARDO
-Joystick_ GameController(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD,
-  BUTTON_COUNT, 0,
-  false, false, false,
-  false, false, false,
-  false, false,
-  false, false, false);
-#elif ARDUINO_RASPBERRY_PI_PICO_2
-Joystick_ GameController;
-#endif
+bool detectHandleConnection();
 
+Joystick_ GameController;
 
 bool handleConnected = false;
+bool isReverseGear = false;
+
+bool swEnableReverse;
+bool swEnableSequential;
 
 void setup() {
   Serial.begin(115200);
 
-#if ARDUINO_AVR_LEONARDO
-  GameController.begin(initAutoSendState);
-#elif ARDUINO_RASPBERRY_PI_PICO_2
   GameController.begin();
   GameController.useManualSend(!initAutoSendState);
-#endif
 
   pinMode(SW_FRONT, INPUT_PULLUP);
   pinMode(SW_LEFT, INPUT_PULLUP);
@@ -50,27 +43,32 @@ void setup() {
   pinMode(SW_BACK, INPUT_PULLUP);
   pinMode(SW_REVERSE, INPUT_PULLUP);
 
+  pinMode(SW_ENABLE_REVERSE, INPUT_PULLUP);
+  pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
+
   delay(2000);
 
-  int adc = analogRead(SW_RANGE);
-  handleConnected = (adc > 300 && adc < 600);
+  handleConnected = detectHandleConnection();
 
-  if (!handleConnected)
-    Serial.println("WARN: Truck shifter handle not connected");
-  else
-    Serial.println("OK: Handle detected");
-
-  if (handleConnected) {
-    pinMode(SW_RANGE, INPUT_PULLUP);
-    pinMode(SW_SPLIT, INPUT_PULLUP);
-    pinMode(BTN_ENGINE_BRAKE, INPUT_PULLUP);
-  }
+  swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == LOW);
+  swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
 
   if (!handleConnected) {
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_RANGE), LOW);
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::SW_SPLIT), LOW);
-    GameController.setButton(static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE), LOW);
+    GameController.setButton(RANGE, LOW);
+    GameController.setButton(SPLIT, LOW);
+    GameController.setButton(ENGINE_BRAKE, LOW);
+
+    Serial.println("INFO: Truck shifter handle not connected");
+  } else {
+    pinMode(SW_KNOB_RANGE, INPUT_PULLUP);
+    pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
+    pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
+
+    Serial.println("OK: Handle detected");
   }
+
+  Serial.println(swEnableReverse ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
+  Serial.println(swEnableSequential ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
 }
 
 void loop() {
@@ -82,9 +80,9 @@ void loop() {
   bool swBack = (digitalRead(SW_BACK) == LOW);
   bool swReverse = (digitalRead(SW_REVERSE) == LOW);
 
-  bool swRange = (digitalRead(SW_RANGE) == LOW);
-  bool swSplit = (digitalRead(SW_SPLIT) == LOW);
-  bool btnEngineBrake = (digitalRead(BTN_ENGINE_BRAKE) == LOW);
+  bool swRange = (digitalRead(SW_KNOB_RANGE) == LOW);
+  bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
+  bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
 
   bool newButtonState[BUTTON_COUNT] = { LOW };
 
@@ -92,23 +90,30 @@ void loop() {
   bool combBackUsed = false;
 
   // Combinações para marchas laterais
-  if (swFront && swLeft) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_1)] = HIGH; combFrontUsed = true; }
+  if (swFront && swLeft && !isReverseGear) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_1)] = HIGH; combFrontUsed = true; }
   if (swLeft && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_2)] = HIGH; combBackUsed = true; }
   if (swFront && swRight) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_5)] = HIGH; combFrontUsed = true; }
   if (swRight && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_6)] = HIGH; combBackUsed = true; }
+
+  // Marchas centrais sequenciais
+  if (swEnableSequential) {
+    if (swFront && !combFrontUsed) { newButtonState[SW_SEQ_MINUS] = HIGH; }
+    if (swBack && !combBackUsed) { newButtonState[SW_SEQ_PLUS] = HIGH; }
+  }
 
   // Marchas centrais
   if (swFront && !combFrontUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_3)] = HIGH;
   if (swBack && !combBackUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_4)] = HIGH;
 
-  //* Sei que a marcha ré não funciona assim, pois precisa que swReverse esteja sempre pressionado, talvez fazer algo mecânico para resolver isso.
-  if (swReverse && combFrontUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_R)] = HIGH;
+  if (swEnableReverse && swReverse && swLeft && swFront) { newButtonState[GEAR_R] = HIGH; isReverseGear = true; }
+
+  if (!swFront && !swLeft && !swRight && !swBack) { isReverseGear = false; }
 
   // Botões da manopla de caminhão
   if (handleConnected) {
-    if (swRange) newButtonState[static_cast<uint8_t>(ControllerButtons::SW_RANGE)] = HIGH;
-    if (swSplit) newButtonState[static_cast<uint8_t>(ControllerButtons::SW_SPLIT)] = HIGH;
-    if (btnEngineBrake) newButtonState[static_cast<uint8_t>(ControllerButtons::BTN_ENGINE_BRAKE)] = HIGH;
+    if (swRange) newButtonState[static_cast<uint8_t>(ControllerButtons::RANGE)] = HIGH;
+    if (swSplit) newButtonState[static_cast<uint8_t>(ControllerButtons::SPLIT)] = HIGH;
+    if (btnEngineBrake) newButtonState[static_cast<uint8_t>(ControllerButtons::ENGINE_BRAKE)] = HIGH;
   }
 
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
@@ -118,4 +123,9 @@ void loop() {
     }
   }
   delay(20);
+}
+
+bool detectHandleConnection() {
+  int adc = analogRead(SW_KNOB_RANGE);
+  return (adc > 300 && adc < 600);
 }
