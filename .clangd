@@ -1,0 +1,19 @@
+CompileFlags:
+  Add:
+    - -isystem
+    - /usr/bin/../lib/gcc/arm-none-eabi/15.2.1/../../../../arm-none-eabi/include/c++/15.2.1
+
+    - -isystem
+    - /usr/bin/../lib/gcc/arm-none-eabi/15.2.1/../../../../arm-none-eabi/include/c++/15.2.1/arm-none-eabi
+
+    - -isystem
+    - /usr/bin/../lib/gcc/arm-none-eabi/15.2.1/../../../../arm-none-eabi/include/c++/15.2.1/backward
+
+    - -isystem
+    - /usr/bin/../lib/gcc/arm-none-eabi/15.2.1/include
+
+    - -isystem
+    - /usr/bin/../lib/gcc/arm-none-eabi/15.2.1/include-fixed
+
+    - -isystem
+    - /usr/bin/../lib/gcc/arm-none-eabi/15.2.1/../../../../arm-none-eabi/include

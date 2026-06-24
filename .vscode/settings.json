@@ -16,7 +16,13 @@
     "mheironimus",
     "rpipico",
     "unflags",
+    "waveshare",
     "Werror"
   ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "clangd.enable": true,
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
 }
