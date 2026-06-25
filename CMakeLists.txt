@@ -32,7 +32,7 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
 )
 
 if(TARGET tinyusb_device)
-  set(FAMILY rp2350)
+  set(FAMILY rp2040)
   set(BOARD pico_sdk)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
   # Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config

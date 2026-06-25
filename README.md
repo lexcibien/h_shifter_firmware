@@ -54,3 +54,39 @@ Para compilar esse branch, são necessários alguns passos:
     ```
 
 Depois disso irá compilar sem erros.
+
+## Requisitos
+
+Picotool faz uma bruxaria e consegue fazer funcionar, portanto siga os passo nos docs de raspberrypi/picotool e compila o picotool (se no mac, não testei em outros).
+
+```git submodule update --init --recursive --force``` para atualizar os submódulos
+
+Coloque pico-sdk/ e picotool/ dentro ~/pico e defina as env no PATH (insira em .zshrc para manter entre sessões)
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export PICO_SDK_PATH="$HOME/pico/pico-sdk"
+```
+
+## Configurar as placas
+
+Adicionar dentro da pasta do pico-sdk: ```$HOME/pico/pico-sdk/src/boards/include/boards``` os arquivos inclusos em boards
+
+## Configurar com o clangd
+
+### MacOS
+
+1. Baixar ArmGNUToolchain (recomendado pelo site)
+2. Fazer um link simbólico para o compile_commands.json
+   ```ln -s build/compile_commands.json .```
+3. Crie o arquivo ```.clangd``` e copie os diretórios em ```/Applications/ArmGNUToolchain/15.2.rel1/arm-none-eabi/bin/arm-none-eabi-g++ -E -x c++ - -v < /dev/null```:
+   #include "..." search starts here:
+   #include <...> search starts here:
+e cole no arquivo:
+
+  ```yaml
+  CompileFlags:
+    Add:
+      - -isystem
+      - /path/from/command
+  ```
