@@ -1,4 +1,5 @@
 #include <Joystick.h>
+#include <array>
 
 enum ControllerButtons : uint8_t {
   GEAR_1 = 0,
@@ -17,7 +18,7 @@ enum ControllerButtons : uint8_t {
 };
 
 // Número de botões lógicos reportados pelo Joystick
-const auto BUTTON_COUNT = static_cast<uint8_t>(ControllerButtons::COUNT); // Marchas (6 + R) e botões da manopla (3)
+const auto BUTTON_COUNT = COUNT;
 const bool initAutoSendState = true;
 
 bool detectHandleConnection();
@@ -31,6 +32,7 @@ bool swEnableReverse;
 bool swEnableSequential;
 
 void setup() {
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   Serial.begin(115200);
 
   GameController.begin();
@@ -72,7 +74,7 @@ void setup() {
 }
 
 void loop() {
-  static bool prevButtonState[BUTTON_COUNT] = { LOW };
+  std::array<bool, BUTTON_COUNT> prevButtonState = { LOW };
 
   bool swFront = (digitalRead(SW_FRONT) == LOW);
   bool swLeft = (digitalRead(SW_LEFT) == LOW);
@@ -84,42 +86,67 @@ void loop() {
   bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
   bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
 
-  bool newButtonState[BUTTON_COUNT] = { LOW };
+  std::array<bool, BUTTON_COUNT> newButtonState = { LOW };
 
   bool combFrontUsed = false;
   bool combBackUsed = false;
 
   // Combinações para marchas laterais
-  if (swFront && swLeft && !isReverseGear) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_1)] = HIGH; combFrontUsed = true; }
-  if (swLeft && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_2)] = HIGH; combBackUsed = true; }
-  if (swFront && swRight) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_5)] = HIGH; combFrontUsed = true; }
-  if (swRight && swBack) { newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_6)] = HIGH; combBackUsed = true; }
+  if (swFront && swLeft && !isReverseGear) {
+    newButtonState[GEAR_1] = HIGH;
+    combFrontUsed = true;
+  }
+  if (swLeft && swBack) {
+    newButtonState[GEAR_2] = HIGH;
+    combBackUsed = true;
+  }
+  if (swFront && swRight) {
+    newButtonState[GEAR_5] = HIGH;
+    combFrontUsed = true;
+  }
+  if (swRight && swBack) {
+    newButtonState[GEAR_6] = HIGH;
+    combBackUsed = true;
+  }
 
   // Marchas centrais sequenciais
   if (swEnableSequential) {
-    if (swFront && !combFrontUsed) { newButtonState[SW_SEQ_MINUS] = HIGH; }
-    if (swBack && !combBackUsed) { newButtonState[SW_SEQ_PLUS] = HIGH; }
+    if (swFront && !combFrontUsed) {
+      newButtonState[SW_SEQ_MINUS] = HIGH;
+    }
+    if (swBack && !combBackUsed) {
+      newButtonState[SW_SEQ_PLUS] = HIGH;
+    }
   }
 
   // Marchas centrais
-  if (swFront && !combFrontUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_3)] = HIGH;
-  if (swBack && !combBackUsed) newButtonState[static_cast<uint8_t>(ControllerButtons::GEAR_4)] = HIGH;
+  if (swFront && !combFrontUsed) {
+    newButtonState[GEAR_3] = HIGH;
+  }
+  if (swBack && !combBackUsed) {
+    newButtonState[GEAR_4] = HIGH;
+  }
 
-  if (swEnableReverse && swReverse && swLeft && swFront) { newButtonState[GEAR_R] = HIGH; isReverseGear = true; }
+  if (swEnableReverse && swReverse && swLeft && swFront) {
+    newButtonState[GEAR_R] = HIGH;
+    isReverseGear = true;
+  }
 
-  if (!swFront && !swLeft && !swRight && !swBack) { isReverseGear = false; }
+  if (!swFront && !swLeft && !swRight && !swBack) {
+    isReverseGear = false;
+  }
 
   // Botões da manopla de caminhão
   if (handleConnected) {
-    if (swRange) newButtonState[static_cast<uint8_t>(ControllerButtons::RANGE)] = HIGH;
-    if (swSplit) newButtonState[static_cast<uint8_t>(ControllerButtons::SPLIT)] = HIGH;
-    if (btnEngineBrake) newButtonState[static_cast<uint8_t>(ControllerButtons::ENGINE_BRAKE)] = HIGH;
+    newButtonState[RANGE] = swRange;
+    newButtonState[SPLIT] = swSplit;
+    newButtonState[ENGINE_BRAKE] = btnEngineBrake;
   }
 
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
-    if (newButtonState[i] != prevButtonState[i]) {
-      GameController.setButton(i, newButtonState[i]);
-      prevButtonState[i] = newButtonState[i];
+    if (newButtonState.at(i) != prevButtonState.at(i)) {
+      GameController.setButton(i, newButtonState.at(i));
+      prevButtonState.at(i) = newButtonState.at(i);
     }
   }
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)

@@ -4,6 +4,8 @@ Checks:
   -llvmlibc-*,
   -misc-use-internal-linkage,
   -readability-magic-numbers,
+  -altera-unroll-loops,
+  -readability-implicit-bool-conversion,
   -modernize-use-trailing-return-type"
 
 CheckOptions:
