@@ -25,5 +25,8 @@
   },
   "C_Cpp.intelliSenseEngine": "disabled",
   "clangd.enable": true,
-  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+  "clangd.arguments": [
+    "--query-driver=**/arm-none-eabi-*"
+  ]
 }
