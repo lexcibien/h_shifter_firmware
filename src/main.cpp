@@ -18,7 +18,7 @@ enum ControllerButtons : uint8_t {
 };
 
 // Número de botões lógicos reportados pelo Joystick
-const auto BUTTON_COUNT = COUNT;
+const uint8_t BUTTON_COUNT = COUNT;
 const bool initAutoSendState = true;
 
 bool detectHandleConnection();
