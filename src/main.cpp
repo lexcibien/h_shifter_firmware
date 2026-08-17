@@ -27,6 +27,7 @@ Joystick_ GameController;
 
 bool handleConnected = false;
 bool isReverseGear = false;
+std::array<bool, BUTTON_COUNT> prevButtonState = {};
 
 bool swEnableReverse;
 bool swEnableSequential;
@@ -37,6 +38,7 @@ void setup() {
 
   GameController.begin();
   GameController.useManualSend(!initAutoSendState);
+  prevButtonState.fill(LOW);
 
   pinMode(SW_FRONT, INPUT_PULLUP);
   pinMode(SW_LEFT, INPUT_PULLUP);
@@ -74,8 +76,6 @@ void setup() {
 }
 
 void loop() {
-  std::array<bool, BUTTON_COUNT> prevButtonState = { LOW };
-
   bool swFront = (digitalRead(SW_FRONT) == LOW);
   bool swLeft = (digitalRead(SW_LEFT) == LOW);
   bool swRight = (digitalRead(SW_RIGHT) == LOW);
@@ -107,7 +107,7 @@ void loop() {
   Serial.println();
 #endif
 
-  std::array<bool, BUTTON_COUNT> newButtonState = { LOW };
+  std::array<bool, BUTTON_COUNT> newButtonState = {};
 
   bool combFrontUsed = false;
   bool combBackUsed = false;
@@ -175,12 +175,12 @@ void loop() {
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     if (newButtonState.at(i) != prevButtonState.at(i)) {
       GameController.setButton(i, newButtonState.at(i));
-      prevButtonState.at(i) = newButtonState.at(i);
     }
 #ifdef DEBUG
     Serial.print(newButtonState.at(i));
 #endif
   }
+  prevButtonState = newButtonState;
 #ifdef DEBUG
   Serial.println();
 #endif
