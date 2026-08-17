@@ -6,7 +6,8 @@ Checks:
   -readability-magic-numbers,
   -altera-unroll-loops,
   -readability-implicit-bool-conversion,
-  -modernize-use-trailing-return-type"
+  -modernize-use-trailing-return-type,
+  -fuchsia-default-arguments-calls"
 
 CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold
