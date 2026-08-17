@@ -86,6 +86,27 @@ void loop() {
   bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
   bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
 
+#ifdef DEBUG
+  Serial.print("RAW:");
+  Serial.print(swFront);
+  Serial.print(", ");
+  Serial.print(swLeft);
+  Serial.print(", ");
+  Serial.print(swRight);
+  Serial.print(", ");
+  Serial.print(swBack);
+  Serial.print(", ");
+  Serial.print(swReverse);
+  Serial.print(", ");
+
+  Serial.print(swRange);
+  Serial.print(", ");
+  Serial.print(swSplit);
+  Serial.print(", ");
+  Serial.print(btnEngineBrake);
+  Serial.println();
+#endif
+
   std::array<bool, BUTTON_COUNT> newButtonState = { LOW };
 
   bool combFrontUsed = false;
@@ -143,12 +164,21 @@ void loop() {
     newButtonState[ENGINE_BRAKE] = btnEngineBrake;
   }
 
+#ifdef DEBUG
+  Serial.print("OUT: ");
+#endif
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     if (newButtonState.at(i) != prevButtonState.at(i)) {
       GameController.setButton(i, newButtonState.at(i));
       prevButtonState.at(i) = newButtonState.at(i);
     }
+#ifdef DEBUG
+    Serial.print(newButtonState.at(i));
+#endif
   }
+#ifdef DEBUG
+  Serial.println();
+#endif
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   delay(20);
 }
