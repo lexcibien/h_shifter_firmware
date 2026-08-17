@@ -52,7 +52,7 @@ void setup() {
 
   handleConnected = detectHandleConnection();
 
-  swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == LOW);
+  swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == HIGH);
   swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
 
   if (!handleConnected) {
@@ -113,21 +113,31 @@ void loop() {
   bool combBackUsed = false;
 
   // Combinações para marchas laterais
-  if (swFront && swLeft && !isReverseGear) {
+  if (swBack && swRight && !isReverseGear) {
     newButtonState[GEAR_1] = HIGH;
     combFrontUsed = true;
   }
-  if (swLeft && swBack) {
+  if (swFront && swRight) {
     newButtonState[GEAR_2] = HIGH;
     combBackUsed = true;
   }
-  if (swFront && swRight) {
+  if (swBack && swLeft) {
     newButtonState[GEAR_5] = HIGH;
     combFrontUsed = true;
   }
-  if (swRight && swBack) {
+  if (swFront && swLeft) {
     newButtonState[GEAR_6] = HIGH;
     combBackUsed = true;
+  }
+
+  if (swEnableReverse && swReverse && newButtonState[GEAR_1]) {
+    newButtonState[GEAR_1] = LOW;
+    isReverseGear = true;
+  }
+
+  if (isReverseGear) {
+    newButtonState[GEAR_R] = HIGH;
+    combFrontUsed = true;
   }
 
   // Marchas centrais sequenciais
@@ -141,16 +151,11 @@ void loop() {
   }
 
   // Marchas centrais
-  if (swFront && !combFrontUsed) {
+  if (swBack && !combFrontUsed) {
     newButtonState[GEAR_3] = HIGH;
   }
-  if (swBack && !combBackUsed) {
+  if (swFront && !combBackUsed) {
     newButtonState[GEAR_4] = HIGH;
-  }
-
-  if (swEnableReverse && swReverse && swLeft && swFront) {
-    newButtonState[GEAR_R] = HIGH;
-    isReverseGear = true;
   }
 
   if (!swFront && !swLeft && !swRight && !swBack) {
