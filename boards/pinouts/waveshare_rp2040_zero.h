@@ -37,19 +37,19 @@
 */
 
 // Fim de curso do H-shifter - Vista de cima com a primeira marcha topo esquerda
-const uint8_t SW_FRONT = 3;
+const uint8_t SW_FRONT = 2;
+const uint8_t SW_BACK = 3;
 const uint8_t SW_LEFT = 4;
 const uint8_t SW_RIGHT = 5;
-const uint8_t SW_BACK = 6;
-const uint8_t SW_REVERSE = 7;
+const uint8_t SW_REVERSE = 6;
 
 // Botões da manopla de caminhão
-const uint8_t SW_KNOB_RANGE = 8;
-const uint8_t SW_KNOB_SPLIT = 9;
-const uint8_t BTN_KNOB_ENGINE_BRAKE = 10;
+const uint8_t SW_KNOB_RANGE = 7;
+const uint8_t SW_KNOB_SPLIT = 8;
+const uint8_t BTN_KNOB_ENGINE_BRAKE = 9;
 
-const uint8_t SW_ENABLE_REVERSE = 11;
-const uint8_t SW_ENABLE_SEQUENTIAL = 12;
+const uint8_t SW_ENABLE_REVERSE = 10;
+const uint8_t SW_ENABLE_SEQUENTIAL = 11;
 
 // NeoPixel
 #define PIN_NEOPIXEL   (16u)
