@@ -1,284 +1,251 @@
-/*********************************************************************
- Adafruit invests time and resources providing this open source code,
- please support Adafruit and open-source hardware by purchasing
- products from Adafruit!
+#include "hid/Adafruit_USBD_HID.h"
+#include <Arduino.h>
+#include <array>
 
- MIT license, check LICENSE for more information
- Copyright (c) 2021 NeKuNeKo for Adafruit Industries
- All text above, and the splash screen below must be included in
- any redistribution
-*********************************************************************/
-
-#include "Adafruit_TinyUSB.h"
-
-/* This sketch demonstrates USB HID gamepad use.
- * This sketch is only valid on boards which have native USB support
- * and compatibility with Adafruit TinyUSB library.
- * For example SAMD21, SAMD51, nRF52840.
- *
- * Make sure you select the TinyUSB USB stack if you have a SAMD board.
- * You can test the gamepad on a Windows system by pressing WIN+R, writing Joy.cpl and pressing Enter.
- */
-
-// HID report descriptor using TinyUSB's template
-// Single Report (no ID) descriptor
-uint8_t const desc_hid_report[] = {
-    TUD_HID_REPORT_DESC_GAMEPAD()
+enum ControllerButtons : uint8_t {
+  GEAR_1 = 0,
+  GEAR_2,
+  GEAR_3,
+  GEAR_4,
+  GEAR_5,
+  GEAR_6,
+  GEAR_R,
+  RANGE,
+  SPLIT,
+  ENGINE_BRAKE,
+  SW_SEQ_PLUS,
+  SW_SEQ_MINUS,
+  COUNT // Marchas (6 + R), botões sequenciais (2) e botões da manopla (3)
 };
 
-// USB HID object
-Adafruit_USBD_HID usb_hid;
+constexpr uint8_t BUTTON_COUNT = COUNT;
+constexpr uint8_t HID_BUTTON_COUNT = BUTTON_COUNT;
 
-// Report payload defined in src/class/hid/hid.h
-// - For Gamepad Button Bit Mask see  hid_gamepad_button_bm_t
-// - For Gamepad Hat    Bit Mask see  hid_gamepad_hat_t
-hid_gamepad_report_t gp;
+struct __attribute__((packed)) ButtonsReport {
+  uint8_t buttons[2];
+};
+
+uint8_t const desc_hid_report[] = {
+    0x05, 0x01,  // Usage Page (Generic Desktop)
+    0x09, 0x05,  // Usage (Gamepad)
+    0xA1, 0x01,  // Collection (Application)
+    0x05, 0x09,  // Usage Page (Button)
+    0x19, 0x01,  // Usage Minimum (Button 1)
+    0x29, HID_BUTTON_COUNT,  // Usage Maximum (Button N)
+    0x15, 0x00,  // Logical Minimum (0)
+    0x25, 0x01,  // Logical Maximum (1)
+    0x75, 0x01,  // Report Size (1)
+    0x95, HID_BUTTON_COUNT,  // Report Count (N)
+    0x81, 0x02,  // Input (Data, Var, Abs)
+    0xC0,        // End Collection
+};
+
+Adafruit_USBD_HID usb_hid;
+ButtonsReport buttonReport = {};
+
+bool detectHandleConnection();
+
+bool handleConnected = false;
+bool isReverseGear = false;
+std::array<bool, BUTTON_COUNT> prevButtonState = {};
+
+bool swEnableReverse;
+bool swEnableSequential;
+
+void sendButtonReport(const std::array<bool, BUTTON_COUNT>& buttonState) {
+  uint16_t buttonsMask = 0;
+
+  for (uint8_t i = 0; i < BUTTON_COUNT; ++i) {
+    if (buttonState.at(i)) {
+      buttonsMask |= (1U << i);
+    }
+  }
+
+  buttonReport.buttons[0] = static_cast<uint8_t>(buttonsMask & 0xFFU);
+  buttonReport.buttons[1] = static_cast<uint8_t>((buttonsMask >> 8U) & 0x0FU);
+
+  usb_hid.sendReport(0, &buttonReport, sizeof(buttonReport));
+}
 
 void setup() {
-  // Manual begin() is required on core without built-in support e.g. mbed rp2040
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+  Serial.begin(115200);
+
   if (!TinyUSBDevice.isInitialized()) {
     TinyUSBDevice.begin(0);
   }
 
-  Serial.begin(115200);
-
-  // Setup HID
   usb_hid.setPollInterval(2);
   usb_hid.setReportDescriptor(desc_hid_report, sizeof(desc_hid_report));
   usb_hid.begin();
 
-  // If already enumerated, additional class driverr begin() e.g msc, hid, midi won't take effect until re-enumeration
   if (TinyUSBDevice.mounted()) {
     TinyUSBDevice.detach();
     delay(10);
     TinyUSBDevice.attach();
   }
 
-  Serial.println("Adafruit TinyUSB HID Gamepad example");
+  prevButtonState.fill(LOW);
+
+  pinMode(SW_FRONT, INPUT_PULLUP);
+  pinMode(SW_LEFT, INPUT_PULLUP);
+  pinMode(SW_RIGHT, INPUT_PULLUP);
+  pinMode(SW_BACK, INPUT_PULLUP);
+  pinMode(SW_REVERSE, INPUT_PULLUP);
+
+  pinMode(SW_ENABLE_REVERSE, INPUT_PULLUP);
+  pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
+
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+  delay(2000);
+
+  handleConnected = detectHandleConnection();
+
+  swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == HIGH);
+  swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
+
+  if (!handleConnected) {
+    Serial.println("INFO: Truck shifter handle not connected");
+  } else {
+    pinMode(SW_KNOB_RANGE, INPUT_PULLUP);
+    pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
+    pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
+
+    Serial.println("OK: Handle detected");
+  }
+
+  Serial.println(swEnableReverse ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
+  Serial.println(swEnableSequential ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
 }
 
 void loop() {
-  #ifdef TINYUSB_NEED_POLLING_TASK
-  // Manual call tud_task since it isn't called by Core's background
+#ifdef TINYUSB_NEED_POLLING_TASK
   TinyUSBDevice.task();
-  #endif
+#endif
 
-  // not enumerated()/mounted() yet: nothing to do
   if (!TinyUSBDevice.mounted()) {
     return;
   }
 
-//  // Remote wakeup
-//  if ( TinyUSBDevice.suspended() && btn )
-//  {
-//    // Wake up host if we are in suspend mode
-//    // and REMOTE_WAKEUP feature is enabled by host
-//    TinyUSBDevice.remoteWakeup();
-//  }
+  bool swFront = (digitalRead(SW_FRONT) == LOW);
+  bool swLeft = (digitalRead(SW_LEFT) == LOW);
+  bool swRight = (digitalRead(SW_RIGHT) == LOW);
+  bool swBack = (digitalRead(SW_BACK) == LOW);
+  bool swReverse = (digitalRead(SW_REVERSE) == LOW);
 
-  if (!usb_hid.ready()) return;
+  bool swRange = (digitalRead(SW_KNOB_RANGE) == LOW);
+  bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
+  bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
 
-  // Reset buttons
-  Serial.println("No pressing buttons");
-  gp.x = 0;
-  gp.y = 0;
-  gp.z = 0;
-  gp.rz = 0;
-  gp.rx = 0;
-  gp.ry = 0;
-  gp.hat = 0;
-  gp.buttons = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
+#ifdef DEBUG
+  Serial.print("RAW:");
+  Serial.print(swFront);
+  Serial.print(", ");
+  Serial.print(swLeft);
+  Serial.print(", ");
+  Serial.print(swRight);
+  Serial.print(", ");
+  Serial.print(swBack);
+  Serial.print(", ");
+  Serial.print(swReverse);
+  Serial.print(", ");
 
+  Serial.print(swRange);
+  Serial.print(", ");
+  Serial.print(swSplit);
+  Serial.print(", ");
+  Serial.print(btnEngineBrake);
+  Serial.println();
+#endif
 
-  // Hat/DPAD UP
-  Serial.println("Hat/DPAD UP");
-  gp.hat = 1; // GAMEPAD_HAT_UP;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
+  std::array<bool, BUTTON_COUNT> newButtonState = {};
 
-  // Hat/DPAD UP RIGHT
-  Serial.println("Hat/DPAD UP RIGHT");
-  gp.hat = 2; // GAMEPAD_HAT_UP_RIGHT;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
+  bool combFrontUsed = false;
+  bool combBackUsed = false;
 
-  // Hat/DPAD RIGHT
-  Serial.println("Hat/DPAD RIGHT");
-  gp.hat = 3; // GAMEPAD_HAT_RIGHT;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Hat/DPAD DOWN RIGHT
-  Serial.println("Hat/DPAD DOWN RIGHT");
-  gp.hat = 4; // GAMEPAD_HAT_DOWN_RIGHT;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Hat/DPAD DOWN
-  Serial.println("Hat/DPAD DOWN");
-  gp.hat = 5; // GAMEPAD_HAT_DOWN;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Hat/DPAD DOWN LEFT
-  Serial.println("Hat/DPAD DOWN LEFT");
-  gp.hat = 6; // GAMEPAD_HAT_DOWN_LEFT;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Hat/DPAD LEFT
-  Serial.println("Hat/DPAD LEFT");
-  gp.hat = 7; // GAMEPAD_HAT_LEFT;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Hat/DPAD UP LEFT
-  Serial.println("Hat/DPAD UP LEFT");
-  gp.hat = 8; // GAMEPAD_HAT_UP_LEFT;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Hat/DPAD CENTER
-  Serial.println("Hat/DPAD CENTER");
-  gp.hat = 0; // GAMEPAD_HAT_CENTERED;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-
-  // Joystick 1 UP
-  Serial.println("Joystick 1 UP");
-  gp.x = 0;
-  gp.y = -127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 1 DOWN
-  Serial.println("Joystick 1 DOWN");
-  gp.x = 0;
-  gp.y = 127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 1 RIGHT
-  Serial.println("Joystick 1 RIGHT");
-  gp.x = 127;
-  gp.y = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 1 LEFT
-  Serial.println("Joystick 1 LEFT");
-  gp.x = -127;
-  gp.y = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 1 CENTER
-  Serial.println("Joystick 1 CENTER");
-  gp.x = 0;
-  gp.y = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-
-  // Joystick 2 UP
-  Serial.println("Joystick 2 UP");
-  gp.z = 0;
-  gp.rz = 127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 2 DOWN
-  Serial.println("Joystick 2 DOWN");
-  gp.z = 0;
-  gp.rz = -127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 2 RIGHT
-  Serial.println("Joystick 2 RIGHT");
-  gp.z = 127;
-  gp.rz = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 2 LEFT
-  Serial.println("Joystick 2 LEFT");
-  gp.z = -127;
-  gp.rz = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Joystick 2 CENTER
-  Serial.println("Joystick 2 CENTER");
-  gp.z = 0;
-  gp.rz = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-
-  // Analog Trigger 1 UP
-  Serial.println("Analog Trigger 1 UP");
-  gp.rx = 127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Analog Trigger 1 DOWN
-  Serial.println("Analog Trigger 1 DOWN");
-  gp.rx = -127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Analog Trigger 1 CENTER
-  Serial.println("Analog Trigger 1 CENTER");
-  gp.rx = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-
-  // Analog Trigger 2 UP
-  Serial.println("Analog Trigger 2 UP");
-  gp.ry = 127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Analog Trigger 2 DOWN
-  Serial.println("Analog Trigger 2 DOWN");
-  gp.ry = -127;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-  // Analog Trigger 2 CENTER
-  Serial.println("Analog Trigger 2 CENTER");
-  gp.ry = 0;
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
-
-
-  // Test buttons (up to 32 buttons)
-  for (int i = 0; i < 32; ++i) {
-    Serial.print("Pressing button ");
-    Serial.println(i);
-    gp.buttons = (1U << i);
-    usb_hid.sendReport(0, &gp, sizeof(gp));
-    delay(1000);
+  // Combinações para marchas laterais
+  if (swBack && swRight && !isReverseGear) {
+    newButtonState[GEAR_1] = HIGH;
+    combFrontUsed = true;
+  }
+  if (swFront && swRight) {
+    newButtonState[GEAR_2] = HIGH;
+    combBackUsed = true;
+  }
+  if (swBack && swLeft) {
+    newButtonState[GEAR_5] = HIGH;
+    combFrontUsed = true;
+  }
+  if (swFront && swLeft) {
+    newButtonState[GEAR_6] = HIGH;
+    combBackUsed = true;
   }
 
+  if (swEnableReverse && swReverse && newButtonState[GEAR_1]) {
+    newButtonState[GEAR_1] = LOW;
+    isReverseGear = true;
+  }
 
-  // Random touch
-  Serial.println("Random touch");
-  gp.x = random(-127, 128);
-  gp.y = random(-127, 128);
-  gp.z = random(-127, 128);
-  gp.rz = random(-127, 128);
-  gp.rx = random(-127, 128);
-  gp.ry = random(-127, 128);
-  gp.hat = random(0, 9);
-  gp.buttons = random(0, 0xffff);
-  usb_hid.sendReport(0, &gp, sizeof(gp));
-  delay(2000);
+  if (isReverseGear) {
+    newButtonState[GEAR_R] = HIGH;
+    combFrontUsed = true;
+  }
 
-  // */
+  // Marchas centrais sequenciais
+  if (swEnableSequential) {
+    if (swFront && !combFrontUsed) {
+      newButtonState[SW_SEQ_MINUS] = HIGH;
+    }
+    if (swBack && !combBackUsed) {
+      newButtonState[SW_SEQ_PLUS] = HIGH;
+    }
+  }
+
+  // Marchas centrais
+  if (swBack && !combFrontUsed) {
+    newButtonState[GEAR_3] = HIGH;
+  }
+  if (swFront && !combBackUsed) {
+    newButtonState[GEAR_4] = HIGH;
+  }
+
+  if (!swFront && !swLeft && !swRight && !swBack) {
+    isReverseGear = false;
+  }
+
+  // Botões da manopla de caminhão
+  if (handleConnected) {
+    newButtonState[RANGE] = swRange;
+    newButtonState[SPLIT] = swSplit;
+    newButtonState[ENGINE_BRAKE] = btnEngineBrake;
+  }
+
+  if (!usb_hid.ready()) {
+    return;
+  }
+
+#ifdef DEBUG
+  Serial.print("OUT: ");
+#endif
+  if (newButtonState != prevButtonState) {
+    sendButtonReport(newButtonState);
+#ifdef DEBUG
+    for (uint8_t i = 0; i < BUTTON_COUNT; ++i) {
+      Serial.print(newButtonState.at(i));
+    }
+#endif
+    prevButtonState = newButtonState;
+  }
+#ifdef DEBUG
+  Serial.println();
+#endif
+
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+  delay(20);
+}
+
+bool detectHandleConnection() {
+  int adc = analogRead(SW_KNOB_RANGE);
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+  return (adc > 300 && adc < 600);
 }
