@@ -14,7 +14,7 @@ enum ControllerButtons : uint8_t {
   ENGINE_BRAKE,
   SW_SEQ_PLUS,
   SW_SEQ_MINUS,
-  COUNT // Marchas (6 + R) e botões da manopla (3)
+  COUNT // Marchas (6 + R), botões sequenciais (2) e botões da manopla (3)
 };
 
 // Número de botões lógicos reportados pelo Joystick
@@ -22,8 +22,6 @@ const uint8_t BUTTON_COUNT = COUNT;
 const bool initAutoSendState = true;
 
 bool detectHandleConnection();
-
-Joystick_ GameController;
 
 bool handleConnected = false;
 bool isReverseGear = false;
@@ -36,8 +34,8 @@ void setup() {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   Serial.begin(115200);
 
-  GameController.begin();
-  GameController.useManualSend(!initAutoSendState);
+  Joystick.begin();
+  Joystick.useManualSend(!initAutoSendState);
   prevButtonState.fill(LOW);
 
   pinMode(SW_FRONT, INPUT_PULLUP);
@@ -58,9 +56,9 @@ void setup() {
   swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
 
   if (!handleConnected) {
-    GameController.setButton(RANGE, LOW);
-    GameController.setButton(SPLIT, LOW);
-    GameController.setButton(ENGINE_BRAKE, LOW);
+    Joystick.setButton(RANGE, LOW);
+    Joystick.setButton(SPLIT, LOW);
+    Joystick.setButton(ENGINE_BRAKE, LOW);
 
     Serial.println("INFO: Truck shifter handle not connected");
   } else {
@@ -174,7 +172,7 @@ void loop() {
 #endif
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     if (newButtonState.at(i) != prevButtonState.at(i)) {
-      GameController.setButton(i, newButtonState.at(i));
+      Joystick.setButton(i, newButtonState.at(i));
     }
 #ifdef DEBUG
     Serial.print(newButtonState.at(i));
