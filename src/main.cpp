@@ -19,7 +19,6 @@ enum ControllerButtons : uint8_t {
 
 // Número de botões lógicos reportados pelo Joystick
 const uint8_t BUTTON_COUNT = COUNT;
-const bool initAutoSendState = true;
 
 bool detectHandleConnection();
 
@@ -35,7 +34,6 @@ void setup() {
   Serial.begin(115200);
 
   Joystick.begin();
-  Joystick.useManualSend(!initAutoSendState);
   prevButtonState.fill(LOW);
 
   pinMode(SW_FRONT, INPUT_PULLUP);
