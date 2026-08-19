@@ -22,9 +22,10 @@ constexpr uint8_t BUTTON_COUNT = COUNT;
 constexpr uint8_t HID_BUTTON_COUNT = BUTTON_COUNT;
 
 struct __attribute__((packed)) ButtonsReport {
-  uint8_t buttons[2];
+  std::array <uint8_t,2> buttons;
 };
 
+// NOLINTNEXTLINE (hicpp-avoid-c-arrays)
 uint8_t const desc_hid_report[] = {
   0x05, 0x01,             // Usage Page (Generic Desktop)
   0x09, 0x04,             // Usage (Joystick)
@@ -32,23 +33,24 @@ uint8_t const desc_hid_report[] = {
 
   0x05, 0x09,             // Usage Page (Button)
   0x19, 0x01,             // Usage Minimum (Button 1)
-  0x29, HID_BUTTON_COUNT, // Usage Maximum (Button 12)
+  0x29, HID_BUTTON_COUNT, // Usage Maximum (Button HID_BUTTON_COUNT)
 
   0x15, 0x00,             // Logical Minimum (0)
   0x25, 0x01,             // Logical Maximum (1)
 
-  0x75, 0x01,             // Report Size = 1 bit
-  0x95, HID_BUTTON_COUNT, // Report Count = 12
+  0x75, 0x01,             // Report Size (1)
+  0x95, HID_BUTTON_COUNT, // Report Count (HID_BUTTON_COUNT)
   0x81, 0x02,             // Input (Data, Variable, Absolute)
 
   // Padding: 4 bits
-  0x75, 0x04,             // Report Size = 4
-  0x95, 0x01,             // Report Count = 1
+  0x75, 0x04,             // Report Size (4)
+  0x95, 0x01,             // Report Count (1)
   0x81, 0x01,             // Input (Constant)
 
   0xC0                    // End Collection
 };
 
+// NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 Adafruit_USBD_HID usb_hid;
 ButtonsReport buttonReport = {};
 
@@ -60,6 +62,7 @@ std::array<bool, BUTTON_COUNT> prevButtonState = {};
 
 bool swEnableReverse;
 bool swEnableSequential;
+// NOLINTEND
 
 void sendButtonReport(const std::array<bool, BUTTON_COUNT>& buttonState) {
   uint16_t buttonsMask = 0;
@@ -70,8 +73,10 @@ void sendButtonReport(const std::array<bool, BUTTON_COUNT>& buttonState) {
     }
   }
 
-  buttonReport.buttons[0] = static_cast<uint8_t>(buttonsMask & 0xFFU);
-  buttonReport.buttons[1] = static_cast<uint8_t>((buttonsMask >> 8U) & 0x0FU);
+  // NOLINTBEGIN (cppcoreguidelines-avoid-magic-numbers)
+  buttonReport.buttons.at(0) = static_cast<uint8_t>(buttonsMask & 0xFFU);
+  buttonReport.buttons.at(1) = static_cast<uint8_t>((buttonsMask >> 8U) & 0x0FU);
+  // NOLINTEND
 
   usb_hid.sendReport(0, &buttonReport, sizeof(buttonReport));
 }
@@ -90,6 +95,7 @@ void setup() {
 
   if (TinyUSBDevice.mounted()) {
     TinyUSBDevice.detach();
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     delay(10);
     TinyUSBDevice.attach();
   }

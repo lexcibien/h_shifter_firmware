@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "Adafruit",
     "arduino",
     "atmelavr",
     "buildcache",
@@ -11,12 +12,15 @@
     "DUSBCON",
     "gamepad",
     "GAMEPAD",
+    "hicpp",
     "Iboards",
     "leonardo",
     "mheironimus",
     "NOLINTNEXTLINE",
     "rpipico",
+    "TINYUSB",
     "unflags",
+    "USBD",
     "waveshare",
     "Werror"
   ],
