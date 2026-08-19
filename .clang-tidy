@@ -11,7 +11,9 @@ Checks:
   -fuchsia-statically-constructed-objects,
   -altera-struct-pack-align,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-  -hicpp-no-array-decay"
+  -hicpp-no-array-decay,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -hicpp-signed-bitwise"
 
 CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold

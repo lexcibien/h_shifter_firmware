@@ -25,7 +25,7 @@ struct __attribute__((packed)) ButtonsReport {
   std::array <uint8_t,2> buttons;
 };
 
-// NOLINTNEXTLINE (hicpp-avoid-c-arrays)
+// NOLINTNEXTLINE (hicpp-avoid-c-arrays,cppcoreguidelines-avoid-magic-numbers)
 uint8_t const desc_hid_report[] = {
   0x05, 0x01,             // Usage Page (Generic Desktop)
   0x09, 0x04,             // Usage (Joystick)
@@ -73,16 +73,13 @@ void sendButtonReport(const std::array<bool, BUTTON_COUNT>& buttonState) {
     }
   }
 
-  // NOLINTBEGIN (cppcoreguidelines-avoid-magic-numbers)
   buttonReport.buttons.at(0) = static_cast<uint8_t>(buttonsMask & 0xFFU);
   buttonReport.buttons.at(1) = static_cast<uint8_t>((buttonsMask >> 8U) & 0x0FU);
-  // NOLINTEND
 
   usb_hid.sendReport(0, &buttonReport, sizeof(buttonReport));
 }
 
 void setup() {
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   Serial.begin(115200);
 
   if (!TinyUSBDevice.isInitialized()) {
@@ -95,7 +92,7 @@ void setup() {
 
   if (TinyUSBDevice.mounted()) {
     TinyUSBDevice.detach();
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+
     delay(10);
     TinyUSBDevice.attach();
   }
@@ -111,7 +108,6 @@ void setup() {
   pinMode(SW_ENABLE_REVERSE, INPUT_PULLUP);
   pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
 
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   delay(2000);
 
   handleConnected = detectHandleConnection();
@@ -255,12 +251,10 @@ void loop() {
   Serial.println();
 #endif
 
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   delay(20);
 }
 
 bool detectHandleConnection() {
   int adc = analogRead(SW_KNOB_RANGE);
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   return (adc > 300 && adc < 600);
 }
