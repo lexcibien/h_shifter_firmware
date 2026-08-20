@@ -48,8 +48,7 @@ const uint8_t SW_KNOB_RANGE = 7;
 const uint8_t SW_KNOB_SPLIT = 8;
 const uint8_t BTN_KNOB_ENGINE_BRAKE = 9;
 
-const uint8_t SW_ENABLE_REVERSE = 10;
-const uint8_t SW_ENABLE_SEQUENTIAL = 11;
+const uint8_t SW_ENABLE_SEQUENTIAL = 10;
 
 // NeoPixel
 #define PIN_NEOPIXEL   (16u)

@@ -20,34 +20,35 @@ enum ControllerButtons : uint8_t {
 
 constexpr uint8_t BUTTON_COUNT = COUNT;
 constexpr uint8_t HID_BUTTON_COUNT = BUTTON_COUNT;
+constexpr bool ENABLE_REVERSE = true;
 
 struct __attribute__((packed)) ButtonsReport {
-  std::array <uint8_t,2> buttons;
+  std::array<uint8_t, 2> buttons;
 };
 
 // NOLINTNEXTLINE (hicpp-avoid-c-arrays,cppcoreguidelines-avoid-magic-numbers)
 uint8_t const desc_hid_report[] = {
-  0x05, 0x01,             // Usage Page (Generic Desktop)
-  0x09, 0x04,             // Usage (Joystick)
-  0xA1, 0x01,             // Collection (Application)
+  0x05, 0x01, // Usage Page (Generic Desktop)
+  0x09, 0x04, // Usage (Joystick)
+  0xA1, 0x01, // Collection (Application)
 
   0x05, 0x09,             // Usage Page (Button)
   0x19, 0x01,             // Usage Minimum (Button 1)
   0x29, HID_BUTTON_COUNT, // Usage Maximum (Button HID_BUTTON_COUNT)
 
-  0x15, 0x00,             // Logical Minimum (0)
-  0x25, 0x01,             // Logical Maximum (1)
+  0x15, 0x00, // Logical Minimum (0)
+  0x25, 0x01, // Logical Maximum (1)
 
   0x75, 0x01,             // Report Size (1)
   0x95, HID_BUTTON_COUNT, // Report Count (HID_BUTTON_COUNT)
   0x81, 0x02,             // Input (Data, Variable, Absolute)
 
   // Padding: 4 bits
-  0x75, 0x04,             // Report Size (4)
-  0x95, 0x01,             // Report Count (1)
-  0x81, 0x01,             // Input (Constant)
+  0x75, 0x04, // Report Size (4)
+  0x95, 0x01, // Report Count (1)
+  0x81, 0x01, // Input (Constant)
 
-  0xC0                    // End Collection
+  0xC0 // End Collection
 };
 
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
@@ -56,11 +57,13 @@ ButtonsReport buttonReport = {};
 
 bool detectHandleConnection();
 
+bool swRange;
+bool swSplit;
+bool btnEngineBrake;
 bool handleConnected = false;
 bool isReverseGear = false;
 std::array<bool, BUTTON_COUNT> prevButtonState = {};
 
-bool swEnableReverse;
 bool swEnableSequential;
 // NOLINTEND
 
@@ -105,14 +108,12 @@ void setup() {
   pinMode(SW_BACK, INPUT_PULLUP);
   pinMode(SW_REVERSE, INPUT_PULLUP);
 
-  pinMode(SW_ENABLE_REVERSE, INPUT_PULLUP);
   pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
 
   delay(2000);
 
   handleConnected = detectHandleConnection();
 
-  swEnableReverse = (digitalRead(SW_ENABLE_REVERSE) == HIGH);
   swEnableSequential = (digitalRead(SW_ENABLE_SEQUENTIAL) == LOW);
 
   if (!handleConnected) {
@@ -125,7 +126,7 @@ void setup() {
     Serial.println("OK: Handle detected");
   }
 
-  Serial.println(swEnableReverse ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
+  Serial.println(ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
   Serial.println(swEnableSequential ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
 }
 
@@ -144,9 +145,11 @@ void loop() {
   bool swBack = (digitalRead(SW_BACK) == LOW);
   bool swReverse = (digitalRead(SW_REVERSE) == LOW);
 
-  bool swRange = (digitalRead(SW_KNOB_RANGE) == LOW);
-  bool swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
-  bool btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
+  if (handleConnected) {
+    swRange = (digitalRead(SW_KNOB_RANGE) == LOW);
+    swSplit = (digitalRead(SW_KNOB_SPLIT) == LOW);
+    btnEngineBrake = (digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW);
+  }
 
 #ifdef DEBUG
   Serial.print("RAW:");
@@ -192,7 +195,7 @@ void loop() {
     combBackUsed = true;
   }
 
-  if (swEnableReverse && swReverse && newButtonState[GEAR_1]) {
+  if (ENABLE_REVERSE && swReverse && newButtonState[GEAR_1]) {
     newButtonState[GEAR_1] = LOW;
     isReverseGear = true;
   }
@@ -235,21 +238,17 @@ void loop() {
     return;
   }
 
-#ifdef DEBUG
-  Serial.print("OUT: ");
-#endif
   if (newButtonState != prevButtonState) {
     sendButtonReport(newButtonState);
 #ifdef DEBUG
+    Serial.print("OUT: ");
     for (uint8_t i = 0; i < BUTTON_COUNT; ++i) {
       Serial.print(newButtonState.at(i));
     }
+    Serial.println();
 #endif
     prevButtonState = newButtonState;
   }
-#ifdef DEBUG
-  Serial.println();
-#endif
 
   delay(20);
 }
