@@ -2,18 +2,16 @@
 Checks:
   "*,
   -llvmlibc-*,
-  -misc-use-internal-linkage,
-  -readability-magic-numbers,
+  -fuchsia-*,
+  -altera-struct-pack-align,
   -altera-unroll-loops,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -hicpp-signed-bitwise,
+  -misc-use-internal-linkage,
   -readability-implicit-bool-conversion,
   -modernize-use-trailing-return-type,
-  -fuchsia-default-arguments-calls,
-  -fuchsia-statically-constructed-objects,
-  -altera-struct-pack-align,
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-  -hicpp-no-array-decay,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -hicpp-signed-bitwise"
+  -bugprone-easily-swappable-parameters"
 
 CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold
