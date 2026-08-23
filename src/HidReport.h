@@ -1,6 +1,6 @@
 #pragma once
 
-#include "hid/Adafruit_USBD_HID.h"
+#include "tusb.h"
 #include <ShifterModel.h>
 
 class HidReport {
@@ -10,7 +10,6 @@ private:
     std::array<uint8_t, 2> buttons;
   };
 
-  Adafruit_USBD_HID usbHid;
   ButtonsReport buttonReport = {};
   static constexpr std::array<uint8_t, 30> hidReportDescriptor = {
     0x05, 0x01, // Usage Page (Generic Desktop)
@@ -40,7 +39,7 @@ public:
   void begin();
 
   static bool mounted();
-  bool ready();
+  static bool ready();
 
   void send(const ShifterModel::ButtonState& buttonState);
 };

@@ -44,9 +44,7 @@ if(TARGET tinyusb_device)
   add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
   target_include_directories(H_SHIFTER_JAPATECH PRIVATE
     ${SRC_DIR}
-    ${LIB_DIR}/Joystick
-    ${LIB_DIR}/TinyUSB
-    ${CMAKE_CURRENT_LIST_DIR}/boards
+    ${CMAKE_CURRENT_LIST_DIR}/boards/pinouts
   )
 
   target_compile_options(H_SHIFTER_JAPATECH PRIVATE ${H_SHIFTER_JAPATECH_COMPILE_OPTIONS})
@@ -59,6 +57,8 @@ if(TARGET tinyusb_device)
     USB_PRODUCT="Shifter Truck Arduino"
     USBD_MAX_POWER_MA=250
     ARDUINO_RASPBERRY_PI_PICO_2=1
+    CFG_TUSB_RHPORT0_MODE
+    TINYUSB_NEED_POLLING_TASK
   )
 
   target_link_libraries(H_SHIFTER_JAPATECH PUBLIC
@@ -73,7 +73,7 @@ if(TARGET tinyusb_device)
     hardware_adc
   )
 
-  pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
+  # pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
   pico_add_extra_outputs(H_SHIFTER_JAPATECH)
 
   add_custom_target(size_report

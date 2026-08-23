@@ -2,6 +2,10 @@
   "cSpell.words": [
     "Adafruit",
     "gpio",
+    "picotool",
+    "stdlib",
+    "STREQUAL",
+    "tinyusb",
     "USBD"
   ],
   "editor.codeActionsOnSave": {

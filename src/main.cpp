@@ -15,7 +15,7 @@ ShifterModel::ButtonState previousButtonState = {};
 ShifterModel::ShifterConfig shifterConfig;
 // NOLINTEND
 
-void setup() {
+int main() {
   stdio_init_all();
   hidReport.begin();
   shifterInput.begin();
@@ -32,11 +32,11 @@ void setup() {
 
   while (true) {
 #ifdef TINYUSB_NEED_POLLING_TASK
-    TinyUSBDevice.task();
+    tud_task();
 #endif
 
     if (!HidReport::mounted()) {
-      return;
+      return 0;
     }
 
     ShifterModel::InputState inputs = shifterInput.readInputs();
@@ -47,8 +47,8 @@ void setup() {
 
     ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);
 
-    if (!hidReport.ready()) {
-      return;
+    if (!HidReport::ready()) {
+      return 0;
     }
 
     if (buttonState != previousButtonState) {
