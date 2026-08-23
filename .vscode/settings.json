@@ -1,27 +1,5 @@
 {
   "cSpell.words": [
-    "arduino",
-    "atmelavr",
-    "DPICO",
-    "eabi",
-    "FIRSTANALOGGPIO",
-    "fstack",
-    "gpio",
-    "GPIOCNT",
-    "isystem",
-    "linux",
-    "microcontrollers",
-    "MOSI",
-    "NEOPIXEL",
-    "picotool",
-    "raspberrypi",
-    "stdlib",
-    "STREQUAL",
-    "tinyusb",
-    "TINYUSB",
-    "tusb",
-    "USBD",
-    "Waveshare"
   ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"
@@ -30,11 +8,6 @@
   "clangd.enable": true,
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
   "clangd.arguments": [
-    "--background-index",
-    "--clang-tidy",
-    "--completion-style=detailed",
-    "--pch-storage=memory",
-    "--query-driver=/Applications/ArmGNUToolchain/**/arm-none-eabi-*"
-  ],
-  "cmake.configureOnOpen": true
+    "--query-driver=**/arm-none-eabi-*"
+  ]
 }

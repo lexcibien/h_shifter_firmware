@@ -1,10 +1,18 @@
-#ifndef PINS_ARDUINO_H
-#define PINS_ARDUINO_H
+/*
+ * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
-#include <stdint.h>
+// -----------------------------------------------------
+// NOTE: THIS HEADER IS ALSO INCLUDED BY ASSEMBLER SO
+//       SHOULD ONLY CONSIST OF PREPROCESSOR DIRECTIVES
+// -----------------------------------------------------
 
-#define __GPIOCNT 30
-#define __FIRSTANALOGGPIO 26
+#ifndef _BOARDS_WAVESHARE_RP2040_ZERO_H
+#define _BOARDS_WAVESHARE_RP2040_ZERO_H
+
+#include <cstdint>
 
 // Waveshare RP2040 Zero
 // https://www.waveshare.com/wiki/RP2040-Zero
@@ -37,392 +45,82 @@
 */
 
 // Fim de curso do H-shifter - Vista de cima com a primeira marcha topo esquerda
-const uint8_t SW_FRONT = 3;
+const uint8_t SW_FRONT = 2;
+const uint8_t SW_BACK = 3;
 const uint8_t SW_LEFT = 4;
 const uint8_t SW_RIGHT = 5;
-const uint8_t SW_BACK = 6;
-const uint8_t SW_REVERSE = 7;
+const uint8_t SW_REVERSE = 6;
 
 // Botões da manopla de caminhão
-const uint8_t SW_KNOB_RANGE = 8;
-const uint8_t SW_KNOB_SPLIT = 9;
-const uint8_t BTN_KNOB_ENGINE_BRAKE = 10;
+const uint8_t SW_KNOB_RANGE = 26; // -> Escolher um pino entre 26 ao 29 (precisa ser adc!)
+const uint8_t SW_KNOB_SPLIT = 8;
+const uint8_t BTN_KNOB_ENGINE_BRAKE = 9;
 
-const uint8_t SW_ENABLE_REVERSE = 11;
-const uint8_t SW_ENABLE_SEQUENTIAL = 12;
+const uint8_t SW_ENABLE_SEQUENTIAL = 10;
 
-// NeoPixel
-#define PIN_NEOPIXEL   (16u)
-//#define LED_BUILTIN PIN_NEOPIXEL
+pico_board_cmake_set(PICO_PLATFORM, rp2040)
 
-// Serial1
-#define PIN_SERIAL1_TX (0u)
-#define PIN_SERIAL1_RX (1u)
+// For board detection
+#define WAVESHARE_RP2040_ZERO
 
-#define PIN_SERIAL2_TX (8u)
-#define PIN_SERIAL2_RX (9u)
-
-// SPI
-#define PIN_SPI0_MISO  (4u)
-#define PIN_SPI0_MOSI  (3u)
-#define PIN_SPI0_SCK   (2u)
-#define PIN_SPI0_SS    (5u)
-
-#define PIN_SPI1_MISO  (12u)
-#define PIN_SPI1_MOSI  (15u)
-#define PIN_SPI1_SCK   (14u)
-#define PIN_SPI1_SS    (13u)
-
-// Wire
-#define PIN_WIRE0_SDA  (4u)
-#define PIN_WIRE0_SCL  (5u)
-
-#define PIN_WIRE1_SDA  (26u)
-#define PIN_WIRE1_SCL  (27u)
-
-#define SERIAL_HOWMANY (3u)
-#define SPI_HOWMANY    (2u)
-#define WIRE_HOWMANY   (2u)
-
-
-#define PINS_COUNT          (30u)
-#define NUM_DIGITAL_PINS    (30u)
-#define NUM_ANALOG_INPUTS   (4u)
-#define NUM_ANALOG_OUTPUTS  (0u)
-#define ADC_RESOLUTION      (12u)
-#define WIRE_INTERFACES_COUNT (WIRE_HOWMANY)
-
-#ifdef PIN_LED
-#define LED_BUILTIN PIN_LED
+// --- UART ---
+#ifndef PICO_DEFAULT_UART
+#define PICO_DEFAULT_UART 0
+#endif
+#ifndef PICO_DEFAULT_UART_TX_PIN
+#define PICO_DEFAULT_UART_TX_PIN 0
+#endif
+#ifndef PICO_DEFAULT_UART_RX_PIN
+#define PICO_DEFAULT_UART_RX_PIN 1
 #endif
 
-#ifdef __PIN_D0
-static const uint8_t D0 = __PIN_D0;
-#else
-static const uint8_t D0 = 0u;
-#endif
-#ifdef __PIN_D1
-static const uint8_t D1 = __PIN_D1;
-#else
-static const uint8_t D1 = 1u;
-#endif
-#ifdef __PIN_D2
-static const uint8_t D2 = __PIN_D2;
-#else
-static const uint8_t D2 = 2u;
-#endif
-#ifdef __PIN_D3
-static const uint8_t D3 = __PIN_D3;
-#else
-static const uint8_t D3 = 3u;
-#endif
-#ifdef __PIN_D4
-static const uint8_t D4 = __PIN_D4;
-#else
-static const uint8_t D4 = 4u;
-#endif
-#ifdef __PIN_D5
-static const uint8_t D5 = __PIN_D5;
-#else
-static const uint8_t D5 = 5u;
-#endif
-#ifdef __PIN_D6
-static const uint8_t D6 = __PIN_D6;
-#else
-static const uint8_t D6 = 6u;
-#endif
-#ifdef __PIN_D7
-static const uint8_t D7 = __PIN_D7;
-#else
-static const uint8_t D7 = 7u;
-#endif
-#ifdef __PIN_D8
-static const uint8_t D8 = __PIN_D8;
-#else
-static const uint8_t D8 = 8u;
-#endif
-#ifdef __PIN_D9
-static const uint8_t D9 = __PIN_D9;
-#else
-static const uint8_t D9 = 9u;
-#endif
-#ifdef __PIN_D10
-static const uint8_t D10 = __PIN_D10;
-#else
-static const uint8_t D10 = 10u;
-#endif
-#ifdef __PIN_D11
-static const uint8_t D11 = __PIN_D11;
-#else
-static const uint8_t D11 = 11u;
-#endif
-#ifdef __PIN_D12
-static const uint8_t D12 = __PIN_D12;
-#else
-static const uint8_t D12 = 12u;
-#endif
-#ifdef __PIN_D13
-static const uint8_t D13 = __PIN_D13;
-#else
-static const uint8_t D13 = 13u;
-#endif
-#ifdef __PIN_D14
-static const uint8_t D14 = __PIN_D14;
-#else
-static const uint8_t D14 = 14u;
-#endif
-#ifdef __PIN_D15
-static const uint8_t D15 = __PIN_D15;
-#else
-static const uint8_t D15 = 15u;
-#endif
-#ifdef __PIN_D16
-static const uint8_t D16 = __PIN_D16;
-#else
-static const uint8_t D16 = 16u;
-#endif
-#ifdef __PIN_D17
-static const uint8_t D17 = __PIN_D17;
-#else
-static const uint8_t D17 = 17u;
-#endif
-#ifdef __PIN_D18
-static const uint8_t D18 = __PIN_D18;
-#else
-static const uint8_t D18 = 18u;
-#endif
-#ifdef __PIN_D19
-static const uint8_t D19 = __PIN_D19;
-#else
-static const uint8_t D19 = 19u;
-#endif
-#ifdef __PIN_D20
-static const uint8_t D20 = __PIN_D20;
-#else
-static const uint8_t D20 = 20u;
-#endif
-#ifdef __PIN_D21
-static const uint8_t D21 = __PIN_D21;
-#else
-static const uint8_t D21 = 21u;
-#endif
-#ifdef __PIN_D22
-static const uint8_t D22 = __PIN_D22;
-#else
-static const uint8_t D22 = 22u;
-#endif
-#ifdef __PIN_D23
-static const uint8_t D23 = __PIN_D23;
-#else
-static const uint8_t D23 = 23u;
-#endif
-#ifdef __PIN_D24
-static const uint8_t D24 = __PIN_D24;
-#else
-static const uint8_t D24 = 24u;
-#endif
-#ifdef __PIN_D25
-static const uint8_t D25 = __PIN_D25;
-#else
-static const uint8_t D25 = 25u;
-#endif
-#ifdef __PIN_D26
-static const uint8_t D26 = __PIN_D26;
-#else
-static const uint8_t D26 = 26u;
-#endif
-#ifdef __PIN_D27
-static const uint8_t D27 = __PIN_D27;
-#else
-static const uint8_t D27 = 27u;
-#endif
-#ifdef __PIN_D28
-static const uint8_t D28 = __PIN_D28;
-#else
-static const uint8_t D28 = 28u;
-#endif
-#ifdef __PIN_D29
-static const uint8_t D29 = __PIN_D29;
-#else
-static const uint8_t D29 = 29u;
+// --- WS2812 ---
+#ifndef PICO_DEFAULT_WS2812_PIN
+#define PICO_DEFAULT_WS2812_PIN 16
 #endif
 
-#if defined(PICO_RP2040) || (defined(PICO_RP2350) && PICO_RP2350A)
-
-#ifdef __PIN_A0
-static const uint8_t A0 = __PIN_A0;
-#else
-static const uint8_t A0 = 26u;
+// --- I2C ---
+#ifndef PICO_DEFAULT_I2C
+#define PICO_DEFAULT_I2C 1
+#endif
+#ifndef PICO_DEFAULT_I2C_SDA_PIN
+#define PICO_DEFAULT_I2C_SDA_PIN 6
+#endif
+#ifndef PICO_DEFAULT_I2C_SCL_PIN
+#define PICO_DEFAULT_I2C_SCL_PIN 7
 #endif
 
-#ifdef __PIN_A1
-static const uint8_t A1 = __PIN_A1;
-#else
-static const uint8_t A1 = 27u;
+// --- SPI ---
+#ifndef PICO_DEFAULT_SPI
+#define PICO_DEFAULT_SPI 1
+#endif
+#ifndef PICO_DEFAULT_SPI_SCK_PIN
+#define PICO_DEFAULT_SPI_SCK_PIN 10
+#endif
+#ifndef PICO_DEFAULT_SPI_TX_PIN
+#define PICO_DEFAULT_SPI_TX_PIN 11
+#endif
+#ifndef PICO_DEFAULT_SPI_RX_PIN
+#define PICO_DEFAULT_SPI_RX_PIN 12
+#endif
+#ifndef PICO_DEFAULT_SPI_CSN_PIN
+#define PICO_DEFAULT_SPI_CSN_PIN 13
 #endif
 
-#ifdef __PIN_A2
-static const uint8_t A2 = __PIN_A2;
-#else
-static const uint8_t A2 = 28u;
+// --- FLASH ---
+#define PICO_BOOT_STAGE2_CHOOSE_W25Q080 1
+
+#ifndef PICO_FLASH_SPI_CLKDIV
+#define PICO_FLASH_SPI_CLKDIV 4
 #endif
 
-#ifdef __PIN_A3
-static const uint8_t A3 = __PIN_A3;
-#else
-static const uint8_t A3 = 29u;
+pico_board_cmake_set_default(PICO_FLASH_SIZE_BYTES, (2 * 1024 * 1024))
+#ifndef PICO_FLASH_SIZE_BYTES
+#define PICO_FLASH_SIZE_BYTES (2 * 1024 * 1024)
 #endif
-
-#elif defined(PICO_RP2350) && !PICO_RP2350A // RP2350B
-
-#ifdef __PIN_D30
-static const uint8_t D30 = __PIN_D30;
-#else
-static const uint8_t D30 = 30u;
-#endif
-#ifdef __PIN_D31
-static const uint8_t D31 = __PIN_D31;
-#else
-static const uint8_t D31 = 31u;
-#endif
-#ifdef __PIN_D32
-static const uint8_t D32 = __PIN_D32;
-#else
-static const uint8_t D32 = 32u;
-#endif
-#ifdef __PIN_D33
-static const uint8_t D33 = __PIN_D33;
-#else
-static const uint8_t D33 = 33u;
-#endif
-#ifdef __PIN_D34
-static const uint8_t D34 = __PIN_D34;
-#else
-static const uint8_t D34 = 34u;
-#endif
-#ifdef __PIN_D35
-static const uint8_t D35 = __PIN_D35;
-#else
-static const uint8_t D35 = 35u;
-#endif
-#ifdef __PIN_D36
-static const uint8_t D36 = __PIN_D36;
-#else
-static const uint8_t D36 = 36u;
-#endif
-#ifdef __PIN_D37
-static const uint8_t D37 = __PIN_D37;
-#else
-static const uint8_t D37 = 37u;
-#endif
-#ifdef __PIN_D38
-static const uint8_t D38 = __PIN_D38;
-#else
-static const uint8_t D38 = 38u;
-#endif
-#ifdef __PIN_D39
-static const uint8_t D39 = __PIN_D39;
-#else
-static const uint8_t D39 = 39u;
-#endif
-#ifdef __PIN_D40
-static const uint8_t D40 = __PIN_D40;
-#else
-static const uint8_t D40 = 40u;
-#endif
-#ifdef __PIN_D41
-static const uint8_t D41 = __PIN_D41;
-#else
-static const uint8_t D41 = 41u;
-#endif
-#ifdef __PIN_D42
-static const uint8_t D42 = __PIN_D42;
-#else
-static const uint8_t D42 = 42u;
-#endif
-#ifdef __PIN_D43
-static const uint8_t D43 = __PIN_D43;
-#else
-static const uint8_t D43 = 43u;
-#endif
-#ifdef __PIN_D44
-static const uint8_t D44 = __PIN_D44;
-#else
-static const uint8_t D44 = 44u;
-#endif
-#ifdef __PIN_D45
-static const uint8_t D45 = __PIN_D45;
-#else
-static const uint8_t D45 = 45u;
-#endif
-#ifdef __PIN_D46
-static const uint8_t D46 = __PIN_D46;
-#else
-static const uint8_t D46 = 46u;
-#endif
-#ifdef __PIN_D47
-static const uint8_t D47 = __PIN_D47;
-#else
-static const uint8_t D47 = 47u;
-#endif
-
-#ifdef __PIN_A0
-static const uint8_t A0 = __PIN_A0;
-#else
-static const uint8_t A0 = 40u;
-#endif
-
-#ifdef __PIN_A1
-static const uint8_t A1 = __PIN_A1;
-#else
-static const uint8_t A1 = 41u;
-#endif
-
-#ifdef __PIN_A2
-static const uint8_t A2 = __PIN_A2;
-#else
-static const uint8_t A2 = 42u;
-#endif
-
-#ifdef __PIN_A3
-static const uint8_t A3 = __PIN_A3;
-#else
-static const uint8_t A3 = 43u;
-#endif
-
-#ifdef __PIN_A4
-static const uint8_t A4 = __PIN_A4;
-#else
-static const uint8_t A4 = 44u;
-#endif
-
-#ifdef __PIN_A5
-static const uint8_t A5 = __PIN_A5;
-#else
-static const uint8_t A5 = 45u;
-#endif
-
-#ifdef __PIN_A6
-static const uint8_t A6 = __PIN_A6;
-#else
-static const uint8_t A6 = 46u;
-#endif
-
-#ifdef __PIN_A7
-static const uint8_t A7 = __PIN_A7;
-#else
-static const uint8_t A7 = 47u;
+// All boards have B1 RP2040
+#ifndef PICO_RP2040_B0_SUPPORTED
+#define PICO_RP2040_B0_SUPPORTED  0
 #endif
 
 #endif
-
-
-static const uint8_t SS = PIN_SPI0_SS;
-static const uint8_t MOSI = PIN_SPI0_MOSI;
-static const uint8_t MISO = PIN_SPI0_MISO;
-static const uint8_t SCK = PIN_SPI0_SCK;
-
-static const uint8_t SDA = PIN_WIRE0_SDA;
-static const uint8_t SCL = PIN_WIRE0_SCL;
-
-#endif // PINS_ARDUINO_H

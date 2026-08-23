@@ -1,0 +1,28 @@
+---
+Checks:
+  "*,
+  -llvmlibc-*,
+  -fuchsia-*,
+  -altera-struct-pack-align,
+  -altera-unroll-loops,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -hicpp-signed-bitwise,
+  -misc-use-internal-linkage,
+  -readability-implicit-bool-conversion,
+  -modernize-use-trailing-return-type,
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-std-print,
+  -cppcoreguidelines-pro-type-vararg,
+  -hicpp-vararg"
+
+CheckOptions:
+  - key: readability-function-cognitive-complexity.Threshold
+    value: 45
+
+  - key: misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
+    value: true
+
+  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage
+    value: true
+...

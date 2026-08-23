@@ -1,0 +1,15 @@
+---
+BasedOnStyle: LLVM
+AlignArrayOfStructures: Left
+AlignConsecutiveMacros:
+  Enabled: true
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+ColumnLimit: 150
+Cpp11BracedListStyle: false
+IndentCaseLabels: true
+PenaltyReturnTypeOnItsOwnLine: 0
+PointerAlignment: Left

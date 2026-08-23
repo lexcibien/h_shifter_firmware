@@ -1,0 +1,84 @@
+#pragma once
+
+#include <ShifterModel.h>
+
+class ShifterLogic {
+private:
+  using InputState = ShifterModel::InputState;
+  using Config = ShifterModel::ShifterConfig;
+  using ButtonState = ShifterModel::ButtonState;
+  using Buttons = ShifterModel::ControllerButtons;
+
+  void resolveLateralGears(const InputState& inputs, ButtonState& buttonState, bool& combFrontUsed, bool& combBackUsed) const {
+    if (inputs.swBack && inputs.swRight && !isReverseGear) {
+      buttonState[Buttons::GEAR_1] = true;
+      combFrontUsed = true;
+    }
+    if (inputs.swFront && inputs.swRight) {
+      buttonState[Buttons::GEAR_2] = true;
+      combBackUsed = true;
+    }
+    if (inputs.swBack && inputs.swLeft) {
+      buttonState[Buttons::GEAR_5] = true;
+      combFrontUsed = true;
+    }
+    if (inputs.swFront && inputs.swLeft) {
+      buttonState[Buttons::GEAR_6] = true;
+      combBackUsed = true;
+    }
+  }
+
+  void activateReverseGear(const InputState& inputs, ButtonState& buttonState) {
+    if (ShifterModel::ENABLE_REVERSE && inputs.swReverse && buttonState[Buttons::GEAR_1]) {
+      buttonState[Buttons::GEAR_1] = false;
+      isReverseGear = true;
+    }
+  }
+
+  void applyReverseGear(ButtonState& buttonState, bool& combFrontUsed) const {
+    if (isReverseGear) {
+      buttonState[Buttons::GEAR_R] = true;
+      combFrontUsed = true;
+    }
+  }
+
+  static void
+  resolveSequentialGears(const InputState& inputs, const Config& config, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
+    if (config.sequentialEnabled) {
+      if (inputs.swFront && !combFrontUsed) {
+        buttonState[Buttons::SW_SEQ_MINUS] = true;
+      }
+      if (inputs.swBack && !combBackUsed) {
+        buttonState[Buttons::SW_SEQ_PLUS] = true;
+      }
+    }
+  }
+
+  static void resolveCenterGears(const InputState& inputs, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
+    if (inputs.swBack && !combFrontUsed) {
+      buttonState[Buttons::GEAR_3] = true;
+    }
+    if (inputs.swFront && !combBackUsed) {
+      buttonState[Buttons::GEAR_4] = true;
+    }
+  }
+
+  void resetReverseGear(const InputState& inputs) {
+    if (!inputs.swFront && !inputs.swLeft && !inputs.swRight && !inputs.swBack) {
+      isReverseGear = false;
+    }
+  }
+
+  static void applyHandleButtons(const InputState& inputs, const Config& config, ButtonState& buttonState) {
+    if (config.handleConnected) {
+      buttonState[Buttons::RANGE] = inputs.swRange;
+      buttonState[Buttons::SPLIT] = inputs.swSplit;
+      buttonState[Buttons::ENGINE_BRAKE] = inputs.btnEngineBrake;
+    }
+  }
+
+  bool isReverseGear = false;
+
+public:
+  ButtonState resolveButtonState(const InputState& inputs, const Config& config);
+};
