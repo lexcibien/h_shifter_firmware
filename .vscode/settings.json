@@ -1,5 +1,8 @@
 {
   "cSpell.words": [
+    "Adafruit",
+    "gpio",
+    "USBD"
   ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"

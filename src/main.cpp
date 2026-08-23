@@ -3,6 +3,8 @@
 #include <ShifterInput.h>
 #include <ShifterLogic.h>
 #include <ShifterModel.h>
+#include <cstdio>
+#include <pico/stdlib.h>
 
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 HidReport hidReport;
@@ -14,49 +16,49 @@ ShifterModel::ShifterConfig shifterConfig;
 // NOLINTEND
 
 void setup() {
-  Serial.begin(115200);
+  stdio_init_all();
   hidReport.begin();
   shifterInput.begin();
   shifterConfig = shifterInput.configuration();
 
   if (!shifterConfig.handleConnected) {
-    Serial.println("INFO: Truck shifter handle not connected");
+    printf("INFO: Truck shifter handle not connected\n");
   } else {
-    Serial.println("OK: Handle detected");
+    printf("OK: Handle detected");
   }
 
-  Serial.println(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  Serial.println(shifterConfig.sequentialEnabled ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
-}
+  printf(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
+  printf(shifterConfig.sequentialEnabled ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
 
-void loop() {
+  while (true) {
 #ifdef TINYUSB_NEED_POLLING_TASK
-  TinyUSBDevice.task();
+    TinyUSBDevice.task();
 #endif
 
-  if (!HidReport::mounted()) {
-    return;
-  }
+    if (!HidReport::mounted()) {
+      return;
+    }
 
-  ShifterModel::InputState inputs = shifterInput.readInputs();
+    ShifterModel::InputState inputs = shifterInput.readInputs();
 
 #ifdef DEBUG
-  Debug::printRawInputs(inputs);
+    Debug::printRawInputs(inputs);
 #endif
 
-  ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);
+    ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);
 
-  if (!hidReport.ready()) {
-    return;
-  }
+    if (!hidReport.ready()) {
+      return;
+    }
 
-  if (buttonState != previousButtonState) {
-    hidReport.send(buttonState);
+    if (buttonState != previousButtonState) {
+      hidReport.send(buttonState);
 #ifdef DEBUG
-    Debug::printOutputState(buttonState);
+      Debug::printOutputState(buttonState);
 #endif
-    previousButtonState = buttonState;
-  }
+      previousButtonState = buttonState;
+    }
 
-  delay(20);
+    sleep_ms(20);
+  }
 }
