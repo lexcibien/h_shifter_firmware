@@ -1,7 +1,7 @@
-
 #include "bsp/board_api.h"
 #include "common/tusb_types.h"
 #include "device/usbd.h"
+#include "tusb.h"
 #include <HidReport.h>
 
 void HidReport::begin() {

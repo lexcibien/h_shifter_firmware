@@ -1,12 +1,10 @@
 #pragma once
 
-#include "tusb.h"
-#include <usb_descriptors.h>
 #include <ShifterModel.h>
+#include <usb_descriptors.h>
 
 class HidReport {
 private:
-  // static constexpr uint8_t HID_BUTTON_COUNT = ShifterModel::BUTTON_COUNT;
   struct __attribute__((packed)) ButtonsReport {
     std::array<uint8_t, 2> buttons;
   };
@@ -14,7 +12,7 @@ private:
   ButtonsReport buttonReport = {};
 
 public:
-  void begin();
+  static void begin();
 
   static bool mounted();
   static bool ready();

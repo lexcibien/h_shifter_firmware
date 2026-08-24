@@ -5,6 +5,7 @@
 #include <ShifterModel.h>
 #include <cstdio>
 #include <pico/stdlib.h>
+#include <tusb.h>
 
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 HidReport hidReport;
@@ -17,7 +18,7 @@ ShifterModel::ShifterConfig shifterConfig;
 
 int main() {
   stdio_init_all();
-  hidReport.begin();
+  HidReport::begin();
   shifterInput.begin();
   shifterConfig = shifterInput.configuration();
 
