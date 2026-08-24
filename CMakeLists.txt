@@ -40,7 +40,7 @@ if(TARGET tinyusb_device)
 
   set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
   set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-  file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
+  file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
   add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
   target_include_directories(H_SHIFTER_JAPATECH PRIVATE
     ${SRC_DIR}
@@ -73,7 +73,7 @@ if(TARGET tinyusb_device)
     hardware_adc
   )
 
-  # pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
+  pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
   pico_add_extra_outputs(H_SHIFTER_JAPATECH)
 
   add_custom_target(size_report
