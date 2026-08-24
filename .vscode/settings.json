@@ -1,11 +1,15 @@
 {
   "cSpell.words": [
     "Adafruit",
+    "EPNUM",
     "gpio",
+    "inited",
     "picotool",
+    "rhport",
     "stdlib",
     "STREQUAL",
     "tinyusb",
+    "tusb",
     "USBD"
   ],
   "editor.codeActionsOnSave": {

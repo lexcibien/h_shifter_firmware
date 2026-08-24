@@ -14,6 +14,7 @@ project(
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 if(PICO_SDK_VERSION_STRING VERSION_LESS "2.2.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.2.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
@@ -75,6 +76,12 @@ if(TARGET tinyusb_device)
 
   pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
   pico_add_extra_outputs(H_SHIFTER_JAPATECH)
+
+  add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_BINARY_DIR}/compile_commands.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+  )
 
   add_custom_target(size_report
     COMMAND ${CMAKE_COMMAND} -E echo "=== Memory Usage Report ==="
