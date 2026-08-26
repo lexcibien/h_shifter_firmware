@@ -1,12 +1,13 @@
 #include <string.h>
 
 #include "bsp/board_api.h"
-#include "usb_descriptors.h"
 #include <pico/stdlib.h>
 
 #define USB_VID 0x2E8A
 #define USB_PID 0x0003
 #define USB_BCD 0x0200
+
+#define HID_BUTTON_COUNT 12
 
 tusb_desc_device_t const desc_device = {
   .bLength = sizeof(tusb_desc_device_t),
