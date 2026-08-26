@@ -13,27 +13,27 @@ private:
   Adafruit_USBD_HID usbHid;
   ButtonsReport buttonReport = {};
   static constexpr std::array<uint8_t, 30> hidReportDescriptor = {
-    0x05, 0x01, // Usage Page (Generic Desktop)
-    0x09, 0x04, // Usage (Joystick)
-    0xA1, 0x01, // Collection (Application)
+    HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),     //
+    HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),      //
+    HID_COLLECTION(HID_COLLECTION_APPLICATION), //
 
-    0x05, 0x09,             // Usage Page (Button)
-    0x19, 0x01,             // Usage Minimum (Button 1)
-    0x29, HID_BUTTON_COUNT, // Usage Maximum (Button HID_BUTTON_COUNT)
+    HID_USAGE_PAGE(HID_USAGE_PAGE_BUTTON), //
+    HID_USAGE_MIN(1),                      //
+    HID_USAGE_MAX(HID_BUTTON_COUNT),       //
 
-    0x15, 0x00, // Logical Minimum (0)
-    0x25, 0x01, // Logical Maximum (1)
+    HID_LOGICAL_MIN(0), //
+    HID_LOGICAL_MAX(1), //
 
-    0x75, 0x01,             // Report Size (1)
-    0x95, HID_BUTTON_COUNT, // Report Count (HID_BUTTON_COUNT)
-    0x81, 0x02,             // Input (Data, Variable, Absolute)
+    HID_REPORT_SIZE(1),                                //
+    HID_REPORT_COUNT(HID_BUTTON_COUNT),                //
+    HID_INPUT(HID_DATA | HID_VARIABLE | HID_ABSOLUTE), //
 
     // Padding: 4 bits
-    0x75, 0x04, // Report Size (4)
-    0x95, 0x01, // Report Count (1)
-    0x81, 0x01, // Input (Constant)
+    HID_REPORT_SIZE(4),      //
+    HID_REPORT_COUNT(1),     //
+    HID_INPUT(HID_CONSTANT), //
 
-    0xC0 // End Collection
+    HID_COLLECTION_END //
   };
 
 public:
