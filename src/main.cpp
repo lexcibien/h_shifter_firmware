@@ -7,16 +7,13 @@
 #include <pico/stdlib.h>
 #include <tusb.h>
 
-// NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
-HidReport hidReport;
-ShifterInput shifterInput;
-ShifterLogic shifterLogic;
-Debug debug;
-ShifterModel::ButtonState previousButtonState = {};
-ShifterModel::ShifterConfig shifterConfig;
-// NOLINTEND
-
 int main() {
+  HidReport hidReport;
+  ShifterInput shifterInput;
+  ShifterLogic shifterLogic;
+  ShifterModel::ButtonState previousButtonState = {};
+  ShifterModel::ShifterConfig shifterConfig;
+
   stdio_init_all();
   HidReport::begin();
   shifterInput.begin();

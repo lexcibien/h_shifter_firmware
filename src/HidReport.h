@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ShifterModel.h>
-#include <usb_descriptors.h>
 
 class HidReport {
 private:

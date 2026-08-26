@@ -1,16 +1,24 @@
 {
   "cSpell.words": [
     "Adafruit",
+    "bugprone",
+    "cppcoreguidelines",
     "EPNUM",
+    "fstack",
     "gpio",
+    "hicpp",
     "inited",
+    "llvmlibc",
     "picotool",
+    "pinouts",
     "rhport",
     "stdlib",
     "STREQUAL",
+    "Thach",
     "tinyusb",
     "tusb",
-    "USBD"
+    "USBD",
+    "vararg"
   ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"
