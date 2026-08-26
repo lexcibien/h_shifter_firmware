@@ -1,23 +1,8 @@
 #include <Debug.h>
 
 void Debug::printRawInputs(const ShifterModel::InputState& inputs) {
-  Serial.print("RAW:");
-  Serial.print(inputs.swFront);
-  Serial.print(", ");
-  Serial.print(inputs.swLeft);
-  Serial.print(", ");
-  Serial.print(inputs.swRight);
-  Serial.print(", ");
-  Serial.print(inputs.swBack);
-  Serial.print(", ");
-  Serial.print(inputs.swReverse);
-  Serial.print(", ");
-  Serial.print(inputs.swRange);
-  Serial.print(", ");
-  Serial.print(inputs.swSplit);
-  Serial.print(", ");
-  Serial.print(inputs.btnEngineBrake);
-  Serial.println();
+  Serial.printf("RAW: %d, %d, %d, %d, %d, %d, %d, %d \n", inputs.swFront, inputs.swLeft, inputs.swRight, inputs.swBack, inputs.swReverse,
+                inputs.swRange, inputs.swSplit, inputs.btnEngineBrake);
 }
 
 void Debug::printOutputState(const ShifterModel::ButtonState& buttonState) {
