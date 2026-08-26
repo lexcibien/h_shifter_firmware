@@ -117,10 +117,8 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
       return NULL;
     }
     char const* string = string_desc_arr[index];
-    char_count = strlen(string);
-    if (char_count > 32) {
-      char_count = 32;
-    }
+    char_count = strnlen(string, 32);
+
     for (size_t i = 0; i < char_count; ++i) {
       desc_string[1 + i] = string[i];
     }
