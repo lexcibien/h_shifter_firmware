@@ -24,6 +24,7 @@
     "TINYUSB",
     "unflags",
     "USBD",
+    "vararg",
     "waveshare",
     "Werror"
   ],
