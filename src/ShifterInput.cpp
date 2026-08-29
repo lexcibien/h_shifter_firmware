@@ -57,7 +57,7 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   inputs.swLeft = !gpio_get(SW_LEFT);
   inputs.swRight = !gpio_get(SW_RIGHT);
   inputs.swBack = !gpio_get(SW_BACK);
-  inputs.swReverse = !gpio_get(SW_REVERSE);
+  inputs.swReverse = gpio_get(SW_REVERSE);
 
   if (handleConnected) {
     inputs.swRange = !gpio_get(SW_KNOB_RANGE);
