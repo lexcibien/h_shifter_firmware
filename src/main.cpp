@@ -40,7 +40,11 @@ int main() {
     ShifterModel::InputState inputs = shifterInput.readInputs();
 
 #ifdef DEBUG
-    Debug::printRawInputs(inputs);
+#ifdef DEBUG_ANALOG
+  ShifterInput::AnalogState inputAnalog = ShifterInput::readAnalogInput(); //* The button will not work digitally
+  Debug::printRawAnalog(inputAnalog);
+#endif
+  Debug::printRawInputs(inputs);
 #endif
 
     ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);

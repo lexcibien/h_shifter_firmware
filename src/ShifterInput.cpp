@@ -42,6 +42,15 @@ void ShifterInput::begin() {
   }
 }
 
+ShifterInput::AnalogState ShifterInput::readAnalogInput() {
+  ShifterInput::AnalogState input;
+
+  input.adc = analogRead(SW_KNOB_RANGE);
+  input.voltage = static_cast<float>(input.adc) * CONVERSION_FACTOR;
+
+  return input;
+}
+
 [[nodiscard]] ShifterModel::InputState ShifterInput::readInputs() const {
   ShifterModel::InputState inputs;
   inputs.swFront = !gpio_get(SW_FRONT);
