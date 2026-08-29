@@ -5,13 +5,17 @@ ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inp
   bool combFrontUsed = false;
   bool combBackUsed = false;
 
-  resolveLateralGears(inputs, buttonState, combFrontUsed, combBackUsed);
+  if (config.sequentialEnabled) {
+    resolveSequentialGears(inputs, buttonState, combFrontUsed, combBackUsed);
+  } else {
+    resolveLateralGears(inputs, buttonState, combFrontUsed, combBackUsed);
+    resolveCenterGears(inputs, buttonState, combFrontUsed, combBackUsed);
+  }
   activateReverseGear(inputs, buttonState);
   applyReverseGear(buttonState, combFrontUsed);
-  resolveSequentialGears(inputs, config, buttonState, combFrontUsed, combBackUsed);
-  resolveCenterGears(inputs, buttonState, combFrontUsed, combBackUsed);
   resetReverseGear(inputs);
-  applyHandleButtons(inputs, config, buttonState);
-
+  if (config.handleConnected) {
+    applyHandleButtons(inputs, buttonState);
+  }
   return buttonState;
 }

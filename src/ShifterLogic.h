@@ -29,7 +29,7 @@ private:
   }
 
   void activateReverseGear(const InputState& inputs, ButtonState& buttonState) {
-    if (ShifterModel::ENABLE_REVERSE && inputs.swReverse && buttonState[Buttons::GEAR_1]) {
+    if (ShifterModel::ENABLE_REVERSE && inputs.swReverse && inputs.swBack && inputs.swRight) {
       buttonState[Buttons::GEAR_1] = false;
       isReverseGear = true;
     }
@@ -42,15 +42,12 @@ private:
     }
   }
 
-  static void
-  resolveSequentialGears(const InputState& inputs, const Config& config, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
-    if (config.sequentialEnabled) {
-      if (inputs.swFront && !combFrontUsed) {
-        buttonState[Buttons::SW_SEQ_MINUS] = true;
-      }
-      if (inputs.swBack && !combBackUsed) {
-        buttonState[Buttons::SW_SEQ_PLUS] = true;
-      }
+  static void resolveSequentialGears(const InputState& inputs, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
+    if (inputs.swFront && !combFrontUsed) {
+      buttonState[Buttons::SW_SEQ_MINUS] = true;
+    }
+    if (inputs.swBack && !combBackUsed) {
+      buttonState[Buttons::SW_SEQ_PLUS] = true;
     }
   }
 
@@ -69,12 +66,10 @@ private:
     }
   }
 
-  static void applyHandleButtons(const InputState& inputs, const Config& config, ButtonState& buttonState) {
-    if (config.handleConnected) {
-      buttonState[Buttons::RANGE] = inputs.swRange;
-      buttonState[Buttons::SPLIT] = inputs.swSplit;
-      buttonState[Buttons::ENGINE_BRAKE] = inputs.btnEngineBrake;
-    }
+  static void applyHandleButtons(const InputState& inputs, ButtonState& buttonState) {
+    buttonState[Buttons::RANGE] = inputs.swRange;
+    buttonState[Buttons::SPLIT] = inputs.swSplit;
+    buttonState[Buttons::ENGINE_BRAKE] = inputs.btnEngineBrake;
   }
 
   bool isReverseGear = false;
