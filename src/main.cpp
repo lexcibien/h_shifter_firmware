@@ -34,7 +34,8 @@ int main() {
 #endif
 
     if (!HidReport::mounted()) {
-      return 0;
+      sleep_ms(10);
+      continue;
     }
 
     ShifterModel::InputState inputs = shifterInput.readInputs();
@@ -50,7 +51,8 @@ int main() {
     ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);
 
     if (!HidReport::ready()) {
-      return 0;
+      sleep_ms(10);
+      continue;
     }
 
     if (buttonState != previousButtonState) {

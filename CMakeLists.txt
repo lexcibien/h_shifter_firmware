@@ -34,7 +34,7 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
 
 if(TARGET tinyusb_device)
   set(FAMILY rp2040)
-  set(BOARD pico_sdk)
+  set(BOARD waveshare_rp2040_zero)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
   # Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config
   set(TOP ${PICO_TINYUSB_PATH})
@@ -57,7 +57,6 @@ if(TARGET tinyusb_device)
     USB_PRODUCT="Shifter Truck Arduino"
     USBD_MAX_POWER_MA=250
     ARDUINO_RASPBERRY_PI_PICO_2=1
-    CFG_TUSB_RHPORT0_MODE
     TINYUSB_NEED_POLLING_TASK
   )
 

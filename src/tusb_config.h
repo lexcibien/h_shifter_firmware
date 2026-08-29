@@ -52,6 +52,7 @@
 #ifndef CFG_TUSB_MCU
 #error CFG_TUSB_MCU must be defined
 #endif
+#define CFG_TUSB_RHPORT0_MODE (OPT_MODE_DEVICE | OPT_MODE_FULL_SPEED)
 
 #ifndef CFG_TUSB_OS
 #define CFG_TUSB_OS           OPT_OS_NONE
