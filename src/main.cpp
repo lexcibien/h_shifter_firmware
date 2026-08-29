@@ -42,6 +42,10 @@ void loop() {
   ShifterModel::InputState inputs = shifterInput.readInputs();
 
 #ifdef DEBUG
+#ifdef DEBUG_ANALOG
+  ShifterInput::AnalogState inputAnalog = ShifterInput::readAnalogInput(); //* The button will not work digitally
+  Debug::printRawAnalog(inputAnalog);
+#endif
   Debug::printRawInputs(inputs);
 #endif
 
