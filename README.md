@@ -1,56 +1,46 @@
-# Firmware H Shifter
+# H Shifter Firmware - RP2040 Zero
 
-## Compilar branch tools-customs
+Firmware for a H Shifter with RP2040 Zero embedded, read 8 inputs and shows 12 virtual buttons to the PC as a Joystick.
+It was created for the H Shifter from DAZ Projects.
 
-Para compilar esse branch, são necessários alguns passos:
+I developed a switch holder and a lifter for a external rear gear, similar to car with a physical lifter lock out mechanism to let it engage, only it's
+electronically simulated.
 
-1. Baixar o [Compilador GCC para AVR](https://www.microchip.com/en-us/tools-resources/develop/microchip-studio/gcc-compilers) e salvar em `.pio/packages/toolchain-atmelavr-custom`
-2. Adicionar um arquivo `package.json` na pasta
+![lifter image](url)
 
-    ```json
-    {
-      "name": "toolchain-atmelavr",
-      "version": "1.0.0",
-      "description": "GCC Toolchain for Microchip AVR microcontrollers",
-      "keywords": [
-        "toolchain",
-        "build tools",
-        "compiler",
-        "assembler",
-        "linker",
-        "preprocessor",
-        "microchip",
-        "avr"
-      ],
-      "homepage": "<https://gcc.gnu.org/wiki/avr-gcc>",
-      "license": "GPL-2.0-or-later",
-      "system": [
-        "linux_x86_64"
-      ]
-    }
-    ```
+## Dependencies
 
-3. Para ter a nova versão do `ArduinoCore-avr`, deve clonar o repositório na pasta `.pio/packages/framework-arduino-avr-custom`
-4. Adicionar um arquivo `package.json` na pasta
+- Platformio
 
-    ```json
-    {
-    "name": "framework-arduino-avr",
-    "version": "5.3.0",
-    "description": "The official Arduino Wiring-based Framework for Microchip AVR microcontrollers",
-    "keywords": [
-      "framework",
-      "arduino",
-      "microchip",
-      "avr"
-    ],
-    "homepage": "https://www.arduino.cc/reference/en",
-    "license": "LGPL-2.1-or-later",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/arduino/ArduinoCore-avr"
-      }
-    }
-    ```
+Some branches use CMake for compiling:
 
-Depois disso irá compilar sem erros.
+- CMake
+- Clangd
+- clang-tidy
+- ClangFormat
+- Ninja
+
+## Compiling
+
+You can compile this project using platformio by now, but there are branches that uses CMake to do this job for you.
+
+There are two ways to compile with CMake:
+
+- By using the extension CMakeTools on VSCode
+- Using the command:
+
+```bash
+cmake --build build
+```
+
+## Flashing
+
+Programming on platformio is as straight forward as compiling the firmware. On CMake it uses a target command to flash in the microcontroller:
+
+```bash
+cmake --build build --target flash
+```
+
+## License
+
+- [**MIT License**](https://github.com/lexcibien/h_shifter_firmware/blob/main/LICENSE)

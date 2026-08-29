@@ -1,5 +1,3 @@
-#if ARDUINO_AVR_LEONARDO
-#include "leonardo.h"
-#elif ARDUINO_RASPBERRY_PI_PICO_2
-#include "rpipico2.h"
+#ifdef ARDUINO_WAVESHARE_RP2040_ZERO
+#include "waveshare_rp2040_zero.h"
 #endif

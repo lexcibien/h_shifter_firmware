@@ -1,22 +1,40 @@
 {
   "cSpell.words": [
+    "Adafruit",
     "arduino",
     "atmelavr",
+    "bugprone",
     "buildcache",
     "clangtidy",
     "cppcheck",
+    "cppcoreguidelines",
     "DLEONARDO",
     "DPICO",
     "DRPIPICO",
     "DUSBCON",
     "gamepad",
     "GAMEPAD",
+    "hicpp",
     "Iboards",
     "leonardo",
+    "llvmlibc",
     "mheironimus",
+    "NOLINTNEXTLINE",
     "rpipico",
+    "TINYUSB",
     "unflags",
+    "USBD",
+    "vararg",
+    "waveshare",
     "Werror"
   ],
-  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "clangd.enable": true,
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+  "clangd.arguments": [
+    "--query-driver=**/arm-none-eabi-*"
+  ]
 }

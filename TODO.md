@@ -11,12 +11,21 @@ a configuração no jogo)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 - [ ] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
   - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
+- [ ] Desenvolver uma interface web, quando faz a conexão no computador, se acessar um endereço, abre as configurações para se fazer no dispositivo.
+  - Slider para a quantidade de marchas
+  - Habilitar/desabilitar o sequencial
+  - Habilitar/desabilitar marcha ré apertando por fora
+  - Botão para checar se a manopla está conectada, sem precisar reiniciar o dispositivo
+  - Botão para reiniciar o dispositivo
+  - Usar uma sequência de marcha para habilitar a interface web (sequencial + ré para algum lugar)
 
 ## Hardware
 
 - [X] Reimprimir peças em PLA+
 - [X] Colocar um conector no chicote para a manopla
-- [ ] Adicionar um switch para trocar de H para sequencial
+- [ ] Adicionar um botão para trocar de H para sequencial
+- [ ] Adicionar um LED ou usar da própria board
+- [ ] Slot na peça de engatar ré para a mola, evitando descentralizar e travar ela na rosca
 - [ ] Adicionar display 14 segmentos
   - [ ] Usar um multiplexador 595 para reduzir quantidade de pinos necessários
   - [ ] Mostrar marchas
