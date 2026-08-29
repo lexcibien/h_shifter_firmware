@@ -18,7 +18,8 @@
     "tinyusb",
     "tusb",
     "USBD",
-    "vararg"
+    "vararg",
+    "waveshare"
   ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"

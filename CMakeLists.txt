@@ -1,13 +1,15 @@
-# Firmware para H-shifter (Arduino Leonardo)
+# Firmware para H-shifter (RP2040 Zero)
 
 cmake_minimum_required(VERSION 3.35)
+
+set(PICO_BOARD waveshare_rp2040_zero CACHE STRING "Board type")
 
 # Pull in SDK (must be before project)
 include(pico_sdk_import.cmake)
 
 project(
   H_SHIFTER_JAPATECH
-  DESCRIPTION "Firmware para o câmbio com Arduino Leonardo, lê 4 entradas do câmbio e apresenta 6 botões virtuais ao PC como gamepad"
+  DESCRIPTION "Firmware para o câmbio com RP2040 Zero, lê 8 entradas do câmbio e apresenta 12 botões virtuais ao PC como Joystick"
   LANGUAGES C CXX ASM
 )
 
@@ -16,8 +18,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
-if(PICO_SDK_VERSION_STRING VERSION_LESS "2.2.0")
-  message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.2.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+if(PICO_SDK_VERSION_STRING VERSION_LESS "2.3.0")
+  message(FATAL_ERROR "Raspberry Pi Pico SDK version 2.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
 # Initialize the SDK
@@ -34,7 +36,7 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
 
 if(TARGET tinyusb_device)
   set(FAMILY rp2040)
-  set(BOARD waveshare_rp2040_zero)
+  set(BOARD pico_sdk)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
   # Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config
   set(TOP ${PICO_TINYUSB_PATH})
@@ -56,8 +58,8 @@ if(TARGET tinyusb_device)
     USB_MANUFACTURER="Japatech Projects"
     USB_PRODUCT="Shifter Truck Arduino"
     USBD_MAX_POWER_MA=250
-    ARDUINO_RASPBERRY_PI_PICO_2=1
     TINYUSB_NEED_POLLING_TASK
+    DEBUG
   )
 
   target_link_libraries(H_SHIFTER_JAPATECH PUBLIC
