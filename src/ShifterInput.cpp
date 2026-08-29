@@ -30,7 +30,6 @@ void ShifterInput::begin() {
   if (handleConnected) {
     gpio_set_function(SW_KNOB_RANGE, GPIO_FUNC_SIO);
     gpio_set_dir(SW_KNOB_RANGE, GPIO_IN);
-    gpio_pull_up(SW_KNOB_RANGE);
 
     gpio_init(SW_KNOB_SPLIT);
     gpio_set_dir(SW_KNOB_SPLIT, GPIO_IN);
@@ -45,7 +44,8 @@ void ShifterInput::begin() {
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   ShifterInput::AnalogState input;
 
-  input.adc = analogRead(SW_KNOB_RANGE);
+  adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
+  input.adc = adc_read();
   input.voltage = static_cast<float>(input.adc) * CONVERSION_FACTOR;
 
   return input;
