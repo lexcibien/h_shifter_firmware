@@ -45,7 +45,6 @@ if(TARGET tinyusb_device)
   add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
   target_include_directories(H_SHIFTER_JAPATECH PRIVATE
     ${SRC_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/boards/pinouts
   )
 
   target_compile_options(H_SHIFTER_JAPATECH PRIVATE ${H_SHIFTER_JAPATECH_COMPILE_OPTIONS})

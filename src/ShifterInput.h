@@ -2,7 +2,7 @@
 
 #include "hardware/adc.h"
 #include <ShifterModel.h>
-#include <waveshare_rp2040_zero.h>
+#include <board.h>
 
 class ShifterInput {
 private:
