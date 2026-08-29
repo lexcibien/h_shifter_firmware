@@ -15,6 +15,9 @@
 # Understand project
 Understand
 
+# Python
+__pycache__
+
 # Compiled Object files
 *.slo
 *.lo
