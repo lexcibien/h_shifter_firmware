@@ -44,7 +44,7 @@ const uint8_t SW_RIGHT = 5;
 const uint8_t SW_REVERSE = 6;
 
 // Botões da manopla de caminhão
-const uint8_t SW_KNOB_RANGE = 7;
+const uint8_t SW_KNOB_RANGE = 26; // -> Escolher um pino entre 26 ao 29 (precisa ser adc!)
 const uint8_t SW_KNOB_SPLIT = 8;
 const uint8_t BTN_KNOB_ENGINE_BRAKE = 9;
 
