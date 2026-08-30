@@ -20,7 +20,7 @@ def convert_size_expression_to_int(expression):
         "B": 1,
         "": 1,
     }
-    extract_regex = r"^((?:[0-9]*[.])?[0-9]+)([mkbMKB]*)$"
+    extract_regex = r"^((?:[\d]*[.])?[\d]+)([mkbMKB]*)$"
     res = re.findall(extract_regex, str(expression))
     if not res:
         return 0
@@ -137,65 +137,6 @@ def search_board_config():
                         yield path
 
 
-def detect_memory_limits() -> Tuple[int, int]:
-    board_limits = None
-    for app_dir in [os.getcwd(), os.path.dirname(os.path.dirname(os.path.abspath(__file__)))]:
-        for root, _, files in os.walk(app_dir):
-            if "waveshare_rp2040_zero.json" in files:
-                board_path = os.path.join(root, "waveshare_rp2040_zero.json")
-                with open(board_path, "r", encoding="utf-8") as fp:
-                    board_limits = json.load(fp)
-                break
-            if "boards" in os.path.basename(root) and root.endswith("boards"):
-                for f in files:
-                    if f.endswith(".json"):
-                        board_path = os.path.join(root, f)
-                        try:
-                            with open(board_path, "r", encoding="utf-8") as fp:
-                                data = json.load(fp)
-                            if isinstance(data, dict) and data.get("upload", {}).get("maximum_size"):
-                                board_limits = data
-                                break
-                        except Exception:
-                            continue
-            if board_limits:
-                break
-        if board_limits:
-            break
-
-    if board_limits:
-        flash = int(board_limits.get("upload", {}).get("maximum_size", 0))
-        ram = int(board_limits.get("upload", {}).get("maximum_ram_size", 0))
-        if flash and ram:
-            return flash, ram
-
-    scripts = find_linker_scripts()
-    memories = {}
-    for s in scripts:
-        parsed = parse_memory_from_ld(s)
-        if parsed:
-            memories.update(parsed)
-
-    flash = None
-    ram = None
-    for key, value in memories.items():
-        if key in ("FLASH", "ROM", "FLASH0", "QT_FLASH") and flash is None:
-            flash = value
-        if key in ("RAM", "SRAM", "RAM0", "SRAM0") and ram is None:
-            ram = value
-
-    if flash is None or ram is None:
-        if memories:
-            ordered = sorted(memories.items(), key=lambda item: item[1], reverse=True)
-            flash = flash if flash is not None else ordered[0][1]
-            ram = ram if ram is not None else ordered[1][1] if len(ordered) > 1 else ordered[0][1]
-
-    if flash is None:
-        flash = 2 * 1024 * 1024
-    if ram is None:
-        ram = 512 * 1024
-
-    return int(flash), int(ram)
 
 
 def parse_size_output(output: str) -> Dict[str, int]:
@@ -285,9 +226,8 @@ def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optiona
             return flash, ram
 
     scripts = []
-    if linker_path:
-        if os.path.exists(linker_path):
-            scripts.append(os.path.abspath(linker_path))
+    if linker_path and os.path.exists(linker_path):
+        scripts.append(os.path.abspath(linker_path))
     if not scripts:
         scripts = find_linker_scripts()
 
@@ -305,11 +245,10 @@ def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optiona
         if key in ("RAM", "SRAM", "RAM0", "SRAM0") and ram is None:
             ram = value
 
-    if flash is None or ram is None:
-        if memories:
-            ordered = sorted(memories.items(), key=lambda item: item[1], reverse=True)
-            flash = flash if flash is not None else ordered[0][1]
-            ram = ram if ram is not None else ordered[1][1] if len(ordered) > 1 else ordered[0][1]
+    if memories and (flash is None or ram is None):
+        ordered = sorted(memories.items(), key=lambda item: item[1], reverse=True)
+        flash = flash if flash is not None else ordered[0][1]
+        ram = ram if ram is not None else ordered[1][1] if len(ordered) > 1 else ordered[0][1]
 
     if flash is None:
         flash = 2 * 1024 * 1024
@@ -353,7 +292,8 @@ def _format_available_bytes(value, total):
     percent_raw = float(value) / float(total) if total else 0.0
     blocks_per_progress = 10
     used_blocks = min(int(round(blocks_per_progress * percent_raw)), blocks_per_progress)
-    return "[{:{}}] {: 6.1%} (used {:d} bytes from {:d} bytes)".format("=" * used_blocks, blocks_per_progress, percent_raw, value, total)
+    progress_bar = "=" * used_blocks
+    return f"[{progress_bar:{blocks_per_progress}}] {percent_raw: 6.1%} (used {value:d} bytes from {total:d} bytes)"
 
 
 def format_bytes(n):
