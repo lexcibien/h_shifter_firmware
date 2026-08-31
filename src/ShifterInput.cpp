@@ -31,12 +31,10 @@ void ShifterInput::checkSequential() {
     lastDebounceTime = millis();
   }
 
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (reading != buttonState) {
-      buttonState = reading;
-      if (buttonState == LOW) {
-        sequentialEnabled = !sequentialEnabled;
-      }
+  if (reading != buttonState && (millis() - lastDebounceTime) > debounceDelay) {
+    buttonState = reading;
+    if (buttonState == LOW) {
+      sequentialEnabled = !sequentialEnabled;
     }
   }
 
@@ -83,6 +81,4 @@ ShifterModel::InputState ShifterInput::readInputs() {
   return inputs;
 }
 
-ShifterModel::ShifterConfig ShifterInput::configuration() {
-  return { .sequentialEnabled = sequentialEnabled, .handleConnected = handleConnected };
-}
+ShifterModel::ShifterConfig ShifterInput::configuration() { return { .sequentialEnabled = sequentialEnabled, .handleConnected = handleConnected }; }
