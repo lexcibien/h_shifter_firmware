@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Debug.h>
 #include <HidReport.h>
+#include <LedMulti.h>
 #include <ShifterInput.h>
 #include <ShifterLogic.h>
 #include <ShifterModel.h>
@@ -12,13 +13,16 @@ ShifterLogic shifterLogic;
 Debug debug;
 ShifterModel::ButtonState previousButtonState = {};
 ShifterModel::ShifterConfig shifterConfig;
+LedMulti ledMulti;
 // NOLINTEND
 
 void setup() {
   Serial.begin(115200);
   hidReport.begin();
-  shifterInput.begin();
-  shifterConfig = shifterInput.configuration();
+  ledMulti.begin();
+  ShifterInput::begin();
+
+  shifterConfig = ShifterInput::configuration();
 
   if (!shifterConfig.handleConnected) {
     Serial.println("INFO: Truck shifter handle not connected");
@@ -26,11 +30,21 @@ void setup() {
     Serial.println("OK: Handle detected");
   }
 
+  const char* gearType = "";
+  if (shifterConfig.sequentialEnabled) {
+    ledMulti.showLed(Color::SEQUENTIAL);
+    gearType = "Sequential";
+  } else {
+    ledMulti.showLed(Color::H_SHIFTER);
+    gearType = "H Shifter";
+  }
+
   Serial.println(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  Serial.println(shifterConfig.sequentialEnabled ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
+  Serial.printf("OK: The current gear output is %s", gearType);
 }
 
 void loop() {
+  static bool executeOnce = true;
 #ifdef TINYUSB_NEED_POLLING_TASK
   TinyUSBDevice.task();
 #endif
@@ -39,7 +53,23 @@ void loop() {
     return;
   }
 
-  ShifterModel::InputState inputs = shifterInput.readInputs();
+  ShifterModel::InputState inputs = ShifterInput::readInputs();
+
+  if (shifterConfig.sequentialEnabled) {
+    ledMulti.showLed(Color::SEQUENTIAL);
+  } else {
+    ledMulti.showLed(Color::H_SHIFTER);
+  }
+
+  if (shifterConfig.handleConnected) {
+    if (executeOnce) {
+      ledMulti.connectHandle();
+      executeOnce = false;
+    }
+  } else {
+    executeOnce = true;
+  }
+  shifterConfig = ShifterInput::configuration();
 
 #ifdef DEBUG
 #ifdef DEBUG_ANALOG
@@ -63,5 +93,6 @@ void loop() {
     previousButtonState = buttonState;
   }
 
+  ledMulti.update();
   delay(20);
 }

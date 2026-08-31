@@ -14,10 +14,33 @@ void ShifterInput::begin() {
   handleConnected = detectHandleConnection();
 
   if (handleConnected) {
-    pinMode(SW_KNOB_RANGE, INPUT);
-    pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
-    pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
+    configureHandle();
   }
+}
+
+void ShifterInput::configureHandle() {
+  pinMode(SW_KNOB_RANGE, INPUT);
+  pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
+  pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
+}
+
+void ShifterInput::checkSequential() {
+  bool reading = digitalRead(SW_ENABLE_SEQUENTIAL);
+
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+      if (buttonState == LOW) {
+        sequentialEnabled = !sequentialEnabled;
+      }
+    }
+  }
+
+  lastButtonState = reading;
 }
 
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
@@ -29,7 +52,7 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   return input;
 }
 
-[[nodiscard]] ShifterModel::InputState ShifterInput::readInputs() const {
+ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
 
   inputs.swFront = digitalRead(SW_FRONT) == LOW;
@@ -38,15 +61,28 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   inputs.swBack = digitalRead(SW_BACK) == LOW;
   inputs.swReverse = digitalRead(SW_REVERSE) == HIGH;
 
+  if (millis() - lastScan >= 2000) {
+    handleConnected = detectHandleConnection();
+    checkSequential();
+    if (handleConnected) {
+      configureHandle();
+    }
+    lastScan = millis();
+  }
+
   if (handleConnected) {
     inputs.swRange = digitalRead(SW_KNOB_RANGE) == LOW;
     inputs.swSplit = digitalRead(SW_KNOB_SPLIT) == LOW;
     inputs.btnEngineBrake = digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW;
+  } else {
+    inputs.swRange = LOW;
+    inputs.swSplit = LOW;
+    inputs.btnEngineBrake = LOW;
   }
 
   return inputs;
 }
 
-[[nodiscard]] ShifterModel::ShifterConfig ShifterInput::configuration() const {
-  return { .sequentialEnabled = digitalRead(SW_ENABLE_SEQUENTIAL) == LOW, .handleConnected = handleConnected };
+ShifterModel::ShifterConfig ShifterInput::configuration() {
+  return { .sequentialEnabled = sequentialEnabled, .handleConnected = handleConnected };
 }
