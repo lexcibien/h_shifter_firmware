@@ -25,7 +25,16 @@ private:
     return adc < DETECT_VALUE;
   }
 
-  bool handleConnected = false;
+  inline static bool handleConnected = false;
+  inline static bool sequentialEnabled = false;
+  inline static uint32_t lastScan;
+
+  inline static bool ledState = false;
+  inline static bool buttonState;
+  inline static bool lastButtonState = true;
+
+  inline static uint32_t lastDebounceTime = 0;
+  inline static uint32_t debounceDelay = 50;
 
 public:
   struct AnalogState {
@@ -33,8 +42,10 @@ public:
     float voltage = 0.0F;
   };
 
-  void begin();
+  static void begin();
+  static void configureHandle();
+  static void checkSequential();
   static ShifterInput::AnalogState readAnalogInput();
-  [[nodiscard]] ShifterModel::InputState readInputs() const;
-  [[nodiscard]] ShifterModel::ShifterConfig configuration() const;
+  static ShifterModel::InputState readInputs();
+  static ShifterModel::ShifterConfig configuration();
 };

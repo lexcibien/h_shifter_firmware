@@ -9,24 +9,25 @@
 
 int main() {
   HidReport hidReport;
-  ShifterInput shifterInput;
   ShifterLogic shifterLogic;
   ShifterModel::ButtonState previousButtonState = {};
   ShifterModel::ShifterConfig shifterConfig;
 
   stdio_init_all();
   HidReport::begin();
-  shifterInput.begin();
-  shifterConfig = shifterInput.configuration();
+  ShifterInput::begin();
+  shifterConfig = ShifterInput::configuration();
 
-  if (!shifterConfig.handleConnected) {
-    printf("INFO: Truck shifter handle not connected\n");
+  const char* gearType = nullptr;
+  if (shifterConfig.sequentialEnabled) {
+    gearType = "Sequential";
   } else {
-    printf("OK: Handle detected");
+    gearType = "H Shifter";
   }
 
+  printf(shifterConfig.handleConnected ? "OK: Handle detected\n" : "INFO: Truck shifter handle not connected\n");
   printf(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  printf(shifterConfig.sequentialEnabled ? "OK: The current gear output is sequential" : "INFO: The current gear output is H-Shifter");
+  printf("OK: The current gear output is %s", gearType);
 
   while (true) {
 #ifdef TINYUSB_NEED_POLLING_TASK
@@ -38,14 +39,15 @@ int main() {
       continue;
     }
 
-    ShifterModel::InputState inputs = shifterInput.readInputs();
+    ShifterModel::InputState inputs = ShifterInput::readInputs();
+    shifterConfig = ShifterInput::configuration();
 
 #ifdef DEBUG
 #ifdef DEBUG_ANALOG
-  ShifterInput::AnalogState inputAnalog = ShifterInput::readAnalogInput(); //* The button will not work digitally
-  Debug::printRawAnalog(inputAnalog);
+    ShifterInput::AnalogState inputAnalog = ShifterInput::readAnalogInput(); //* The button will not work digitally
+    Debug::printRawAnalog(inputAnalog);
 #endif
-  Debug::printRawInputs(inputs);
+    Debug::printRawInputs(inputs);
 #endif
 
     ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);

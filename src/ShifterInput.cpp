@@ -28,17 +28,38 @@ void ShifterInput::begin() {
   handleConnected = detectHandleConnection();
 
   if (handleConnected) {
-    gpio_set_function(SW_KNOB_RANGE, GPIO_FUNC_SIO);
-    gpio_set_dir(SW_KNOB_RANGE, GPIO_IN);
-
-    gpio_init(SW_KNOB_SPLIT);
-    gpio_set_dir(SW_KNOB_SPLIT, GPIO_IN);
-    gpio_pull_up(SW_KNOB_SPLIT);
-
-    gpio_init(BTN_KNOB_ENGINE_BRAKE);
-    gpio_set_dir(BTN_KNOB_ENGINE_BRAKE, GPIO_IN);
-    gpio_pull_up(BTN_KNOB_ENGINE_BRAKE);
+    configureHandle();
   }
+}
+
+void ShifterInput::configureHandle() {
+  gpio_set_function(SW_KNOB_RANGE, GPIO_FUNC_SIO);
+  gpio_set_dir(SW_KNOB_RANGE, GPIO_IN);
+
+  gpio_init(SW_KNOB_SPLIT);
+  gpio_set_dir(SW_KNOB_SPLIT, GPIO_IN);
+  gpio_pull_up(SW_KNOB_SPLIT);
+
+  gpio_init(BTN_KNOB_ENGINE_BRAKE);
+  gpio_set_dir(BTN_KNOB_ENGINE_BRAKE, GPIO_IN);
+  gpio_pull_up(BTN_KNOB_ENGINE_BRAKE);
+}
+
+void ShifterInput::checkSequential() {
+  bool reading = !gpio_get(SW_ENABLE_SEQUENTIAL);
+
+  if (reading != lastButtonState) {
+    lastDebounceTime = to_ms_since_boot(get_absolute_time());
+  }
+
+  if (reading != buttonState && (to_ms_since_boot(get_absolute_time()) - lastDebounceTime) > debounceDelay) {
+    buttonState = reading;
+    if (!buttonState) {
+      sequentialEnabled = !sequentialEnabled;
+    }
+  }
+
+  lastButtonState = reading;
 }
 
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
@@ -51,7 +72,7 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   return input;
 }
 
-[[nodiscard]] ShifterModel::InputState ShifterInput::readInputs() const {
+ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
   inputs.swFront = !gpio_get(SW_FRONT);
   inputs.swLeft = !gpio_get(SW_LEFT);
@@ -59,15 +80,26 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   inputs.swBack = !gpio_get(SW_BACK);
   inputs.swReverse = gpio_get(SW_REVERSE);
 
+  if (to_ms_since_boot(get_absolute_time()) - lastScan >= 2000) {
+    handleConnected = detectHandleConnection();
+    checkSequential();
+    if (handleConnected) {
+      configureHandle();
+    }
+    lastScan = to_ms_since_boot(get_absolute_time());
+  }
+
   if (handleConnected) {
     inputs.swRange = !gpio_get(SW_KNOB_RANGE);
     inputs.swSplit = !gpio_get(SW_KNOB_SPLIT);
     inputs.btnEngineBrake = !gpio_get(BTN_KNOB_ENGINE_BRAKE);
+  } else {
+    inputs.swRange = false;
+    inputs.swSplit = false;
+    inputs.btnEngineBrake = false;
   }
 
   return inputs;
 }
 
-[[nodiscard]] ShifterModel::ShifterConfig ShifterInput::configuration() const {
-  return { .sequentialEnabled = !gpio_get(SW_ENABLE_SEQUENTIAL), .handleConnected = handleConnected };
-}
+ShifterModel::ShifterConfig ShifterInput::configuration() { return { .sequentialEnabled = sequentialEnabled, .handleConnected = handleConnected }; }
