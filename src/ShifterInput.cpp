@@ -1,3 +1,4 @@
+#include "waveshare_rp2040_zero.h"
 #include <ShifterInput.h>
 
 void ShifterInput::begin() {
@@ -25,20 +26,23 @@ void ShifterInput::configureHandle() {
 }
 
 void ShifterInput::checkSequential() {
-  bool reading = digitalRead(SW_ENABLE_SEQUENTIAL);
-
-  if (reading != lastButtonState) {
-    lastDebounceTime = millis();
+  if (const bool isPressed = digitalRead(SW_ENABLE_SEQUENTIAL) == LOW; !isPressed) {
+    sequentialPressActive = false;
+    sequentialPressStartTime = 0;
+    return;
   }
 
-  if (reading != buttonState && (millis() - lastDebounceTime) > debounceDelay) {
-    buttonState = reading;
-    if (buttonState == LOW) {
-      sequentialEnabled = !sequentialEnabled;
-    }
+  if (!sequentialPressActive) {
+    sequentialPressActive = true;
+    sequentialPressStartTime = millis();
+    return;
   }
 
-  lastButtonState = reading;
+  if ((millis() - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
+    sequentialEnabled = !sequentialEnabled;
+    sequentialPressActive = false;
+    sequentialPressStartTime = 0;
+  }
 }
 
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
@@ -59,9 +63,10 @@ ShifterModel::InputState ShifterInput::readInputs() {
   inputs.swBack = digitalRead(SW_BACK) == LOW;
   inputs.swReverse = digitalRead(SW_REVERSE) == HIGH;
 
-  if (millis() - lastScan >= 2000) {
+  checkSequential();
+
+  if (millis() - lastScan >= 500) {
     handleConnected = detectHandleConnection();
-    checkSequential();
     if (handleConnected) {
       configureHandle();
     }

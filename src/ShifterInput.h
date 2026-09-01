@@ -28,12 +28,9 @@ private:
   inline static bool sequentialEnabled = false;
   inline static uint32_t lastScan;
 
-  inline static bool ledState = LOW;
-  inline static bool buttonState;
-  inline static bool lastButtonState = HIGH;
-
-  inline static uint32_t lastDebounceTime = 0;
-  inline static uint32_t debounceDelay = 50;
+  inline static bool sequentialPressActive = false;
+  inline static uint32_t sequentialPressStartTime = 0;
+  static constexpr uint32_t SEQUENTIAL_MODE_HOLD_TIME_MS = 1000;
 
 public:
   struct AnalogState {
