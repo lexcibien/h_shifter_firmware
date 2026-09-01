@@ -311,9 +311,9 @@ def print_memory_usage(memory_info):
 
     print("=== Device memory partitioning ===")
     print(f"Total Flash:          {memory_info['flash_total']} bytes ({format_bytes(memory_info['flash_total'])})")
-    print(f"  ├─ Sketch area:     {memory_info['flash_sketch']} bytes ({format_bytes(memory_info['flash_sketch'])})")
-    print(f"  ├─ Filesystem:      {filesystem_size} bytes ({format_bytes(filesystem_size)})")
-    print(f"  └─ EEPROM res:      {EEPROM_reserve} bytes ({format_bytes(EEPROM_reserve)})")
+    print(f"  - Sketch area:      {memory_info['flash_sketch']} bytes ({format_bytes(memory_info['flash_sketch'])})")
+    print(f"  - Filesystem:       {filesystem_size} bytes ({format_bytes(filesystem_size)})")
+    print(f"  - EEPROM res:       {EEPROM_reserve} bytes ({format_bytes(EEPROM_reserve)})")
     print(f"Total RAM:            {memory_info['ram_total']} bytes ({format_bytes(memory_info['ram_total'])})")
     print()
     print("=== Summary ===")
