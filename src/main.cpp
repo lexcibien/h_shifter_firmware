@@ -55,10 +55,12 @@ void loop() {
 
   ShifterModel::InputState inputs = ShifterInput::readInputs();
 
-  if (shifterConfig.sequentialEnabled) {
-    ledMulti.showLed(Color::SEQUENTIAL);
-  } else {
-    ledMulti.showLed(Color::H_SHIFTER);
+  if (!LedMulti::blockSignal) {
+    if (shifterConfig.sequentialEnabled) {
+      ledMulti.showLed(Color::SEQUENTIAL);
+    } else {
+      ledMulti.showLed(Color::H_SHIFTER);
+    }
   }
 
   if (shifterConfig.handleConnected) {

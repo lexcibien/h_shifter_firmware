@@ -18,6 +18,8 @@ private:
   bool running = false;
 
 public:
+  inline static bool blockSignal = false;
+
   void begin();
   void showLed(Color color);
   void connectHandle();

@@ -17,6 +17,7 @@ void LedMulti::showLed(Color color) {
 
 void LedMulti::connectHandle() {
   running = true;
+  blockSignal = true;
   step = 0;
   lastChange = millis();
   led.setPixelColor(0, std::to_underlying(Color::SEQUENTIAL));
@@ -40,6 +41,7 @@ void LedMulti::update() {
         led.clear();
         led.show();
         running = false;
+        blockSignal = false;
         return;
     }
 
