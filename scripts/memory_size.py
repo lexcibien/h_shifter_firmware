@@ -105,38 +105,34 @@ def parse_memory_from_ld(path: str) -> Dict[str, int]:
     return memories
 
 
-def search_board_config():
-    candidates = []
-    root = os.getcwd()
-    candidates += [
-        os.path.join(root, ".pio", "platforms", "raspberrypi", "boards"),
-        os.path.join(root, "boards"),
-        os.path.join(root, ".pio", "build"),
+def find_board_config_path(board_name: Optional[str] = None, config_path: Optional[str] = None) -> Optional[str]:
+    if config_path:
+        path = os.path.abspath(config_path)
+        if os.path.exists(path):
+            return path
+        return None
+
+    board_name = (board_name or "").strip()
+    if not board_name:
+        return None
+
+    search_roots = [
+        os.getcwd(),
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     ]
     seen = set()
-    for base in candidates:
-        if not os.path.isdir(base):
-            continue
-        for root_dir, _, files in os.walk(base):
-            for fname in files:
-                if fname.endswith(".json"):
-                    path = os.path.join(root_dir, fname)
-                    if fname in seen and path not in seen:
-                        continue
-                    seen.add(path)
-                    if "waveshare" in fname.lower() or "board" in fname.lower():
-                        yield path
-    for base in candidates:
-        if not os.path.isdir(base):
-            continue
-        for root_dir, _, files in os.walk(base):
-            for fname in files:
-                if fname.endswith(".json"):
-                    path = os.path.join(root_dir, fname)
-                    if "waveshare" in fname.lower() or "board" in fname.lower():
-                        yield path
-
-
+    for root in search_roots:
+        for current, _, files in os.walk(root):
+            for name in files:
+                if not name.lower().endswith(".json"):
+                    continue
+                file_path = os.path.join(current, name)
+                if file_path in seen:
+                    continue
+                seen.add(file_path)
+                if os.path.splitext(name)[0].lower() == board_name.lower():
+                    return file_path
+    return None
 
 
 def parse_size_output(output: str) -> Dict[str, int]:
@@ -170,7 +166,7 @@ def find_elf_file(explicit_path: Optional[str] = None):
 
     candidates = []
     root = os.getcwd()
-    for base in [root, os.path.join(root, ".pio", "build")]:
+    for base in [root, os.path.join(root, "build"), os.path.join(root, ".pio", "build")]:
         if not os.path.isdir(base):
             continue
         for current, _, files in os.walk(base):
@@ -183,28 +179,22 @@ def find_elf_file(explicit_path: Optional[str] = None):
     return None
 
 
-def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optional[str] = None) -> Tuple[int, int]:
+def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optional[str] = None, board_name: Optional[str] = None) -> Tuple[int, int]:
     board_limits = None
-    if config_path:
-        path = os.path.abspath(config_path)
-        if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as fp:
-                    board_limits = json.load(fp)
-            except Exception:
-                board_limits = None
+    resolved_config = find_board_config_path(board_name=board_name, config_path=config_path)
+    if resolved_config:
+        try:
+            with open(resolved_config, "r", encoding="utf-8") as fp:
+                board_limits = json.load(fp)
+        except Exception:
+            board_limits = None
 
     if board_limits is None:
         for app_dir in [os.getcwd(), os.path.dirname(os.path.dirname(os.path.abspath(__file__)))]:
             for root, _, files in os.walk(app_dir):
-                if "waveshare_rp2040_zero.json" in files:
-                    board_path = os.path.join(root, "waveshare_rp2040_zero.json")
-                    with open(board_path, "r", encoding="utf-8") as fp:
-                        board_limits = json.load(fp)
-                    break
                 if "boards" in os.path.basename(root) and root.endswith("boards"):
                     for f in files:
-                        if f.endswith(".json"):
+                        if f.endswith(".json") and (board_name is None or f.startswith(board_name)):
                             board_path = os.path.join(root, f)
                             try:
                                 with open(board_path, "r", encoding="utf-8") as fp:
@@ -252,13 +242,17 @@ def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optiona
 
     if flash is None:
         flash = 2 * 1024 * 1024
+        print("falhou flash")
     if ram is None:
         ram = 512 * 1024
+        print("falhou ram")
 
     return int(flash), int(ram)
 
 
-def get_memory_usage(elf_path: Optional[str] = None, config_path: Optional[str] = None, linker_path: Optional[str] = None):
+def get_memory_usage(
+    elf_path: Optional[str] = None, config_path: Optional[str] = None, linker_path: Optional[str] = None, board_name: Optional[str] = None
+):
     size_bin = shutil.which("arm-none-eabi-size") or "arm-none-eabi-size"
     elf_path = find_elf_file(elf_path)
     if not elf_path or not os.path.exists(elf_path):
@@ -274,7 +268,7 @@ def get_memory_usage(elf_path: Optional[str] = None, config_path: Optional[str] 
         return None
 
     mem_used = parse_size_output(output)
-    program_max_size, data_max_size = detect_memory_limits(config_path=config_path, linker_path=linker_path)
+    program_max_size, data_max_size = detect_memory_limits(config_path=config_path, linker_path=linker_path, board_name=board_name)
 
     result = {
         "program_used": mem_used["program_size"],
@@ -325,12 +319,13 @@ def parse_cli_args():
     parser = argparse.ArgumentParser(description="Report flash/RAM usage with the same base used by PlatformIO.")
     parser.add_argument("--file", dest="elf_path", help="Path to the ELF file to analyze (default: auto-detect).")
     parser.add_argument("--config", dest="config_path", help="Path to the board JSON config (default: auto-detect).")
+    parser.add_argument("--board", dest="board_name", help="Board name to resolve automatically from the project config, e.g. ecu-test-iii.")
     parser.add_argument("--ld", dest="linker_path", help="Path to the linker script used for fallback memory limit detection.")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_cli_args()
-    memory_info_json = get_memory_usage(args.elf_path, args.config_path, args.linker_path)
+    memory_info_json = get_memory_usage(args.elf_path, args.config_path, args.linker_path, args.board_name)
     print(memory_info_json)
     print_memory_usage(memory_info_json)

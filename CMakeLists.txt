@@ -85,7 +85,7 @@ if(TARGET tinyusb_device)
 
   add_custom_target(size_report
     COMMAND ${CMAKE_COMMAND} -E echo "=== Memory Usage Report ==="
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py
+    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py --board waveshare_rp2040_zero
   )
 
   add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD COMMAND ${CMAKE_COMMAND} --build . --target size_report)
