@@ -12,7 +12,7 @@ private:
 
   Adafruit_USBD_HID usbHid;
   ButtonsReport buttonReport = {};
-  static constexpr std::array<uint8_t, 30> hidReportDescriptor = {
+  static constexpr std::array<uint8_t, 29> hidReportDescriptor = {
     HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),     //
     HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),      //
     HID_COLLECTION(HID_COLLECTION_APPLICATION), //
