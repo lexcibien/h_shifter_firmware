@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "adafruit",
     "Adafruit",
     "arduino",
     "atmelavr",
@@ -8,10 +9,13 @@
     "clangtidy",
     "cppcheck",
     "cppcoreguidelines",
+    "DDEBUG",
     "DLEONARDO",
     "DPICO",
     "DRPIPICO",
     "DUSBCON",
+    "earlephilhower",
+    "fstack",
     "gamepad",
     "GAMEPAD",
     "hicpp",

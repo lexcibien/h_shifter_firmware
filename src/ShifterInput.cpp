@@ -1,4 +1,3 @@
-#include "waveshare_rp2040_zero.h"
 #include <ShifterInput.h>
 
 void ShifterInput::begin() {
@@ -9,7 +8,7 @@ void ShifterInput::begin() {
   pinMode(SW_REVERSE, INPUT_PULLUP);
   pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
 
-  analogReadResolution(BITS_RES);
+  analogReadResolution(ADC_RESOLUTION);
 
   delay(2000);
   handleConnected = detectHandleConnection();
