@@ -9,7 +9,6 @@
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 HidReport hidReport;
 ShifterInput shifterInput;
-ShifterLogic shifterLogic;
 Debug debug;
 ShifterModel::ButtonState previousButtonState = {};
 ShifterModel::ShifterConfig shifterConfig;
@@ -81,7 +80,7 @@ void loop() {
   Debug::printRawInputs(inputs);
 #endif
 
-  ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);
+  ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
 
   if (!hidReport.ready()) {
     return;

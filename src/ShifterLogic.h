@@ -9,10 +9,12 @@ private:
   using ButtonState = ShifterModel::ButtonState;
   using Buttons = ShifterModel::ControllerButtons;
 
-  void resolveLateralGears(const InputState& inputs, ButtonState& buttonState, bool& combFrontUsed, bool& combBackUsed) const {
+  inline static bool isReverseGear = false;
+
+  static void resolveLateralGears(const InputState& inputs, ButtonState& buttonState, bool& combFrontUsed, bool& combBackUsed) {
     if (inputs.swBack && inputs.swRight && !isReverseGear) {
-      buttonState[Buttons::GEAR_1] = true;
       combFrontUsed = true;
+      buttonState[Buttons::GEAR_1] = true;
     }
     if (inputs.swFront && inputs.swRight) {
       buttonState[Buttons::GEAR_2] = true;
@@ -28,22 +30,21 @@ private:
     }
   }
 
-  void activateReverseGear(const InputState& inputs, ButtonState& buttonState) {
+  static void activateReverseGear(const InputState& inputs, ButtonState& buttonState) {
     if (ShifterModel::ENABLE_REVERSE && inputs.swReverse && inputs.swBack && inputs.swRight) {
       buttonState[Buttons::GEAR_1] = false;
       isReverseGear = true;
     }
   }
 
-  void applyReverseGear(ButtonState& buttonState, bool& combFrontUsed) const {
+  static void applyReverseGear(ButtonState& buttonState, bool& combFrontUsed) {
     if (isReverseGear) {
       buttonState[Buttons::GEAR_R] = true;
       combFrontUsed = true;
     }
   }
 
-  static void
-  resolveSequentialGears(const InputState& inputs, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
+  static void resolveSequentialGears(const InputState& inputs, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
     if (inputs.swFront && !combFrontUsed) {
       buttonState[Buttons::SW_SEQ_MINUS] = true;
     }
@@ -61,7 +62,7 @@ private:
     }
   }
 
-  void resetReverseGear(const InputState& inputs) {
+  static void resetReverseGear(const InputState& inputs) {
     if (!inputs.swFront && !inputs.swLeft && !inputs.swRight && !inputs.swBack) {
       isReverseGear = false;
     }
@@ -73,8 +74,6 @@ private:
     buttonState[Buttons::ENGINE_BRAKE] = inputs.btnEngineBrake;
   }
 
-  bool isReverseGear = false;
-
 public:
-  ButtonState resolveButtonState(const InputState& inputs, const Config& config);
+  static ButtonState resolveButtonState(const InputState& inputs, const Config& config);
 };
