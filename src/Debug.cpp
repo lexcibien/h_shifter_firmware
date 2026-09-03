@@ -1,8 +1,7 @@
+#include <Adafruit_TinyUSB.h>
 #include <Debug.h>
 
-void Debug::printRawAnalog(const ShifterInput::AnalogState& input) {
-  Serial.printf("RAW AN: %d, %0.2f\n", input.adc, input.voltage);
-}
+void Debug::printRawAnalog(const ShifterInput::AnalogState& input) { Serial.printf("RAW AN: %d, %0.2f\n", input.adc, input.voltage); }
 
 void Debug::printRawInputs(const ShifterModel::InputState& inputs) {
   Serial.printf("RAW: %d, %d, %d, %d, %d, %d, %d, %d \n", inputs.swFront, inputs.swLeft, inputs.swRight, inputs.swBack, inputs.swReverse,

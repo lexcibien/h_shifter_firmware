@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hid/Adafruit_USBD_HID.h"
 #include <ShifterModel.h>
+#include <hid/Adafruit_USBD_HID.h>
 
 class HidReport {
 private:

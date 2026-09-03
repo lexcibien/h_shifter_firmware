@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <Debug.h>
 #include <HidReport.h>
 #include <LedMulti.h>

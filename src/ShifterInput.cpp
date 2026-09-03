@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <ShifterInput.h>
 
 void ShifterInput::begin() {
@@ -16,6 +17,13 @@ void ShifterInput::begin() {
   if (handleConnected) {
     configureHandle();
   }
+}
+
+bool ShifterInput::detectHandleConnection() {
+  const uint16_t DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
+  int adc = analogRead(SW_KNOB_RANGE);
+
+  return adc < DETECT_VALUE;
 }
 
 void ShifterInput::configureHandle() {
