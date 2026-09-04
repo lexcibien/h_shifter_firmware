@@ -9,10 +9,10 @@ ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inp
     resolveSequentialGears(inputs, buttonState, combFrontUsed, combBackUsed);
   } else {
     resolveLateralGears(inputs, buttonState, combFrontUsed, combBackUsed);
+    activateReverseGear(inputs, buttonState);
+    applyReverseGear(buttonState, combFrontUsed);
     resolveCenterGears(inputs, buttonState, combFrontUsed, combBackUsed);
   }
-  activateReverseGear(inputs, buttonState);
-  applyReverseGear(buttonState, combFrontUsed);
   resetReverseGear(inputs);
   if (config.handleConnected) {
     applyHandleButtons(inputs, buttonState);
