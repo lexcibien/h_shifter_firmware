@@ -32,6 +32,13 @@ void ShifterInput::begin() {
   }
 }
 
+bool ShifterInput::detectHandleConnection() {
+  adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
+  const uint16_t DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
+  int adc = adc_read();
+  return adc < DETECT_VALUE;
+}
+
 void ShifterInput::configureHandle() {
   gpio_set_function(SW_KNOB_RANGE, GPIO_FUNC_SIO);
   gpio_set_dir(SW_KNOB_RANGE, GPIO_IN);
@@ -46,20 +53,23 @@ void ShifterInput::configureHandle() {
 }
 
 void ShifterInput::checkSequential() {
-  bool reading = !gpio_get(SW_ENABLE_SEQUENTIAL);
-
-  if (reading != lastButtonState) {
-    lastDebounceTime = to_ms_since_boot(get_absolute_time());
+  if (const bool isPressed = !gpio_get(SW_ENABLE_SEQUENTIAL); !isPressed) {
+    sequentialPressActive = false;
+    sequentialPressStartTime = 0;
+    return;
   }
 
-  if (reading != buttonState && (to_ms_since_boot(get_absolute_time()) - lastDebounceTime) > debounceDelay) {
-    buttonState = reading;
-    if (!buttonState) {
-      sequentialEnabled = !sequentialEnabled;
-    }
+  if (!sequentialPressActive) {
+    sequentialPressActive = true;
+    sequentialPressStartTime = to_ms_since_boot(get_absolute_time());
+    return;
   }
 
-  lastButtonState = reading;
+  if ((to_ms_since_boot(get_absolute_time()) - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
+    sequentialEnabled = !sequentialEnabled;
+    sequentialPressActive = false;
+    sequentialPressStartTime = 0;
+  }
 }
 
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
@@ -80,9 +90,10 @@ ShifterModel::InputState ShifterInput::readInputs() {
   inputs.swBack = !gpio_get(SW_BACK);
   inputs.swReverse = gpio_get(SW_REVERSE);
 
-  if (to_ms_since_boot(get_absolute_time()) - lastScan >= 2000) {
+  checkSequential();
+
+  if (to_ms_since_boot(get_absolute_time()) - lastScan >= 500) {
     handleConnected = detectHandleConnection();
-    checkSequential();
     if (handleConnected) {
       configureHandle();
     }

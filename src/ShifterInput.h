@@ -1,6 +1,5 @@
 #pragma once
 
-#include "hardware/adc.h"
 #include <ShifterModel.h>
 #include <board.h>
 
@@ -18,23 +17,15 @@ private:
 
   // In the handle truck shifter, change the 1.07 MΩ original resistor for a 20 kΩ,
   // and at the uC, in the SW_KNOB_RANGE pin and the 3.3 V, use a 10 kΩ resistor.
-  static bool detectHandleConnection() {
-    adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
-    const uint16_t DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
-    int adc = adc_read();
-    return adc < DETECT_VALUE;
-  }
+  static bool detectHandleConnection();
 
   inline static bool handleConnected = false;
   inline static bool sequentialEnabled = false;
   inline static uint32_t lastScan;
 
-  inline static bool ledState = false;
-  inline static bool buttonState;
-  inline static bool lastButtonState = true;
-
-  inline static uint32_t lastDebounceTime = 0;
-  inline static uint32_t debounceDelay = 50;
+  inline static bool sequentialPressActive = false;
+  inline static uint32_t sequentialPressStartTime = 0;
+  static constexpr uint32_t SEQUENTIAL_MODE_HOLD_TIME_MS = 1000;
 
 public:
   struct AnalogState {
