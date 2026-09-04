@@ -22,12 +22,6 @@ void setup() {
 
   shifterConfig = ShifterInput::configuration();
 
-  if (!shifterConfig.handleConnected) {
-    Serial.println("INFO: Truck shifter handle not connected");
-  } else {
-    Serial.println("OK: Handle detected");
-  }
-
   const char* gearType = "";
   if (shifterConfig.sequentialEnabled) {
     ledMulti.showLed(Color::SEQUENTIAL);
@@ -37,6 +31,7 @@ void setup() {
     gearType = "H Shifter";
   }
 
+  Serial.println(shifterConfig.handleConnected ? "OK: Handle detected" : "INFO: Truck shifter handle not connected");
   Serial.println(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
   Serial.printf("OK: The current gear output is %s", gearType);
 }
