@@ -9,13 +9,13 @@
 
 int main() {
   HidReport hidReport;
-  ShifterLogic shifterLogic;
   ShifterModel::ButtonState previousButtonState = {};
   ShifterModel::ShifterConfig shifterConfig;
 
   stdio_init_all();
   HidReport::begin();
   ShifterInput::begin();
+
   shifterConfig = ShifterInput::configuration();
 
   const char* gearType = nullptr;
@@ -50,7 +50,7 @@ int main() {
     Debug::printRawInputs(inputs);
 #endif
 
-    ShifterModel::ButtonState buttonState = shifterLogic.resolveButtonState(inputs, shifterConfig);
+    ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
 
     if (!HidReport::ready()) {
       sleep_ms(10);
