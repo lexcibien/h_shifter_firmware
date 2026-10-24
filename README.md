@@ -1,92 +1,61 @@
 # Firmware H Shifter
 
-## Compilar branch tools-customs
-
-Para compilar esse branch, são necessários alguns passos:
-
-1. Baixar o [Compilador GCC para AVR](https://www.microchip.com/en-us/tools-resources/develop/microchip-studio/gcc-compilers) e salvar em `.pio/packages/toolchain-atmelavr-custom`
-2. Adicionar um arquivo `package.json` na pasta
-
-    ```json
-    {
-      "name": "toolchain-atmelavr",
-      "version": "1.0.0",
-      "description": "GCC Toolchain for Microchip AVR microcontrollers",
-      "keywords": [
-        "toolchain",
-        "build tools",
-        "compiler",
-        "assembler",
-        "linker",
-        "preprocessor",
-        "microchip",
-        "avr"
-      ],
-      "homepage": "<https://gcc.gnu.org/wiki/avr-gcc>",
-      "license": "GPL-2.0-or-later",
-      "system": [
-        "linux_x86_64"
-      ]
-    }
-    ```
-
-3. Para ter a nova versão do `ArduinoCore-avr`, deve clonar o repositório na pasta `.pio/packages/framework-arduino-avr-custom`
-4. Adicionar um arquivo `package.json` na pasta
-
-    ```json
-    {
-    "name": "framework-arduino-avr",
-    "version": "5.3.0",
-    "description": "The official Arduino Wiring-based Framework for Microchip AVR microcontrollers",
-    "keywords": [
-      "framework",
-      "arduino",
-      "microchip",
-      "avr"
-    ],
-    "homepage": "https://www.arduino.cc/reference/en",
-    "license": "LGPL-2.1-or-later",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/arduino/ArduinoCore-avr"
-      }
-    }
-    ```
-
-Depois disso irá compilar sem erros.
+Firmware para o câmbio H com uma placa Waveshare RP2040 Zero. A placa apresenta
+12 botões virtuais ao computador como um joystick.
 
 ## Requisitos
 
-Picotool faz uma bruxaria e consegue fazer funcionar, portanto siga os passo nos docs de raspberrypi/picotool e compila o picotool (se no mac, não testei em outros).
+- CMake 3.35 ou superior.
+- Raspberry Pi Pico SDK 2.3.0 ou superior, com os submódulos inicializados.
+- Toolchain GNU para ARM (`arm-none-eabi-gcc`) disponível no `PATH`.
+- Python disponível como `python` no `PATH` (usado para gerar o relatório de memória durante a compilação).
+- `picotool` disponível no `PATH` para gravar o firmware pelo alvo `flash`.
 
-```git submodule update --init --recursive --force``` para atualizar os submódulos
-
-Coloque pico-sdk/ e picotool/ dentro ~/pico e defina as env no PATH (insira em .zshrc para manter entre sessões)
+Instale o Pico SDK e o `picotool` seguindo as instruções dos respectivos
+projetos: [pico-sdk](https://github.com/raspberrypi/pico-sdk) e
+[picotool](https://github.com/raspberrypi/picotool). Por exemplo, para manter
+o SDK em `~/pico/pico-sdk`:
 
 ```bash
-export PATH="$HOME/.local/bin:$PATH"
+mkdir -p "$HOME/pico"
+git clone https://github.com/raspberrypi/pico-sdk.git "$HOME/pico/pico-sdk"
+git -C "$HOME/pico/pico-sdk" submodule update --init --recursive
 export PICO_SDK_PATH="$HOME/pico/pico-sdk"
 ```
 
-## Configurar as placas
+Configure `PICO_SDK_PATH` no arquivo de inicialização do seu shell se quiser
+mantê-lo definido entre sessões. Instale também a toolchain ARM e o `picotool`
+conforme as instruções oficiais para o seu sistema operacional.
 
-Adicionar dentro da pasta do pico-sdk: ```$HOME/pico/pico-sdk/src/boards/include/boards``` os arquivos inclusos em boards
+## Compilar
 
-## Configurar com o clangd
+Na raiz do repositório, configure o projeto e compile:
 
-### MacOS
+```bash
+cmake -S . -B build
+cmake --build build --parallel
+```
 
-1. Baixar ArmGNUToolchain (recomendado pelo site)
-2. Fazer um link simbólico para o compile_commands.json
-   ```ln -s build/compile_commands.json .```
-3. Crie o arquivo ```.clangd``` e copie os diretórios em ```/Applications/ArmGNUToolchain/15.2.rel1/arm-none-eabi/bin/arm-none-eabi-g++ -E -x c++ - -v < /dev/null```:
-   #include "..." search starts here:
-   #include <...> search starts here:
-e cole no arquivo:
+Se possui a extensão no VSCode CMake Tools é mais fácil.
 
-  ```yaml
-  CompileFlags:
-    Add:
-      - -isystem
-      - /path/from/command
-  ```
+O CMake seleciona a placa `waveshare_rp2040_zero`. A compilação gera, entre
+outros arquivos, `build/H_SHIFTER_JAPATECH.uf2` e
+`build/H_SHIFTER_JAPATECH.bin`. Também é possível executar os dois comandos
+novamente depois de alterações para recompilar.
+
+## Gravar o firmware na placa
+
+Conecte a RP2040 Zero ao computador por USB em modo BOOTSEL: desconecte a placa,
+segure o botão **BOOT** enquanto conecta o cabo USB e solte o botão quando ela
+for reconhecida. Na raiz do repositório, execute:
+
+```bash
+cmake --build build --target flash
+```
+
+Esse alvo compila o firmware, se necessário, e chama `picotool` para gravar o
+arquivo `.bin` na flash da placa e iniciá-lo. Ao terminar, a placa reinicia e
+passa a executar o firmware.
+
+Como alternativa, se a placa aparecer como uma unidade USB `RPI-RP2`, copie
+`build/H_SHIFTER_JAPATECH.uf2` para essa unidade. Ela reiniciará após a cópia.
