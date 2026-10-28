@@ -24,7 +24,7 @@ ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inp
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
 
-ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const Config& config) { // TODO Seguir padrão da V1 e converter para std::get
+ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const Config& config) {
   ButtonState buttonState = {};
 
   if (!inputs.hPatternMode) {
