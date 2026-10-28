@@ -12,53 +12,41 @@ private:
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inline static bool isReverseGear = false;
 
-  static void resolveLateralGears(const InputState& inputs, ButtonState& buttonState, bool& combFrontUsed, bool& combBackUsed) {
-    if (inputs.swBack && inputs.swRight && !isReverseGear) {
-      combFrontUsed = true;
-      std::get<Buttons::GEAR_1>(buttonState) = true;
-    }
-    if (inputs.swFront && inputs.swRight) {
-      std::get<Buttons::GEAR_2>(buttonState) = true;
-      combBackUsed = true;
-    }
-    if (inputs.swBack && inputs.swLeft) {
-      std::get<Buttons::GEAR_5>(buttonState) = true;
-      combFrontUsed = true;
-    }
-    if (inputs.swFront && inputs.swLeft) {
-      std::get<Buttons::GEAR_6>(buttonState) = true;
-      combBackUsed = true;
-    }
+  static void resolveSequentialGears(const InputState& inputs, ButtonState& buttonState) {
+    std::get<Buttons::SW_SEQ_MINUS>(buttonState) = inputs.swFront;
+    std::get<Buttons::SW_SEQ_PLUS>(buttonState) = inputs.swBack;
   }
 
-  static void activateReverseGear(const InputState& inputs, ButtonState& buttonState) {
+  static bool resolveSpecialGears(const InputState& inputs, ButtonState& buttonState) {
     if (ShifterModel::ENABLE_REVERSE && inputs.swReverse && inputs.swBack && inputs.swRight) {
-      std::get<Buttons::GEAR_1>(buttonState) = false;
       isReverseGear = true;
     }
-  }
-
-  static void applyReverseGear(ButtonState& buttonState, bool& combFrontUsed) {
     if (isReverseGear) {
       std::get<Buttons::GEAR_R>(buttonState) = true;
-      combFrontUsed = true;
+      return true;
     }
+    return false;
   }
 
-  static void resolveSequentialGears(const InputState& inputs, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
-    if (inputs.swFront && !combFrontUsed) {
-      std::get<Buttons::SW_SEQ_MINUS>(buttonState) = true;
+  static bool resolveLateralGears(const InputState& inputs, ButtonState& buttonState) {
+    if (inputs.swBack && inputs.swRight) {
+      std::get<Buttons::GEAR_1>(buttonState) = true;
+    } else if (inputs.swFront && inputs.swRight) {
+      std::get<Buttons::GEAR_2>(buttonState) = true;
+    } else if (inputs.swBack && inputs.swLeft) {
+      std::get<Buttons::GEAR_5>(buttonState) = true;
+    } else if (inputs.swFront && inputs.swLeft) {
+      std::get<Buttons::GEAR_6>(buttonState) = true;
+    } else {
+      return false;
     }
-    if (inputs.swBack && !combBackUsed) {
-      std::get<Buttons::SW_SEQ_PLUS>(buttonState) = true;
-    }
+    return true;
   }
 
-  static void resolveCenterGears(const InputState& inputs, ButtonState& buttonState, bool combFrontUsed, bool combBackUsed) {
-    if (inputs.swBack && !combFrontUsed) {
+  static void resolveCenterGears(const InputState& inputs, ButtonState& buttonState) {
+    if (inputs.swBack) {
       std::get<Buttons::GEAR_3>(buttonState) = true;
-    }
-    if (inputs.swFront && !combBackUsed) {
+    } else if (inputs.swFront) {
       std::get<Buttons::GEAR_4>(buttonState) = true;
     }
   }
@@ -66,6 +54,46 @@ private:
   static void resetReverseGear(const InputState& inputs) {
     if (!inputs.swFront && !inputs.swLeft && !inputs.swRight && !inputs.swBack) {
       isReverseGear = false;
+    }
+  }
+
+#elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
+  static void resolveSequentialGears(const InputState& inputs, ButtonState& buttonState) {
+    std::get<Buttons::SW_SEQ_PLUS>(buttonState) = inputs.sw6;
+    std::get<Buttons::SW_SEQ_MINUS>(buttonState) = inputs.sw3;
+  }
+
+  static bool resolveSpecialGears(const InputState& inputs, ButtonState& buttonState) {
+    if (inputs.sw3 && inputs.sw4 && inputs.sw5) {
+      std::get<Buttons::GEAR_7>(buttonState) = true;
+    } else if (inputs.sw6 && inputs.sw4 && inputs.sw5) {
+      std::get<Buttons::GEAR_R>(buttonState) = true;
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  static bool resolveLateralGears(const InputState& inputs, ButtonState& buttonState) {
+    if (inputs.sw3 && inputs.sw4) {
+      std::get<Buttons::GEAR_1>(buttonState) = true;
+    } else if (inputs.sw6 && inputs.sw4) {
+      std::get<Buttons::GEAR_2>(buttonState) = true;
+    } else if (inputs.sw3 && inputs.sw5) {
+      std::get<Buttons::GEAR_5>(buttonState) = true;
+    } else if (inputs.sw6 && inputs.sw5) {
+      std::get<Buttons::GEAR_6>(buttonState) = true;
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  static void resolveCenterGears(const InputState& inputs, ButtonState& buttonState) {
+    if (inputs.sw3) {
+      std::get<Buttons::GEAR_3>(buttonState) = true;
+    } else if (inputs.sw6) {
+      std::get<Buttons::GEAR_4>(buttonState) = true;
     }
   }
 #endif
