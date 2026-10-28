@@ -52,6 +52,8 @@ void ShifterInput::configureHandle() {
   pinMode(SW_KNOB_RANGE, INPUT);
   pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
   pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
+
+  handleConfigured = true;
 }
 
 void ShifterInput::checkSequential() {
@@ -107,7 +109,7 @@ ShifterModel::InputState ShifterInput::readInputs() {
 
   if (millis() - lastScan >= 500) {
     handleConnected = detectHandleConnection();
-    if (handleConnected) {
+    if (handleConnected && !handleConfigured) {
       configureHandle();
     }
     lastScan = millis();

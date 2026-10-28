@@ -58,6 +58,7 @@ private:
   static bool readDebounced(Button& button);
 
   inline static bool handleConnected = false;
+  inline static bool handleConfigured = false;
   inline static bool sequentialEnabled = false;
   inline static uint32_t lastScan;
 
