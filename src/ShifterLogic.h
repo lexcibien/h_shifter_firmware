@@ -9,6 +9,7 @@ private:
   using ButtonState = ShifterModel::ButtonState;
   using Buttons = ShifterModel::ControllerButtons;
 
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1 // TODO Converter para std::get
   inline static bool isReverseGear = false;
 
   static void resolveLateralGears(const InputState& inputs, ButtonState& buttonState, bool& combFrontUsed, bool& combBackUsed) {
@@ -67,11 +68,12 @@ private:
       isReverseGear = false;
     }
   }
+#endif
 
   static void applyHandleButtons(const InputState& inputs, ButtonState& buttonState) {
-    buttonState[Buttons::RANGE] = inputs.swRange;
-    buttonState[Buttons::SPLIT] = inputs.swSplit;
-    buttonState[Buttons::ENGINE_BRAKE] = inputs.btnEngineBrake;
+    std::get<Buttons::RANGE>(buttonState) = inputs.swRange;
+    std::get<Buttons::SPLIT>(buttonState) = inputs.swSplit;
+    std::get<Buttons::ENGINE_BRAKE>(buttonState) = inputs.btnEngineBrake;
   }
 
 public:

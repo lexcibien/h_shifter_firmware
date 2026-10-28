@@ -10,6 +10,8 @@ private:
     std::array<uint8_t, 2> buttons;
   };
 
+  static constexpr uint8_t HID_PADDING_COUNT = (sizeof(ButtonsReport) * 8U) - HID_BUTTON_COUNT;
+
   Adafruit_USBD_HID usbHid;
   ButtonsReport buttonReport = {};
   static constexpr std::array<uint8_t, 29> hidReportDescriptor = {
@@ -28,10 +30,10 @@ private:
     HID_REPORT_COUNT(HID_BUTTON_COUNT),                //
     HID_INPUT(HID_DATA | HID_VARIABLE | HID_ABSOLUTE), //
 
-    // Padding: 4 bits
-    HID_REPORT_SIZE(4),      //
-    HID_REPORT_COUNT(1),     //
-    HID_INPUT(HID_CONSTANT), //
+    // Completa o relatório ate 16 bits (4 bits na V1 e 3 bits na V2).
+    HID_REPORT_SIZE(HID_PADDING_COUNT), //
+    HID_REPORT_COUNT(1),                //
+    HID_INPUT(HID_CONSTANT),            //
 
     HID_COLLECTION_END //
   };

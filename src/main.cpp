@@ -22,6 +22,8 @@ void setup() {
 
   shifterConfig = ShifterInput::configuration();
 
+  Serial.printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
+
   const char* gearType = "";
   if (shifterConfig.sequentialEnabled) {
     ledMulti.showLed(Color::SEQUENTIAL);
@@ -33,7 +35,7 @@ void setup() {
 
   Serial.println(shifterConfig.handleConnected ? "OK: Handle detected" : "INFO: Truck shifter handle not connected");
   Serial.println(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  Serial.printf("OK: The current gear output is %s", gearType);
+  Serial.printf("OK: The current gear output is %s\n", gearType);
 }
 
 void loop() {
@@ -47,6 +49,7 @@ void loop() {
   }
 
   ShifterModel::InputState inputs = ShifterInput::readInputs();
+  shifterConfig = ShifterInput::configuration();
 
   if (!LedMulti::blockSignal) {
     if (shifterConfig.sequentialEnabled) {
@@ -64,8 +67,6 @@ void loop() {
   } else {
     executeOnce = true;
   }
-  shifterConfig = ShifterInput::configuration();
-
 #ifdef DEBUG
 #ifdef DEBUG_ANALOG
   ShifterInput::AnalogState inputAnalog = ShifterInput::readAnalogInput(); //* The button will not work digitally

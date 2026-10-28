@@ -1,13 +1,35 @@
 #include <Arduino.h>
 #include <ShifterInput.h>
 
+bool ShifterInput::readDebounced(Button& button) {
+  const bool raw = button.activeLow ? digitalRead(button.pin) == LOW : digitalRead(button.pin) == HIGH;
+
+  if (raw != button.lastRaw) {
+    button.lastChange = millis();
+    button.lastRaw = raw;
+  }
+  if ((millis() - button.lastChange) > DEBOUNCE_MS) {
+    button.stableState = raw;
+  }
+
+  return button.stableState;
+}
+
 void ShifterInput::begin() {
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   pinMode(SW_FRONT, INPUT_PULLUP);
   pinMode(SW_LEFT, INPUT_PULLUP);
   pinMode(SW_RIGHT, INPUT_PULLUP);
   pinMode(SW_BACK, INPUT_PULLUP);
   pinMode(SW_REVERSE, INPUT_PULLUP);
   pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
+#elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
+  pinMode(PIN_MODE, INPUT_PULLUP);
+  pinMode(PIN_3, INPUT_PULLUP);
+  pinMode(PIN_4, INPUT_PULLUP);
+  pinMode(PIN_5, INPUT_PULLUP);
+  pinMode(PIN_6, INPUT_PULLUP);
+#endif
 
   analogReadResolution(ADC_RESOLUTION);
 
@@ -33,7 +55,8 @@ void ShifterInput::configureHandle() {
 }
 
 void ShifterInput::checkSequential() {
-  if (const bool isPressed = digitalRead(SW_ENABLE_SEQUENTIAL) == LOW; !isPressed) {
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  if (const bool isPressed = readDebounced(sequentialModeButton); !isPressed) {
     sequentialPressActive = false;
     sequentialPressStartTime = 0;
     return;
@@ -50,6 +73,7 @@ void ShifterInput::checkSequential() {
     sequentialPressActive = false;
     sequentialPressStartTime = 0;
   }
+#endif
 }
 
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
@@ -64,13 +88,22 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
 ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
 
-  inputs.swFront = digitalRead(SW_FRONT) == LOW;
-  inputs.swLeft = digitalRead(SW_LEFT) == LOW;
-  inputs.swRight = digitalRead(SW_RIGHT) == LOW;
-  inputs.swBack = digitalRead(SW_BACK) == LOW;
-  inputs.swReverse = digitalRead(SW_REVERSE) == HIGH;
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  inputs.swFront = readDebounced(frontButton);
+  inputs.swLeft = readDebounced(leftButton);
+  inputs.swRight = readDebounced(rightButton);
+  inputs.swBack = readDebounced(backButton);
+  inputs.swReverse = readDebounced(reverseButton);
 
   checkSequential();
+#elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
+  inputs.hPatternMode = readDebounced(modeButton);
+  inputs.sw3 = readDebounced(button3);
+  inputs.sw4 = readDebounced(button4);
+  inputs.sw5 = readDebounced(button5);
+  inputs.sw6 = readDebounced(button6);
+  sequentialEnabled = !inputs.hPatternMode;
+#endif
 
   if (millis() - lastScan >= 500) {
     handleConnected = detectHandleConnection();
@@ -81,13 +114,9 @@ ShifterModel::InputState ShifterInput::readInputs() {
   }
 
   if (handleConnected) {
-    inputs.swRange = digitalRead(SW_KNOB_RANGE) == LOW;
-    inputs.swSplit = digitalRead(SW_KNOB_SPLIT) == LOW;
-    inputs.btnEngineBrake = digitalRead(BTN_KNOB_ENGINE_BRAKE) == LOW;
-  } else {
-    inputs.swRange = LOW;
-    inputs.swSplit = LOW;
-    inputs.btnEngineBrake = LOW;
+    inputs.swRange = readDebounced(rangeButton);
+    inputs.swSplit = readDebounced(splitButton);
+    inputs.btnEngineBrake = readDebounced(engineBrakeButton);
   }
 
   return inputs;
