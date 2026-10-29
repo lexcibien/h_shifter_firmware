@@ -23,7 +23,11 @@ private:
   inline static Button backButton = { .pin = SW_BACK, .activeLow = true, .lastRaw = false, .stableState = false, .lastChange = 0 };
   inline static Button reverseButton = { .pin = SW_REVERSE, .activeLow = false, .lastRaw = false, .stableState = false, .lastChange = 0 };
   inline static Button sequentialModeButton = {
-    .pin = SW_ENABLE_SEQUENTIAL, .activeLow = true, .lastRaw = false, .stableState = false, .lastChange = 0,
+    .pin = SW_ENABLE_SEQUENTIAL,
+    .activeLow = true,
+    .lastRaw = false,
+    .stableState = false,
+    .lastChange = 0,
   };
 #elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
   inline static Button modeButton = { .pin = PIN_MODE, .activeLow = true, .lastRaw = false, .stableState = false, .lastChange = 0 };
