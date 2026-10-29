@@ -1,5 +1,3 @@
-import os
-import shutil
 import subprocess
 
 from SCons.Script import DefaultEnvironment
