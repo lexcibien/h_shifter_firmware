@@ -30,9 +30,10 @@ void LedMulti::update() {
   }
 
   if (millis() - lastChange >= 500) { // 500 ms por cor
+    using enum Color;
     lastChange = millis();
 
-    static constexpr std::array connectionColors = { Color::SEQUENTIAL, Color::OK, Color::WARN };
+    static constexpr std::array connectionColors = { SEQUENTIAL, OK, WARN };
     if (step >= connectionColors.size()) {
       led.clear();
       led.show();
