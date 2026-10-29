@@ -2,6 +2,7 @@
 #include <ShifterInput.h>
 
 bool ShifterInput::readDebounced(Button& button) {
+  // NOLINTNEXTLINE(cppcoreguidelines-init-variables) -- initialized by the Arduino GPIO read.
   const bool raw = button.activeLow ? digitalRead(button.pin) == LOW : digitalRead(button.pin) == HIGH;
 
   if (raw != button.lastRaw) {

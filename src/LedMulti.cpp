@@ -1,4 +1,5 @@
 #include <LedMulti.h>
+#include <array>
 #include <utility>
 
 void LedMulti::begin() {
@@ -17,7 +18,6 @@ void LedMulti::showLed(Color color) {
 
 void LedMulti::connectHandle() {
   running = true;
-  blockSignal = true;
   step = 0;
   lastChange = millis();
   led.setPixelColor(0, std::to_underlying(Color::SEQUENTIAL));
@@ -32,19 +32,15 @@ void LedMulti::update() {
   if (millis() - lastChange >= 500) { // 500 ms por cor
     lastChange = millis();
 
-    switch (step) {
-      using enum Color;
-      case 0: led.setPixelColor(0, std::to_underlying(SEQUENTIAL)); break;
-      case 1: led.setPixelColor(0, std::to_underlying(OK)); break;
-      case 2: led.setPixelColor(0, std::to_underlying(WARN)); break;
-      default:
-        led.clear();
-        led.show();
-        running = false;
-        blockSignal = false;
-        return;
+    static constexpr std::array connectionColors = { Color::SEQUENTIAL, Color::OK, Color::WARN };
+    if (step >= connectionColors.size()) {
+      led.clear();
+      led.show();
+      running = false;
+      return;
     }
 
+    led.setPixelColor(0, std::to_underlying(connectionColors.at(step)));
     led.show();
     step++;
   }

@@ -13,12 +13,12 @@ Checks:
   -bugprone-easily-swappable-parameters,
   -modernize-use-std-print,
   -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -readability-convert-member-functions-to-static,
+  -llvm-header-guard,
   -hicpp-vararg"
 
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
-    value: true
-
-  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage
     value: true
 ...

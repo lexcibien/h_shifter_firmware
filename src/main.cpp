@@ -48,10 +48,10 @@ void loop() {
     return;
   }
 
-  ShifterModel::InputState inputs = ShifterInput::readInputs();
+  const ShifterModel::InputState inputs = ShifterInput::readInputs();
   shifterConfig = ShifterInput::configuration();
 
-  if (!LedMulti::blockSignal) {
+  if (!ledMulti.isSignaling()) {
     if (shifterConfig.sequentialEnabled) {
       ledMulti.showLed(Color::SEQUENTIAL);
     } else {
