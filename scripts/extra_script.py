@@ -13,7 +13,7 @@ print(f"[EXTRA SCRIPT] Diretório do projeto: {project_dir}")
 def generate_compile_commands():
     try:
         print("[POST-BUILD] Gerando compile_commands.json...")
-        subprocess.run(["pio", "run", "-t", "compiledb"], cwd=project_dir, check=True)
+        subprocess.run(["pio", "run", "-e", env["PIOENV"], "-t", "compiledb"], cwd=project_dir, check=True)
 
     except (EnvironmentError, FileNotFoundError) as e:
         print(f"[POST-BUILD] Erro ao gerar compile_commands.json: {e}")
