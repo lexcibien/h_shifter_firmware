@@ -1,3 +1,7 @@
+import json
+import os
+import re
+import shlex
 import shutil
 import subprocess
 from pathlib import Path
@@ -67,6 +71,70 @@ def check_cpp_format_action(source, target, env):
     return run_clang_format(check_only=True)
 
 
+def run_clang_tidy(platformio, environment):
+    clang_tidy = shutil.which("clang-tidy")
+    if clang_tidy is None:
+        print("[LINT] clang-tidy não encontrado no PATH")
+        return 1
+
+    result = subprocess.run(
+        [platformio, "run", "--environment", environment, "--target", "compiledb"],
+        cwd=project_dir,
+        check=False,
+    )
+    if result.returncode != 0:
+        return result.returncode
+
+    with open(Path(project_dir, "compile_commands.json"), encoding="utf-8") as database:
+        entries = json.load(database)
+
+    project_path = Path(project_dir).resolve()
+    directory = project_path / "src"
+    sources = sorted(
+        {
+            str((Path(entry["directory"]) / entry["file"]).resolve())
+            for entry in entries
+            if (Path(entry["directory"]) / entry["file"]).resolve().is_relative_to(directory)
+        }
+    )
+    if not sources:
+        print(f"[LINT] Nenhum fonte do projeto encontrado para {environment}")
+        return 1
+
+    compiler = shlex.split(next(entry["command"] for entry in entries if entry["file"].endswith(".cpp")))[0]
+    includes_result = subprocess.run(
+        [compiler, "-E", "-x", "c++", "-", "-v"],
+        input="",
+        text=True,
+        capture_output=True,
+        cwd=project_dir,
+        check=False,
+    )
+    lines = includes_result.stderr.splitlines()
+    try:
+        first = lines.index("#include <...> search starts here:") + 1
+        last = lines.index("End of search list.", first)
+    except ValueError:
+        print("[LINT] Não foi possível localizar os headers da toolchain")
+        return 1
+    if includes_result.returncode != 0 or first == last:
+        print("[LINT] Falha ao consultar os headers da toolchain")
+        return 1
+
+    command = [
+        clang_tidy,
+        "--quiet",
+        f"--header-filter=^{re.escape(str(project_path))}/(?:src|lib)/.*",
+        f"--config-file={Path(project_dir, '.clang-tidy')}",
+        f"-p={project_dir}",
+        *sources,
+        "--extra-arg=-Wno-unknown-warning-option",
+        *(f"--extra-arg=-isystem{line.strip()}" for line in lines[first:last]),
+    ]
+    print(f"[LINT] clang-tidy: {len(sources)} fonte(s) de {environment}")
+    return subprocess.run(command, cwd=project_dir, check=False).returncode
+
+
 def lint_cpp_action(source, target, env):
     platformio = shutil.which("platformio") or shutil.which("pio")
     if platformio is None:
@@ -84,6 +152,11 @@ def lint_cpp_action(source, target, env):
         if result.returncode != 0:
             print(f"[LINT] Análise falhou para {environment}")
             return result.returncode
+
+        result_code = run_clang_tidy(platformio, environment)
+        if result_code != 0:
+            print(f"[LINT] clang-tidy falhou para {environment}")
+            return result_code
 
     print("[LINT] Análise concluída para todos os ambientes")
     return 0
