@@ -1,0 +1,8 @@
+Index:
+  StandardLibrary: false
+
+---
+If:
+  PathMatch: '\.pio/.*'
+Index:
+  Background: Skip

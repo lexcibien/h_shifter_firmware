@@ -1,24 +1,16 @@
 ---
-Checks:
-  "*,
-  -llvmlibc-*,
-  -fuchsia-*,
-  -altera-struct-pack-align,
-  -altera-unroll-loops,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -readability-magic-numbers,
-  -hicpp-signed-bitwise,
-  -readability-implicit-bool-conversion,
-  -modernize-use-trailing-return-type,
-  -bugprone-easily-swappable-parameters,
-  -modernize-use-std-print,
-  -cppcoreguidelines-pro-type-vararg,
-  -cppcoreguidelines-avoid-non-const-global-variables,
-  -readability-convert-member-functions-to-static,
-  -llvm-header-guard,
-  -hicpp-vararg"
+Checks: >-
+  -*,
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  -bugprone-easily-swappable-parameters
+
+HeaderFilterRegex: '(^|.*/)(src|lib)/.*'
+ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
 
 CheckOptions:
-  - key: misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
-    value: true
+  bugprone-signed-bitwise.IgnorePositiveIntegerLiterals: true
 ...
