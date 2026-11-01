@@ -10,6 +10,7 @@ print(f"[EXTRA SCRIPT] Script carregado para ambiente: {env['PIOENV']}")
 project_dir = env["PROJECT_DIR"]
 print(f"[EXTRA SCRIPT] Diretório do projeto: {project_dir}")
 
+
 def generate_compile_commands():
     try:
         print("[POST-BUILD] Gerando compile_commands.json...")

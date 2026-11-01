@@ -1,18 +1,24 @@
 ---
 Checks: >-
   *,
-  -llvmlibc-*,
-  -altera-unroll-loops,
   -altera-struct-pack-align,
-  -bugprone-signed-bitwise,
+  -altera-unroll-loops,
   -bugprone-easily-swappable-parameters,
+  -bugprone-signed-bitwise,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-use-enum-class,
   -fuchsia-default-arguments-calls,
+  -llvm-header-guard,
+  -llvmlibc-*,
+  -misc-header-include-cycle,
+  -misc-include-cleaner,
+  -modernize-use-std-print,
+  -modernize-use-trailing-return-type,
+  -portability-avoid-pragma-once,
   -readability-implicit-bool-conversion,
   -readability-magic-numbers,
-  -modernize-use-trailing-return-type,
-  -modernize-use-std-print
+  -readability-uppercase-literal-suffix
 
 HeaderFilterRegex: '(^|.*/)(src|lib)/.*'
 ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'

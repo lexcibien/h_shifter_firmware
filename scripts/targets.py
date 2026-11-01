@@ -124,7 +124,6 @@ def run_clang_tidy(platformio, environment):
     command = [
         clang_tidy,
         "--quiet",
-        f"--header-filter=^{re.escape(str(project_path))}/(?:src|lib)/.*",
         f"--config-file={Path(project_dir, '.clang-tidy')}",
         f"-p={project_dir}",
         *sources,
@@ -143,7 +142,7 @@ def lint_cpp_action(source, target, env):
 
     print(f"[LINT] Analisando {env['PIOENV']}")
     result = subprocess.run(
-        [platformio, "check", "-e", env['PIOENV'], "--fail-on-defect=high"],
+        [platformio, "check", "-e", env["PIOENV"], "--fail-on-defect=high"],
         cwd=project_dir,
         check=False,
     )
@@ -151,7 +150,7 @@ def lint_cpp_action(source, target, env):
         print(f"[LINT] Análise falhou para {env['PIOENV']}")
         return result.returncode
 
-    result_code = run_clang_tidy(platformio, env['PIOENV'])
+    result_code = run_clang_tidy(platformio, env["PIOENV"])
     if result_code != 0:
         print(f"[LINT] clang-tidy falhou para {env['PIOENV']}")
         return result_code

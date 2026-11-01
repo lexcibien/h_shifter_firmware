@@ -21,7 +21,7 @@ void setup() {
 
   Serial.printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
 
-  const char* gearType = "";
+  const char* gearType = nullptr;
   if (shifterConfig.sequentialEnabled) {
     ledMulti.showLed(Color::SEQUENTIAL);
     gearType = "Sequential";
