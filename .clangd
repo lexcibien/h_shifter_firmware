@@ -1,0 +1,15 @@
+Diagnostics:
+  ClangTidy:
+    FastCheckFilter: None
+  MissingIncludes: None
+  Includes:
+    AnalyzeAngledIncludes: true
+
+Index:
+  StandardLibrary: false
+
+---
+If:
+  PathMatch: '\.pio/.*'
+Index:
+  Background: Skip

@@ -3,11 +3,11 @@
 #include <Adafruit_NeoPixel.h>
 
 enum class Color : uint32_t {
-  H_SHIFTER = (255 << 16) | (128 << 8) | 0,  // ORANGE
-  SEQUENTIAL = (255 << 16) | (0 << 8) | 255, // PURPLE
-  DANGER = (255 << 16) | (0 << 8) | 0,       // RED
-  WARN = (255 << 16) | (215 << 8) | 0,       // YELLOW
-  OK = (0 << 16) | (255 << 8) | 0,           // GREEN
+  H_SHIFTER = (255U << 16U) | (128U << 8U), // ORANGE
+  SEQUENTIAL = (255U << 16U) | 255U,        // PURPLE
+  DANGER = 255U << 16U,                     // RED
+  WARN = (255U << 16U) | (215U << 8U),      // YELLOW
+  OK = 255U << 8U,                          // GREEN
 };
 
 class LedMulti {
@@ -18,10 +18,9 @@ private:
   bool running = false;
 
 public:
-  inline static bool blockSignal = false;
-
   void begin();
   void showLed(Color color);
   void connectHandle();
   void update();
+  [[nodiscard]] bool isSignaling() const { return running; }
 };

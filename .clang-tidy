@@ -1,24 +1,29 @@
 ---
-Checks:
-  "*,
-  -llvmlibc-*,
-  -fuchsia-*,
+Checks: >-
+  *,
   -altera-struct-pack-align,
   -altera-unroll-loops,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -readability-magic-numbers,
-  -hicpp-signed-bitwise,
-  -readability-implicit-bool-conversion,
-  -modernize-use-trailing-return-type,
   -bugprone-easily-swappable-parameters,
-  -modernize-use-std-print,
+  -bugprone-signed-bitwise,
+  -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-pro-type-vararg,
-  -hicpp-vararg"
+  -cppcoreguidelines-use-enum-class,
+  -fuchsia-default-arguments-calls,
+  -hicpp-*,
+  -llvm-header-guard,
+  -llvmlibc-*,
+  -misc-header-include-cycle,
+  -misc-include-cleaner,
+  -modernize-use-std-print,
+  -modernize-use-trailing-return-type,
+  -portability-avoid-pragma-once,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -readability-uppercase-literal-suffix
+
+HeaderFilterRegex: '(^|.*/)(src|lib)/.*'
+ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
 
 CheckOptions:
-  - key: misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
-    value: true
-
-  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage
-    value: true
+  bugprone-signed-bitwise.IgnorePositiveIntegerLiterals: true
 ...

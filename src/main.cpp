@@ -7,10 +7,7 @@
 
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 HidReport hidReport;
-ShifterInput shifterInput;
-Debug debug;
 ShifterModel::ButtonState previousButtonState = {};
-ShifterModel::ShifterConfig shifterConfig;
 LedMulti ledMulti;
 // NOLINTEND
 
@@ -20,9 +17,11 @@ void setup() {
   ledMulti.begin();
   ShifterInput::begin();
 
-  shifterConfig = ShifterInput::configuration();
+  const auto shifterConfig = ShifterInput::configuration();
 
-  const char* gearType = "";
+  Serial.printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
+
+  const char* gearType = nullptr;
   if (shifterConfig.sequentialEnabled) {
     ledMulti.showLed(Color::SEQUENTIAL);
     gearType = "Sequential";
@@ -33,7 +32,7 @@ void setup() {
 
   Serial.println(shifterConfig.handleConnected ? "OK: Handle detected" : "INFO: Truck shifter handle not connected");
   Serial.println(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  Serial.printf("OK: The current gear output is %s", gearType);
+  Serial.printf("OK: The current gear output is %s\n", gearType);
 }
 
 void loop() {
@@ -46,9 +45,10 @@ void loop() {
     return;
   }
 
-  ShifterModel::InputState inputs = ShifterInput::readInputs();
+  const ShifterModel::InputState inputs = ShifterInput::readInputs();
+  const auto shifterConfig = ShifterInput::configuration();
 
-  if (!LedMulti::blockSignal) {
+  if (!ledMulti.isSignaling()) {
     if (shifterConfig.sequentialEnabled) {
       ledMulti.showLed(Color::SEQUENTIAL);
     } else {
@@ -64,8 +64,6 @@ void loop() {
   } else {
     executeOnce = true;
   }
-  shifterConfig = ShifterInput::configuration();
-
 #ifdef DEBUG
 #ifdef DEBUG_ANALOG
   ShifterInput::AnalogState inputAnalog = ShifterInput::readAnalogInput(); //* The button will not work digitally
@@ -74,7 +72,7 @@ void loop() {
   Debug::printRawInputs(inputs);
 #endif
 
-  ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
+  const ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
 
   if (!hidReport.ready()) {
     return;

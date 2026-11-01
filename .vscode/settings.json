@@ -3,36 +3,37 @@
     "adafruit",
     "Adafruit",
     "arduino",
-    "atmelavr",
     "bugprone",
     "buildcache",
-    "clangtidy",
     "cppcheck",
     "cppcoreguidelines",
+    "DCFG",
     "DDEBUG",
-    "DLEONARDO",
-    "DPICO",
-    "DRPIPICO",
-    "DUSBCON",
+    "DSHIFTER",
     "earlephilhower",
     "fstack",
-    "gamepad",
-    "GAMEPAD",
+    "github",
     "hicpp",
     "Iboards",
-    "leonardo",
+    "Iinclude",
     "llvmlibc",
-    "mheironimus",
+    "microcontroller",
     "NEOPIXEL",
     "NOLINTNEXTLINE",
-    "rpipico",
+    "RHPORT",
     "TINYUSB",
+    "tusb",
+    "TUSB",
     "unflags",
     "USBD",
     "vararg",
     "waveshare",
-    "Werror"
+    "Waveshare"
   ],
+  "[cpp]": {
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "editor.formatOnSave": true
+  },
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"
   },
@@ -40,6 +41,8 @@
   "clangd.enable": true,
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
   "clangd.arguments": [
-    "--query-driver=**/arm-none-eabi-*"
+    "--query-driver=**/arm-none-eabi-*",
+    "--clang-tidy",
+    "--background-index-priority=background"
   ]
 }
