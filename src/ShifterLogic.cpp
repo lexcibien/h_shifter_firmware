@@ -1,6 +1,6 @@
 #include <ShifterLogic.h>
 
-ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const Config& config) {
+ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const ShifterConfig& config) {
   ButtonState buttonState = {};
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
