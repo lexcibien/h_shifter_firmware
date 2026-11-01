@@ -9,6 +9,7 @@ Checks: >-
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
   -fuchsia-default-arguments-calls,
+  -hicpp-*,
   -llvm-header-guard,
   -llvmlibc-*,
   -misc-header-include-cycle,
