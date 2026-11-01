@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "adafruit",
     "Adafruit",
     "arduino",
     "bugprone",
@@ -8,9 +9,11 @@
     "cppcoreguidelines",
     "DCFG",
     "DDEBUG",
+    "DSHIFTER",
     "earlephilhower",
     "fstack",
     "github",
+    "Iboards",
     "Iinclude",
     "llvmlibc",
     "microcontroller",
