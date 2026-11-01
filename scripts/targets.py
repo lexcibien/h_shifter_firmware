@@ -141,22 +141,20 @@ def lint_cpp_action(source, target, env):
         print("[LINT] PlatformIO CLI não encontrado no PATH")
         return 1
 
-    environments = ("waveshare_rp2040_zero_v1", "waveshare_rp2040_zero_v2")
-    for environment in environments:
-        print(f"[LINT] Analisando {environment}")
-        result = subprocess.run(
-            [platformio, "check", "--environment", environment, "--fail-on-defect=high"],
-            cwd=project_dir,
-            check=False,
-        )
-        if result.returncode != 0:
-            print(f"[LINT] Análise falhou para {environment}")
-            return result.returncode
+    print(f"[LINT] Analisando {env['PIOENV']}")
+    result = subprocess.run(
+        [platformio, "check", "-e", env['PIOENV'], "--fail-on-defect=high"],
+        cwd=project_dir,
+        check=False,
+    )
+    if result.returncode != 0:
+        print(f"[LINT] Análise falhou para {env['PIOENV']}")
+        return result.returncode
 
-        result_code = run_clang_tidy(platformio, environment)
-        if result_code != 0:
-            print(f"[LINT] clang-tidy falhou para {environment}")
-            return result_code
+    result_code = run_clang_tidy(platformio, env['PIOENV'])
+    if result_code != 0:
+        print(f"[LINT] clang-tidy falhou para {env['PIOENV']}")
+        return result_code
 
     print("[LINT] Análise concluída para todos os ambientes")
     return 0

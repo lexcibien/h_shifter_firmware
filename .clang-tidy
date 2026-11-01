@@ -1,12 +1,18 @@
 ---
 Checks: >-
-  -*,
-  clang-analyzer-*,
-  bugprone-*,
-  performance-*,
-  cppcoreguidelines-pro-type-const-cast,
-  cppcoreguidelines-pro-type-cstyle-cast,
-  -bugprone-easily-swappable-parameters
+  *,
+  -llvmlibc-*,
+  -altera-unroll-loops,
+  -altera-struct-pack-align,
+  -bugprone-signed-bitwise,
+  -bugprone-easily-swappable-parameters,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-type-vararg,
+  -fuchsia-default-arguments-calls,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -modernize-use-trailing-return-type,
+  -modernize-use-std-print
 
 HeaderFilterRegex: '(^|.*/)(src|lib)/.*'
 ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
