@@ -7,10 +7,7 @@
 
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 HidReport hidReport;
-ShifterInput shifterInput;
-Debug debug;
 ShifterModel::ButtonState previousButtonState = {};
-ShifterModel::ShifterConfig shifterConfig;
 LedMulti ledMulti;
 // NOLINTEND
 
@@ -20,7 +17,7 @@ void setup() {
   ledMulti.begin();
   ShifterInput::begin();
 
-  shifterConfig = ShifterInput::configuration();
+  const auto shifterConfig = ShifterInput::configuration();
 
   Serial.printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
 
@@ -49,7 +46,7 @@ void loop() {
   }
 
   const ShifterModel::InputState inputs = ShifterInput::readInputs();
-  shifterConfig = ShifterInput::configuration();
+  const auto shifterConfig = ShifterInput::configuration();
 
   if (!ledMulti.isSignaling()) {
     if (shifterConfig.sequentialEnabled) {
@@ -75,7 +72,7 @@ void loop() {
   Debug::printRawInputs(inputs);
 #endif
 
-  ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
+  const ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
 
   if (!hidReport.ready()) {
     return;

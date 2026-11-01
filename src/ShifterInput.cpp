@@ -43,8 +43,8 @@ void ShifterInput::begin() {
 }
 
 bool ShifterInput::detectHandleConnection() {
-  const uint16_t DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
-  int adc = analogRead(SW_KNOB_RANGE);
+  const int DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
+  const int adc = analogRead(SW_KNOB_RANGE);
 
   return adc < DETECT_VALUE;
 }
