@@ -2,7 +2,6 @@
 
 #include <array>
 #include <board.h>
-#include <pico/stdlib.h>
 
 class ShifterModel {
 public:

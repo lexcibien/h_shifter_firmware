@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include "../../../ArduinoCore-API/api/Common.h"
 #include <HidReport.h>
 
 void HidReport::begin() {
