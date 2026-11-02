@@ -2,11 +2,8 @@
 
 #include <cstdint>
 
-// Versões de hardware/logica disponíveis. Estes valores precisam ser macros
-// porque a seleção acontece durante a compilação com diretivas #if.
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+// Versões de hardware/logica disponíveis.
 #define SHIFTER_PROJECT_V1 1
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define SHIFTER_PROJECT_V2 2
 
 // O ambiente selecionado no PlatformIO define a versão do projeto.

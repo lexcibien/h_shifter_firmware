@@ -6,6 +6,7 @@ Checks: >-
   -bugprone-easily-swappable-parameters,
   -bugprone-signed-bitwise,
   -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
   -fuchsia-default-arguments-calls,

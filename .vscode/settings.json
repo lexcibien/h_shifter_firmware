@@ -16,6 +16,7 @@
     "hicpp",
     "Iboards",
     "Iinclude",
+    "libdeps",
     "llvmlibc",
     "microcontroller",
     "NEOPIXEL",

@@ -1,5 +1,5 @@
 #pragma once
-// NOLINTBEGIN
+
 // Plataforma e execução
 #define CFG_TUSB_MCU   OPT_MCU_RP2040
 #define CFG_TUSB_OS    OPT_OS_PICO
@@ -36,4 +36,3 @@
 #define CFG_TUD_CDC_TX_BUFSIZE 256
 #define CFG_TUD_CDC_EP_BUFSIZE 64
 #define CFG_TUD_HID_EP_BUFSIZE 64
-// NOLINTEND
