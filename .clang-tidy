@@ -1,6 +1,6 @@
 ---
-Checks:
-  "*,
+Checks: >-
+  *,
   -llvmlibc-*,
   -fuchsia-*,
   -altera-struct-pack-align,
@@ -14,7 +14,10 @@ Checks:
   -bugprone-easily-swappable-parameters,
   -modernize-use-std-print,
   -cppcoreguidelines-pro-type-vararg,
-  -hicpp-vararg"
+  -hicpp-vararg
+
+HeaderFilterRegex: '(^|.*/)(src)/.*'
+ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
 
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
