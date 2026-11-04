@@ -26,8 +26,11 @@ project(
   LANGUAGES C CXX ASM
 )
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
@@ -41,21 +44,15 @@ pico_sdk_init()
 # Compiler flags for the firmware target
 set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
   -Wall
-  -Wno-format # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
   -Wno-unused-function # we have some for the docs that aren't called
   -fstack-usage
   -Os
 )
 
-set(FAMILY rp2040)
-set(BOARD pico_sdk)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config
-set(TOP ${PICO_TINYUSB_PATH})
-
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
 add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
 target_include_directories(H_SHIFTER_JAPATECH PRIVATE
   ${SRC_DIR}
@@ -73,19 +70,15 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
   TINYUSB_NEED_POLLING_TASK
 )
 
-target_link_libraries(H_SHIFTER_JAPATECH PUBLIC
+target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   pico_stdlib
-  pico_unique_id
   tinyusb_device
   tinyusb_board
-  hardware_pwm
-  hardware_clocks
-  hardware_gpio
-  hardware_pll
   hardware_adc
 )
 
 pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
+pico_enable_stdio_uart(H_SHIFTER_JAPATECH 0)
 pico_add_extra_outputs(H_SHIFTER_JAPATECH)
 
 add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD
@@ -94,12 +87,15 @@ add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD
   ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
 )
 
-add_custom_target(size_report
+add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E echo "=== Memory Usage Report ==="
-  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py --board waveshare_rp2040_zero
+  COMMAND ${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py
+    --file $<TARGET_FILE:H_SHIFTER_JAPATECH>
+    --board ${PICO_BOARD}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  VERBATIM
 )
-
-add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD COMMAND ${CMAKE_COMMAND} --build . --target size_report)
 
 set(FIRMWARE_NAME ${PROJECT_NAME})
 add_custom_target(flash
