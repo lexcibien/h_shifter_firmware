@@ -34,69 +34,64 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
   -Os
 )
 
-if(TARGET tinyusb_device)
-  set(FAMILY rp2040)
-  set(BOARD pico_sdk)
-  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-  # Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config
-  set(TOP ${PICO_TINYUSB_PATH})
+set(FAMILY rp2040)
+set(BOARD pico_sdk)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Some examples use this, and we need to set this here due to a bug in the TinyUSB CMake config
+set(TOP ${PICO_TINYUSB_PATH})
 
-  set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-  set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-  file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
-  add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
-  target_include_directories(H_SHIFTER_JAPATECH PRIVATE
-    ${SRC_DIR}
-  )
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
+add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
+target_include_directories(H_SHIFTER_JAPATECH PRIVATE
+  ${SRC_DIR}
+)
 
-  target_compile_options(H_SHIFTER_JAPATECH PRIVATE ${H_SHIFTER_JAPATECH_COMPILE_OPTIONS})
-  if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(H_SHIFTER_JAPATECH PRIVATE -Wno-maybe-uninitialized)
-  endif()
-
-  target_compile_definitions(H_SHIFTER_JAPATECH PUBLIC
-    USB_MANUFACTURER="Japatech Projects"
-    USB_PRODUCT="Shifter Truck Arduino"
-    USBD_MAX_POWER_MA=250
-    TINYUSB_NEED_POLLING_TASK
-    DEBUG
-  )
-
-  target_link_libraries(H_SHIFTER_JAPATECH PUBLIC
-    pico_stdlib
-    pico_unique_id
-    tinyusb_device
-    tinyusb_board
-    hardware_pwm
-    hardware_clocks
-    hardware_gpio
-    hardware_pll
-    hardware_adc
-  )
-
-  pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
-  pico_add_extra_outputs(H_SHIFTER_JAPATECH)
-
-  add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_BINARY_DIR}/compile_commands.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-  )
-
-  add_custom_target(size_report
-    COMMAND ${CMAKE_COMMAND} -E echo "=== Memory Usage Report ==="
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py --board waveshare_rp2040_zero
-  )
-
-  add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD COMMAND ${CMAKE_COMMAND} --build . --target size_report)
-
-  set(FIRMWARE_NAME ${PROJECT_NAME})
-  add_custom_target(flash
-    COMMAND picotool load -f -x
-    ${CMAKE_BINARY_DIR}/${FIRMWARE_NAME}.bin -o 0x10000000
-    DEPENDS ${FIRMWARE_NAME}
-  )
-
-else()
-  message("Skipping TinyUSB device examples as TinyUSB is unavailable")
+target_compile_options(H_SHIFTER_JAPATECH PRIVATE ${H_SHIFTER_JAPATECH_COMPILE_OPTIONS})
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(H_SHIFTER_JAPATECH PRIVATE -Wno-maybe-uninitialized)
 endif()
+
+target_compile_definitions(H_SHIFTER_JAPATECH PUBLIC
+  USB_MANUFACTURER="Japatech Projects"
+  USB_PRODUCT="Shifter Truck Arduino"
+  USBD_MAX_POWER_MA=250
+  TINYUSB_NEED_POLLING_TASK
+  DEBUG
+)
+
+target_link_libraries(H_SHIFTER_JAPATECH PUBLIC
+  pico_stdlib
+  pico_unique_id
+  tinyusb_device
+  tinyusb_board
+  hardware_pwm
+  hardware_clocks
+  hardware_gpio
+  hardware_pll
+  hardware_adc
+)
+
+pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
+pico_add_extra_outputs(H_SHIFTER_JAPATECH)
+
+add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+  ${CMAKE_BINARY_DIR}/compile_commands.json
+  ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+)
+
+add_custom_target(size_report
+  COMMAND ${CMAKE_COMMAND} -E echo "=== Memory Usage Report ==="
+  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/memory_size.py --board waveshare_rp2040_zero
+)
+
+add_custom_command(TARGET H_SHIFTER_JAPATECH POST_BUILD COMMAND ${CMAKE_COMMAND} --build . --target size_report)
+
+set(FIRMWARE_NAME ${PROJECT_NAME})
+add_custom_target(flash
+  COMMAND picotool load -f -x
+  ${CMAKE_BINARY_DIR}/${FIRMWARE_NAME}.bin -o 0x10000000
+  DEPENDS ${FIRMWARE_NAME}
+)
