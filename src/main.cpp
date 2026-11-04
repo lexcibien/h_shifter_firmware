@@ -1,12 +1,15 @@
-#include <Debug.h>
 #include <HidReport.h>
 #include <ShifterInput.h>
 #include <ShifterLogic.h>
 #include <ShifterModel.h>
 #include <cstdio>
 #include <pico/stdio.h>
+#include <pico/time.h>
+#ifdef DEBUG
+#include <Debug.h>
+#endif
 #ifdef TINYUSB_NEED_POLLING_TASK
-#include "device/usbd.h"
+#include <device/usbd.h>
 #endif
 
 int main() {
