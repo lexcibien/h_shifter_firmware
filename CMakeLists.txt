@@ -3,13 +3,26 @@
 cmake_minimum_required(VERSION 3.35)
 
 set(PICO_BOARD waveshare_rp2040_zero CACHE STRING "Board type")
+set(SHIFTER_PROJECT_VERSION "SHIFTER_PROJECT_V1" CACHE STRING "H-shifter hardware/logic version")
+set_property(CACHE SHIFTER_PROJECT_VERSION PROPERTY STRINGS SHIFTER_PROJECT_V1 SHIFTER_PROJECT_V2)
+
+if(SHIFTER_PROJECT_VERSION STREQUAL "SHIFTER_PROJECT_V1")
+  set(H_SHIFTER_USB_PRODUCT "DAZ Shifter V1")
+elseif(SHIFTER_PROJECT_VERSION STREQUAL "SHIFTER_PROJECT_V2")
+  set(H_SHIFTER_USB_PRODUCT "DAZ Shifter V2")
+else()
+  message(FATAL_ERROR
+    "Invalid SHIFTER_PROJECT_VERSION '${SHIFTER_PROJECT_VERSION}'. "
+    "Select SHIFTER_PROJECT_V1 or SHIFTER_PROJECT_V2."
+  )
+endif()
 
 # Pull in SDK (must be before project)
 include(pico_sdk_import.cmake)
 
 project(
   H_SHIFTER_JAPATECH
-  DESCRIPTION "Firmware para o câmbio com RP2040 Zero, lê 8 entradas do câmbio e apresenta 12 botões virtuais ao PC como Joystick"
+  DESCRIPTION "Firmware para o câmbio com RP2040 Zero, com projetos V1 de 12 botões e V2 de 13 botões virtuais."
   LANGUAGES C CXX ASM
 )
 
@@ -53,12 +66,11 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   target_compile_options(H_SHIFTER_JAPATECH PRIVATE -Wno-maybe-uninitialized)
 endif()
 
-target_compile_definitions(H_SHIFTER_JAPATECH PUBLIC
+target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
+  SHIFTER_PROJECT_VERSION=${SHIFTER_PROJECT_VERSION}
   USB_MANUFACTURER="Japatech Projects"
-  USB_PRODUCT="Shifter Truck Arduino"
-  USBD_MAX_POWER_MA=250
+  USB_PRODUCT="${H_SHIFTER_USB_PRODUCT}"
   TINYUSB_NEED_POLLING_TASK
-  DEBUG
 )
 
 target_link_libraries(H_SHIFTER_JAPATECH PUBLIC

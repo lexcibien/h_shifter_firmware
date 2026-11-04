@@ -1,0 +1,48 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 35,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "waveshare_rp2040_zero",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "PICO_BOARD": "waveshare_rp2040_zero"
+      }
+    },
+    {
+      "name": "waveshare_rp2040_zero_v1",
+      "displayName": "Waveshare RP2040 Zero - Shifter V1",
+      "description": "Firmware DAZ Shifter V1 para a Waveshare RP2040 Zero",
+      "inherits": "waveshare_rp2040_zero",
+      "cacheVariables": {
+        "SHIFTER_PROJECT_VERSION": "SHIFTER_PROJECT_V1"
+      }
+    },
+    {
+      "name": "waveshare_rp2040_zero_v2",
+      "displayName": "Waveshare RP2040 Zero - Shifter V2",
+      "description": "Firmware DAZ Shifter V2 para a Waveshare RP2040 Zero",
+      "inherits": "waveshare_rp2040_zero",
+      "cacheVariables": {
+        "SHIFTER_PROJECT_VERSION": "SHIFTER_PROJECT_V2"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "waveshare_rp2040_zero_v1",
+      "configurePreset": "waveshare_rp2040_zero_v1"
+    },
+    {
+      "name": "waveshare_rp2040_zero_v2",
+      "configurePreset": "waveshare_rp2040_zero_v2"
+    }
+  ]
+}

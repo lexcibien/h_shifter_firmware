@@ -29,19 +29,24 @@ conforme as instruções oficiais para o seu sistema operacional.
 
 ## Compilar
 
-Na raiz do repositório, configure o projeto e compile:
+Na raiz do repositório, escolha o preset correspondente ao projeto e compile:
 
 ```bash
-cmake -S . -B build
-cmake --build build --parallel
+# Projeto V1 (12 botões virtuais)
+cmake --preset waveshare_rp2040_zero_v1
+cmake --build --preset waveshare_rp2040_zero_v1
+
+# Projeto V2 (13 botões virtuais)
+cmake --preset waveshare_rp2040_zero_v2
+cmake --build --preset waveshare_rp2040_zero_v2
 ```
 
 Se possui a extensão no VSCode CMake Tools é mais fácil.
 
-O CMake seleciona a placa `waveshare_rp2040_zero`. A compilação gera, entre
-outros arquivos, `build/H_SHIFTER_JAPATECH.uf2` e
-`build/H_SHIFTER_JAPATECH.bin`. Também é possível executar os dois comandos
-novamente depois de alterações para recompilar.
+Os dois presets selecionam a placa física `waveshare_rp2040_zero` e configuram
+a versão da lógica e o nome USB (`DAZ Shifter V1` ou `DAZ Shifter V2`). Os
+arquivos são gerados em `build/<preset>/`, incluindo
+`H_SHIFTER_JAPATECH.uf2` e `H_SHIFTER_JAPATECH.bin`.
 
 ## Gravar o firmware na placa
 
@@ -50,7 +55,7 @@ segure o botão **BOOT** enquanto conecta o cabo USB e solte o botão quando ela
 for reconhecida. Na raiz do repositório, execute:
 
 ```bash
-cmake --build build --target flash
+cmake --build --preset waveshare_rp2040_zero_v1 --target flash
 ```
 
 Esse alvo compila o firmware, se necessário, e chama `picotool` para gravar o
@@ -58,4 +63,5 @@ arquivo `.bin` na flash da placa e iniciá-lo. Ao terminar, a placa reinicia e
 passa a executar o firmware.
 
 Como alternativa, se a placa aparecer como uma unidade USB `RPI-RP2`, copie
-`build/H_SHIFTER_JAPATECH.uf2` para essa unidade. Ela reiniciará após a cópia.
+o arquivo `build/<preset>/H_SHIFTER_JAPATECH.uf2` para essa unidade. Ela
+reiniciará após a cópia.
