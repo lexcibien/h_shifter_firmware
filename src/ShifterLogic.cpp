@@ -1,21 +1,27 @@
 #include <ShifterLogic.h>
 
-ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const Config& config) {
+ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const ShifterConfig& config) {
   ButtonState buttonState = {};
-  bool combFrontUsed = false;
-  bool combBackUsed = false;
 
-  if (config.sequentialEnabled) {
-    resolveSequentialGears(inputs, buttonState, combFrontUsed, combBackUsed);
-  } else {
-    resolveLateralGears(inputs, buttonState, combFrontUsed, combBackUsed);
-    activateReverseGear(inputs, buttonState);
-    applyReverseGear(buttonState, combFrontUsed);
-    resolveCenterGears(inputs, buttonState, combFrontUsed, combBackUsed);
-  }
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   resetReverseGear(inputs);
+  const bool sequentialMode = config.sequentialEnabled;
+#elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
+  const bool sequentialMode = !inputs.hPatternMode;
+#endif
+
+  if (sequentialMode) {
+    resolveSequentialGears(inputs, buttonState);
+  } else {
+    // As combinações com mais chaves precisam vir primeiro.
+    if (!resolveSpecialGears(inputs, buttonState) && !resolveLateralGears(inputs, buttonState)) {
+      resolveCenterGears(inputs, buttonState);
+    }
+  }
+
   if (config.handleConnected) {
     applyHandleButtons(inputs, buttonState);
   }
+
   return buttonState;
 }

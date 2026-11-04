@@ -4,8 +4,10 @@
 #include <ShifterLogic.h>
 #include <ShifterModel.h>
 #include <cstdio>
-#include <pico/stdlib.h>
-#include <tusb.h>
+#include <pico/stdio.h>
+#ifdef TINYUSB_NEED_POLLING_TASK
+#include "device/usbd.h"
+#endif
 
 int main() {
   HidReport hidReport;
@@ -17,6 +19,8 @@ int main() {
   ShifterInput::begin();
 
   shifterConfig = ShifterInput::configuration();
+
+  printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
 
   const char* gearType = nullptr;
   if (shifterConfig.sequentialEnabled) {
@@ -39,7 +43,7 @@ int main() {
       continue;
     }
 
-    ShifterModel::InputState inputs = ShifterInput::readInputs();
+    const ShifterModel::InputState inputs = ShifterInput::readInputs();
     shifterConfig = ShifterInput::configuration();
 
 #ifdef DEBUG
@@ -50,7 +54,7 @@ int main() {
     Debug::printRawInputs(inputs);
 #endif
 
-    ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
+    const ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
 
     if (!HidReport::ready()) {
       sleep_ms(10);
