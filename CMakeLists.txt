@@ -46,7 +46,6 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
   -Wall
   -Wno-unused-function # we have some for the docs that aren't called
   -fstack-usage
-  -Os
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
