@@ -1,7 +1,8 @@
 #pragma once
 
+#include <ShifterProject.h>
 #include <array>
-#include <board.h>
+#include <cstdint>
 
 class ShifterModel {
 public:
@@ -40,7 +41,8 @@ public:
   };
 #endif
 
-  static constexpr uint8_t BUTTON_COUNT = COUNT;
+  static_assert(COUNT == SHIFTER_BUTTON_COUNT, "The HID button count must match ControllerButtons");
+  static constexpr uint8_t BUTTON_COUNT = SHIFTER_BUTTON_COUNT;
   static constexpr bool ENABLE_REVERSE = true;
   using ButtonState = std::array<bool, BUTTON_COUNT>;
 

@@ -47,7 +47,7 @@ private:
   };
 
   static constexpr uint8_t ADC_RES = 12;
-  static constexpr uint16_t RANGE_RES = (1 << ADC_RES) - 1;
+  static constexpr uint16_t RANGE_RES = (1U << ADC_RES) - 1;
   static constexpr float REF_VOLTAGE = 3.3F;
 
   static constexpr uint16_t KNOB_RESISTOR = 20e3;

@@ -1,17 +1,7 @@
 #pragma once
 
+#include <ShifterProject.h>
 #include <cstdint>
-
-// Versões de hardware/logica disponíveis.
-#define SHIFTER_PROJECT_V1 1
-#define SHIFTER_PROJECT_V2 2
-
-// O ambiente selecionado no PlatformIO define a versão do projeto.
-#ifndef SHIFTER_PROJECT_VERSION
-#error "Select a versioned PlatformIO environment: waveshare_rp2040_zero_v1 or waveshare_rp2040_zero_v2"
-#elif SHIFTER_PROJECT_VERSION != SHIFTER_PROJECT_V1 && SHIFTER_PROJECT_VERSION != SHIFTER_PROJECT_V2
-#error "SHIFTER_PROJECT_VERSION must be SHIFTER_PROJECT_V1 or SHIFTER_PROJECT_V2"
-#endif
 
 // Waveshare RP2040 Zero
 // https://www.waveshare.com/wiki/RP2040-Zero
