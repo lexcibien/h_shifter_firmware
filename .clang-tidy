@@ -1,13 +1,12 @@
 ---
 Checks: >-
   *,
-  -altera-struct-pack-align,
-  -altera-unroll-loops,
+  -altera-*,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
-  -fuchsia-default-arguments-calls,
+  -fuchsia-*,
   -llvm-header-guard,
   -llvmlibc-*,
   -misc-header-include-cycle,
@@ -18,6 +17,7 @@ Checks: >-
   -readability-implicit-bool-conversion,
   -readability-magic-numbers,
   -readability-uppercase-literal-suffix,
+  -zircon-*,
 
 HeaderFilterRegex: "(^|.*/)(src|lib)/.*"
 ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
