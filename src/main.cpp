@@ -23,18 +23,15 @@ int main() {
 
   shifterConfig = ShifterInput::configuration();
 
-  printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  puts("OK: Project version V1");
+#else
+  puts("OK: Project version V2");
+#endif
 
-  const char* gearType = nullptr;
-  if (shifterConfig.sequentialEnabled) {
-    gearType = "Sequential";
-  } else {
-    gearType = "H Shifter";
-  }
-
-  printf(shifterConfig.handleConnected ? "OK: Handle detected\n" : "INFO: Truck shifter handle not connected\n");
-  printf(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  printf("OK: The current gear output is %s", gearType);
+  puts(shifterConfig.handleConnected ? "OK: Handle detected" : "INFO: Truck shifter handle not connected");
+  puts(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
+  puts(shifterConfig.sequentialEnabled ? "OK: The current gear output is Sequential" : "OK: The current gear output is H Shifter");
 
   while (true) {
 #ifdef TINYUSB_NEED_POLLING_TASK
