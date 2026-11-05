@@ -1,28 +1,22 @@
 ---
 Checks: >-
   *,
-  -llvmlibc-*,
-  -fuchsia-*,
-  -altera-struct-pack-align,
-  -altera-unroll-loops,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -readability-magic-numbers,
-  -hicpp-signed-bitwise,
-  -cppcoreguidelines-macro-usage,
-  -readability-implicit-bool-conversion,
-  -modernize-use-trailing-return-type,
+  -altera-*,
   -bugprone-easily-swappable-parameters,
-  -modernize-use-std-print,
+  -bugprone-reserved-identifier,
+  -cert-dcl37-c,
+  -cert-dcl51-cpp,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
-  -hicpp-vararg
+  -cppcoreguidelines-use-enum-class,
+  -llvmlibc-*,
+  -misc-use-internal-linkage,
+  -modernize-use-std-print,
+  -modernize-use-trailing-return-type,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
 
 HeaderFilterRegex: '(^|.*/)(src)/.*'
 ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
-
-CheckOptions:
-  - key: misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
-    value: true
-
-  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage
-    value: true
 ...
