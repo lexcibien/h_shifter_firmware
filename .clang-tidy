@@ -13,7 +13,7 @@ Checks: >-
   -misc-include-cleaner,
   -modernize-use-std-print,
   -modernize-use-trailing-return-type,
-  -portability-avoid-pragma-once
+  -portability-avoid-pragma-once,
   -readability-implicit-bool-conversion,
   -readability-magic-numbers,
   -readability-uppercase-literal-suffix,
