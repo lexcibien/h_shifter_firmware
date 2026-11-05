@@ -16,7 +16,7 @@ void Debug::printRawInputs(const ShifterModel::InputState& inputs) {
 void Debug::printOutputState(const ShifterModel::ButtonState& buttonState) {
   Serial.print("OUT: ");
   for (uint8_t i = 0; i < ShifterModel::BUTTON_COUNT; ++i) {
-    Serial.print(buttonState.at(i));
+    Serial.print(buttonState.at(i) ? '1' : '0');
   }
-  Serial.println();
+  Serial.print('\n');
 }

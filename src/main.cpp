@@ -1,9 +1,11 @@
-#include <Debug.h>
 #include <HidReport.h>
 #include <LedMulti.h>
 #include <ShifterInput.h>
 #include <ShifterLogic.h>
 #include <ShifterModel.h>
+#ifdef DEBUG
+#include <Debug.h>
+#endif
 
 // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
 HidReport hidReport;
@@ -19,20 +21,21 @@ void setup() {
 
   const auto shifterConfig = ShifterInput::configuration();
 
-  Serial.printf("OK: Project version V%d\n", SHIFTER_PROJECT_VERSION);
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  Serial.println("OK: Project version V1");
+#else
+  Serial.println("OK: Project version V2");
+#endif
 
-  const char* gearType = nullptr;
   if (shifterConfig.sequentialEnabled) {
     ledMulti.showLed(Color::SEQUENTIAL);
-    gearType = "Sequential";
   } else {
     ledMulti.showLed(Color::H_SHIFTER);
-    gearType = "H Shifter";
   }
 
   Serial.println(shifterConfig.handleConnected ? "OK: Handle detected" : "INFO: Truck shifter handle not connected");
   Serial.println(ShifterModel::ENABLE_REVERSE ? "OK: Rear gear is enabled" : "INFO: Rear gear is disabled");
-  Serial.printf("OK: The current gear output is %s\n", gearType);
+  Serial.println(shifterConfig.sequentialEnabled ? "OK: The current gear output is Sequential" : "OK: The current gear output is H Shifter");
 }
 
 void loop() {
