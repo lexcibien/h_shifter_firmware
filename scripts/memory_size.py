@@ -151,8 +151,11 @@ def parse_size_output(output: str) -> Dict[str, int]:
             total += sum(int(value) for value in match.groups())
         return total
 
-    program_pattern = r"^(?:\.boot2|\.text|\.data|\.rodata|\.text\.align|\.ARM\.exidx)\s+(\d+).*"
-    data_pattern = r"^(?:\.data|\.bss|\.noinit)\s+(\d+).*"
+    # Initialized data occupies flash in the image and RAM while the firmware is
+    # running. Pico SDK metadata is also stored in flash, while the relocated
+    # vector table occupies RAM even though it is emitted as a NOBITS section.
+    program_pattern = r"^(?:\.boot2|\.text|\.data|\.rodata|\.binary_info|\.text\.align|\.ARM\.exidx)\s+(\d+).*"
+    data_pattern = r"^(?:\.ram_vector_table|\.data|\.bss|\.noinit)\s+(\d+).*"
     program_size = _calculate_size(output, program_pattern)
     data_size = _calculate_size(output, data_pattern)
     return {"program_size": program_size, "data_size": data_size}
