@@ -5,6 +5,7 @@
 void LedMulti::begin() {
   led.setPin(PIN_NEOPIXEL);
   led.updateLength(1);
+  // NOLINTNEXTLINE(bugprone-signed-bitwise)
   led.updateType(NEO_GRB + NEO_KHZ800);
   led.begin();
   led.clear();

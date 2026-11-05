@@ -29,7 +29,7 @@ void HidReport::send(const ShifterModel::ButtonState& buttonState) {
     }
   }
 
-  buttonReport.buttons.at(0) = static_cast<uint8_t>(buttonsMask & 0xFFU);
-  buttonReport.buttons.at(1) = static_cast<uint8_t>((buttonsMask >> 8U) & 0xFFU);
+  buttonReport.buttons.at(0) = buttonsMask & 0xFFU;
+  buttonReport.buttons.at(1) = static_cast<uint8_t>(buttonsMask >> 8U) & 0xFFU;
   usbHid.sendReport(0, &buttonReport, sizeof(buttonReport));
 }

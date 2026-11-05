@@ -3,28 +3,22 @@ Checks: >-
   *,
   -altera-struct-pack-align,
   -altera-unroll-loops,
-  -bugprone-easily-swappable-parameters,
-  -bugprone-signed-bitwise,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
   -fuchsia-default-arguments-calls,
-  -hicpp-*,
   -llvm-header-guard,
   -llvmlibc-*,
   -misc-header-include-cycle,
   -misc-include-cleaner,
   -modernize-use-std-print,
   -modernize-use-trailing-return-type,
-  -portability-avoid-pragma-once,
+  -portability-avoid-pragma-once
   -readability-implicit-bool-conversion,
   -readability-magic-numbers,
-  -readability-uppercase-literal-suffix
+  -readability-uppercase-literal-suffix,
 
-HeaderFilterRegex: '(^|.*/)(src|lib)/.*'
+HeaderFilterRegex: "(^|.*/)(src|lib)/.*"
 ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
-
-CheckOptions:
-  bugprone-signed-bitwise.IgnorePositiveIntegerLiterals: true
 ...

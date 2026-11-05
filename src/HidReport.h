@@ -14,6 +14,7 @@ private:
 
   Adafruit_USBD_HID usbHid;
   ButtonsReport buttonReport = {};
+  // NOLINTBEGIN (bugprone-signed-bitwise)
   static constexpr std::array<uint8_t, 29> hidReportDescriptor = {
     HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),     //
     HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),      //
@@ -37,6 +38,7 @@ private:
 
     HID_COLLECTION_END //
   };
+  // NOLINTEND
 
 public:
   void begin();
