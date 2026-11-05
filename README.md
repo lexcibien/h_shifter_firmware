@@ -41,7 +41,14 @@ cmake --preset waveshare_rp2040_zero_v2
 cmake --build --preset waveshare_rp2040_zero_v2
 ```
 
-Se possui a extensão no VSCode CMake Tools é mais fácil.
+No VS Code com a extensao CMake Tools, execute `CMake: Select Configure Preset`
+e escolha `Waveshare RP2040 Zero - V1` ou `Waveshare RP2040 Zero - V2`. A
+extensao guarda o preset escolhido para o workspace e usa o diretorio de build
+correspondente.
+
+Se `H_SHIFTER_BOARD` não for informado, o CMake usa
+`waveshare_rp2040_zero_v1`. Se possui a extensão no VSCode CMake Tools é mais
+fácil.
 
 Os dois presets selecionam a placa física `waveshare_rp2040_zero` e configuram
 a versão da lógica e o nome USB (`DAZ Shifter V1` ou `DAZ Shifter V2`). Os
