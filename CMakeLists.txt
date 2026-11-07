@@ -42,6 +42,8 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
+add_subdirectory("lib/Adafruit NeoPixel")
+
 # Compiler flags for the firmware target
 set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
   -Wall
@@ -51,8 +53,7 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp ${LIB_DIR}/*.cpp)
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp)
 add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
 target_include_directories(H_SHIFTER_JAPATECH PRIVATE
   ${SRC_DIR}
@@ -73,6 +74,7 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
 )
 
 target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
+  Adafruit::NeoPixel
   pico_stdlib
   tinyusb_device
   tinyusb_board

@@ -1,4 +1,5 @@
 #include <HidReport.h>
+#include <LedMulti.h>
 #include <Log.h>
 #include <ShifterInput.h>
 #include <ShifterLogic.h>
@@ -14,8 +15,13 @@
 #include <device/usbd.h>
 #endif
 
+constexpr Color modeColor(bool sequentialEnabled) {
+  return sequentialEnabled ? Color::SEQUENTIAL : Color::H_SHIFTER;
+}
+
 int main() {
   HidReport hidReport;
+  LedMulti statusLed;
   ShifterModel::ButtonState previousButtonState = {};
   ShifterModel::ShifterConfig shifterConfig;
 
@@ -27,9 +33,17 @@ int main() {
   stdio_init_all();
 #endif
   HidReport::begin();
+  statusLed.begin();
+  statusLed.showLed(Color::WARN);
   ShifterInput::begin();
 
   shifterConfig = ShifterInput::configuration();
+
+  if (shifterConfig.handleConnected) {
+    statusLed.connectHandle();
+  } else {
+    statusLed.showLed(modeColor(shifterConfig.sequentialEnabled));
+  }
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   Log::info("system: project=V1");
@@ -48,6 +62,12 @@ int main() {
 #ifdef TINYUSB_NEED_POLLING_TASK
     tud_task();
 #endif
+
+    const bool wasLedSignaling = statusLed.isSignaling();
+    statusLed.update();
+    if (wasLedSignaling && !statusLed.isSignaling()) {
+      statusLed.showLed(modeColor(shifterConfig.sequentialEnabled));
+    }
 
     const bool mounted = HidReport::mounted();
     if (!mounted) {
@@ -77,6 +97,9 @@ int main() {
     if (shifterConfig.sequentialEnabled != previousSequentialMode) {
       Log::event(shifterConfig.sequentialEnabled ? "shifter: mode=sequential" : "shifter: mode=h-pattern");
       previousSequentialMode = shifterConfig.sequentialEnabled;
+      if (!statusLed.isSignaling()) {
+        statusLed.showLed(modeColor(shifterConfig.sequentialEnabled));
+      }
     }
 
     const ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
