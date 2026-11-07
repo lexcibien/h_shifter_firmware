@@ -16,5 +16,5 @@ public:
   static bool mounted();
   static bool ready();
 
-  void send(const ShifterModel::ButtonState& buttonState);
+  bool send(const ShifterModel::ButtonState& buttonState);
 };

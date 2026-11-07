@@ -5,13 +5,23 @@
 #define USB_PID 0x0003
 #define USB_BCD 0x0200
 
+#if H_SHIFTER_ENABLE_CDC
+#define DEVICE_CLASS    TUSB_CLASS_MISC
+#define DEVICE_SUBCLASS MISC_SUBCLASS_COMMON
+#define DEVICE_PROTOCOL MISC_PROTOCOL_IAD
+#else
+#define DEVICE_CLASS    TUSB_CLASS_UNSPECIFIED
+#define DEVICE_SUBCLASS 0
+#define DEVICE_PROTOCOL 0
+#endif
+
 tusb_desc_device_t const desc_device = {
   .bLength = sizeof(tusb_desc_device_t),
   .bDescriptorType = TUSB_DESC_DEVICE,
   .bcdUSB = USB_BCD,
-  .bDeviceClass = TUSB_CLASS_MISC,
-  .bDeviceSubClass = MISC_SUBCLASS_COMMON,
-  .bDeviceProtocol = MISC_PROTOCOL_IAD,
+  .bDeviceClass = DEVICE_CLASS,
+  .bDeviceSubClass = DEVICE_SUBCLASS,
+  .bDeviceProtocol = DEVICE_PROTOCOL,
   .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
   .idVendor = USB_VID,
   .idProduct = USB_PID,
@@ -24,6 +34,7 @@ tusb_desc_device_t const desc_device = {
 
 uint8_t const* tud_descriptor_device_cb(void) { return (uint8_t const*)&desc_device; }
 
+// NOLINTBEGIN
 uint8_t const desc_hid_report[] = {
   HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),     //
   HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),      //
@@ -73,17 +84,26 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
   (void)bufsize;
 }
 
+#if H_SHIFTER_ENABLE_CDC
 enum { ITF_NUM_CDC = 0, ITF_NUM_CDC_DATA, ITF_NUM_HID, ITF_NUM_TOTAL };
 
 #define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_DESC_LEN)
-#define EPNUM_HID        0x81
-#define EPNUM_CDC_NOTIF  0x82
-#define EPNUM_CDC_OUT    0x03
-#define EPNUM_CDC_IN     0x83
+#else
+enum { ITF_NUM_HID = 0, ITF_NUM_TOTAL };
+
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
+#endif
+
+#define EPNUM_HID       0x81
+#define EPNUM_CDC_NOTIF 0x82
+#define EPNUM_CDC_OUT   0x03
+#define EPNUM_CDC_IN    0x83
 
 uint8_t const desc_configuration[] = {
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+#if H_SHIFTER_ENABLE_CDC
   TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 0, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64),
+#endif
   TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, 2, 5),
 };
 
@@ -127,3 +147,4 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
   desc_string[0] = (uint16_t)((TUSB_DESC_STRING << 8) | ((2 * char_count) + 2));
   return desc_string;
 }
+// NOLINTEND

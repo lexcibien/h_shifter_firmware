@@ -41,19 +41,43 @@ cmake --preset waveshare_rp2040_zero_v2
 cmake --build --preset waveshare_rp2040_zero_v2
 ```
 
-No VS Code com a extensao CMake Tools, execute `CMake: Select Configure Preset`
+No VS Code com a extensão CMake Tools, execute `CMake: Select Configure Preset`
 e escolha `Waveshare RP2040 Zero - V1` ou `Waveshare RP2040 Zero - V2`. A
-extensao guarda o preset escolhido para o workspace e usa o diretorio de build
+extensão guarda o preset escolhido para o workspace e usa o diretório de build
 correspondente.
 
-Se `H_SHIFTER_BOARD` não for informado, o CMake usa
-`waveshare_rp2040_zero_v1`. Se possui a extensão no VSCode CMake Tools é mais
+Se `SHIFTER_PROJECT_VERSION` não for informado, o CMake usa
+`SHIFTER_PROJECT_V1`. Se possui a extensão no VSCode CMake Tools é mais
 fácil.
 
 Os dois presets selecionam a placa física `waveshare_rp2040_zero` e configuram
 a versão da lógica e o nome USB (`DAZ Shifter V1` ou `DAZ Shifter V2`). Os
 arquivos são gerados em `build/<preset>/`, incluindo
 `H_SHIFTER_JAPATECH.uf2` e `H_SHIFTER_JAPATECH.bin`.
+
+### Logs e diagnóstico
+
+Por padrão, o firmware expõe somente a interface HID. Para habilitar a porta
+USB CDC e os logs operacionais padronizados, configure com:
+
+```bash
+cmake --preset waveshare_rp2040_zero_v1 -DH_SHIFTER_LOG=ON
+cmake --build --preset waveshare_rp2040_zero_v1
+```
+
+Os logs operacionais registram inicialização, configuração, montagem USB e
+mudanças entre os modos H e sequencial. Para incluir também o diagnóstico
+detalhado de entradas e saídas, defina `DEBUG` durante a compilação:
+
+```bash
+cmake --preset waveshare_rp2040_zero_v1 \
+  -DH_SHIFTER_LOG=ON \
+  -DCMAKE_CXX_FLAGS=-DDEBUG
+cmake --build --preset waveshare_rp2040_zero_v1
+```
+
+O diagnóstico analógico pode ser incluído adicionando também
+`-DDEBUG_ANALOG`. Ele exige `DEBUG` e `H_SHIFTER_LOG=ON`.
 
 ## Gravar o firmware na placa
 

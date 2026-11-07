@@ -3,6 +3,7 @@
 cmake_minimum_required(VERSION 3.35)
 
 set(PICO_BOARD waveshare_rp2040_zero CACHE STRING "Board type")
+option(H_SHIFTER_LOG "Enable operational logs over USB CDC" OFF)
 set(SHIFTER_PROJECT_VERSION "SHIFTER_PROJECT_V1" CACHE STRING "H-shifter hardware/logic version")
 set_property(CACHE SHIFTER_PROJECT_VERSION PROPERTY STRINGS SHIFTER_PROJECT_V1 SHIFTER_PROJECT_V2)
 
@@ -66,6 +67,8 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
   SHIFTER_PROJECT_VERSION=${SHIFTER_PROJECT_VERSION}
   USB_MANUFACTURER="Japatech Projects"
   USB_PRODUCT="${H_SHIFTER_USB_PRODUCT}"
+  H_SHIFTER_LOG=$<BOOL:${H_SHIFTER_LOG}>
+  H_SHIFTER_ENABLE_CDC=$<BOOL:${H_SHIFTER_LOG}>
   TINYUSB_NEED_POLLING_TASK
 )
 
@@ -76,7 +79,7 @@ target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   hardware_adc
 )
 
-pico_enable_stdio_usb(H_SHIFTER_JAPATECH 1)
+pico_enable_stdio_usb(H_SHIFTER_JAPATECH ${H_SHIFTER_LOG})
 pico_enable_stdio_uart(H_SHIFTER_JAPATECH 0)
 pico_add_extra_outputs(H_SHIFTER_JAPATECH)
 

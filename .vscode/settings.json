@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "Adafruit",
+    "BOOTSEL",
     "bugprone",
     "cppcoreguidelines",
     "eabi",
@@ -14,6 +15,7 @@
     "llvmlibc",
     "memmap",
     "noinit",
+    "NOLINTNEXTLINE",
     "picotool",
     "pinouts",
     "raspberrypi",
