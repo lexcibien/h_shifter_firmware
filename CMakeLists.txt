@@ -105,3 +105,10 @@ add_custom_target(flash
   ${CMAKE_BINARY_DIR}/${FIRMWARE_NAME}.bin -o 0x10000000
   DEPENDS ${FIRMWARE_NAME}
 )
+
+enable_testing()
+
+add_test(NAME memory_size_tests
+  COMMAND ${Python3_EXECUTABLE} -m unittest discover
+  -s ${CMAKE_CURRENT_SOURCE_DIR}/tests
+)
