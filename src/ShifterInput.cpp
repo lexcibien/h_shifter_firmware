@@ -6,10 +6,10 @@ bool ShifterInput::readDebounced(Button& button) {
   const bool raw = button.activeLow ? !gpio_get(button.pin) : gpio_get(button.pin);
 
   if (raw != button.lastRaw) {
-    button.lastChange = to_ms_since_boot(get_absolute_time());
+    button.lastChange = nowMs;
     button.lastRaw = raw;
   }
-  if ((to_ms_since_boot(get_absolute_time()) - button.lastChange) > DEBOUNCE_MS) {
+  if (nowMs - button.lastChange > DEBOUNCE_MS) {
     button.stableState = raw;
   }
 
@@ -92,8 +92,6 @@ void ShifterInput::configureHandle() {
   gpio_init(BTN_KNOB_ENGINE_BRAKE);
   gpio_set_dir(BTN_KNOB_ENGINE_BRAKE, GPIO_IN);
   gpio_pull_up(BTN_KNOB_ENGINE_BRAKE);
-
-  handleConfigured = true;
 }
 
 void ShifterInput::checkSequential() {
@@ -107,11 +105,11 @@ void ShifterInput::checkSequential() {
 
   if (!sequentialPressActive) {
     sequentialPressActive = true;
-    sequentialPressStartTime = to_ms_since_boot(get_absolute_time());
+    sequentialPressStartTime = nowMs;
     return;
   }
 
-  if (!sequentialPressHandled && (to_ms_since_boot(get_absolute_time()) - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
+  if (!sequentialPressHandled && (nowMs - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
     sequentialEnabled = !sequentialEnabled;
     sequentialPressHandled = true;
   }
@@ -130,6 +128,7 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
 
 ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
+  nowMs = to_ms_since_boot(get_absolute_time());
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inputs.swFront = readDebounced(frontButton);
@@ -147,14 +146,6 @@ ShifterModel::InputState ShifterInput::readInputs() {
   inputs.sw6 = readDebounced(button6);
   sequentialEnabled = !inputs.hPatternMode;
 #endif
-
-  if (to_ms_since_boot(get_absolute_time()) - lastScan >= 500) {
-    handleConnected = detectHandleConnection();
-    if (handleConnected && !handleConfigured) {
-      configureHandle();
-    }
-    lastScan = to_ms_since_boot(get_absolute_time());
-  }
 
   if (handleConnected) {
     inputs.swRange = readDebounced(rangeButton);
