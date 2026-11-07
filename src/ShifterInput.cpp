@@ -61,6 +61,7 @@ void ShifterInput::checkSequential() {
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   if (const bool isPressed = readDebounced(sequentialModeButton); !isPressed) {
     sequentialPressActive = false;
+    sequentialPressHandled = false;
     sequentialPressStartTime = 0;
     return;
   }
@@ -71,10 +72,9 @@ void ShifterInput::checkSequential() {
     return;
   }
 
-  if ((millis() - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
+  if (!sequentialPressHandled && (millis() - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
     sequentialEnabled = !sequentialEnabled;
-    sequentialPressActive = false;
-    sequentialPressStartTime = 0;
+    sequentialPressHandled = true;
   }
 #endif
 }

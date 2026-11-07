@@ -68,6 +68,7 @@ private:
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inline static bool sequentialPressActive = false;
+  inline static bool sequentialPressHandled = false;
   inline static uint32_t sequentialPressStartTime = 0;
   static constexpr uint32_t SEQUENTIAL_MODE_HOLD_TIME_MS = 1000;
 #endif
