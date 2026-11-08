@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ShifterProject.h>
+#include "ShifterProject.h"
 #include <cstdint>
 
 // Waveshare RP2040 Zero

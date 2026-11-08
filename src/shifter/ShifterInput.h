@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ShifterModel.h>
-#include <board.h>
+#include "ShifterModel.h"
+#include "config/BoardPins.h"
 
 class ShifterInput {
 private:

@@ -52,11 +52,28 @@ set(H_SHIFTER_JAPATECH_COMPILE_OPTIONS
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS ${SRC_DIR}/*.c ${SRC_DIR}/*.cpp)
-add_executable(H_SHIFTER_JAPATECH ${SRC_FILES})
+add_executable(H_SHIFTER_JAPATECH)
+
+target_sources(H_SHIFTER_JAPATECH PRIVATE
+  src/main.cpp
+
+  src/app/ShifterApp.cpp
+
+  src/shifter/ShifterInput.cpp
+  src/shifter/ShifterLogic.cpp
+
+  src/usb/HidReport.cpp
+  src/usb/usb_descriptors.c
+
+  src/led/StatusLed.cpp
+
+  src/diagnostics/Log.cpp
+  src/diagnostics/Debug.cpp
+)
+
 target_include_directories(H_SHIFTER_JAPATECH PRIVATE
-  ${SRC_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/usb
 )
 
 target_compile_options(H_SHIFTER_JAPATECH PRIVATE ${H_SHIFTER_JAPATECH_COMPILE_OPTIONS})

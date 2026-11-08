@@ -1,11 +1,11 @@
-#include <LedMulti.h>
+#include "StatusLed.h"
 #include <array>
 #include <pico/time.h>
 #include <utility>
 
 uint32_t nowMs() { return to_ms_since_boot(get_absolute_time()); }
 
-void LedMulti::begin() {
+void StatusLed::begin() {
   led.setPin(PICO_DEFAULT_WS2812_PIN);
   led.updateLength(1);
   // NOLINTNEXTLINE(bugprone-signed-bitwise)
@@ -15,12 +15,12 @@ void LedMulti::begin() {
   led.show();
 }
 
-void LedMulti::showLed(Color color) {
+void StatusLed::showLed(Color color) {
   led.setPixelColor(0, std::to_underlying(color));
   led.show();
 }
 
-void LedMulti::connectHandle() {
+void StatusLed::connectHandle() {
   running = true;
   step = 1;
   lastChange = nowMs();
@@ -28,7 +28,7 @@ void LedMulti::connectHandle() {
   led.show();
 }
 
-void LedMulti::update() {
+void StatusLed::update() {
   if (!running) {
     return;
   }

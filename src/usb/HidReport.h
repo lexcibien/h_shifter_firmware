@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ShifterModel.h>
+#include "shifter/ShifterModel.h"
 
 class HidReport {
 private:

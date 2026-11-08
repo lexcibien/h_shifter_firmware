@@ -1,6 +1,6 @@
 #if defined(DEBUG) && H_SHIFTER_LOG
 
-#include <Debug.h>
+#include "Debug.h"
 #include <cstdio>
 #include <pico/stdio.h>
 
@@ -9,9 +9,12 @@ void Debug::printRawAnalog(const ShifterInput::AnalogState& input) { printf("[DE
 void Debug::printRawInputs(const ShifterModel::InputState& inputs) {
   stdio_put_string("[DEBUG] inputs: bits=", -1, false, false);
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
-  const bool states[] = { inputs.swFront, inputs.swLeft, inputs.swRight, inputs.swBack, inputs.swReverse, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake };
+  const bool states[] = { inputs.swFront,   inputs.swLeft,  inputs.swRight, inputs.swBack,
+                          inputs.swReverse, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake };
 #elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
-  const bool states[] = { inputs.hPatternMode, inputs.sw3, inputs.sw4, inputs.sw5, inputs.sw6, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake };
+  const bool states[] = {
+    inputs.hPatternMode, inputs.sw3, inputs.sw4, inputs.sw5, inputs.sw6, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake
+  };
 #endif
 
   for (const bool state : states) {

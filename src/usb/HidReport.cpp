@@ -1,5 +1,6 @@
-#include <HidReport.h>
+#include "HidReport.h"
 #include <bsp/board_api.h>
+#include <class/hid/hid_device.h>
 #include <tusb.h>
 
 void HidReport::begin() {

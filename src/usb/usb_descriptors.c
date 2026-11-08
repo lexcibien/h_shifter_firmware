@@ -1,4 +1,4 @@
-#include <ShifterProject.h>
+#include "config/ShifterProject.h"
 #include <bsp/board_api.h>
 
 #define USB_VID 0x2E8A
