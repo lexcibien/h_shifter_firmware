@@ -1,5 +1,5 @@
-#include "../../../ArduinoCore-API/api/Common.h"
-#include <HidReport.h>
+#include "HidReport.h"
+#include <../../../ArduinoCore-API/api/Common.h>
 
 void HidReport::begin() {
   if (!TinyUSBDevice.isInitialized()) {
@@ -20,7 +20,7 @@ void HidReport::begin() {
 bool HidReport::mounted() { return TinyUSBDevice.mounted(); }
 bool HidReport::ready() { return usbHid.ready(); }
 
-void HidReport::send(const ShifterModel::ButtonState& buttonState) {
+bool HidReport::send(const ShifterModel::ButtonState& buttonState) {
   uint16_t buttonsMask = 0;
 
   for (uint8_t i = 0; i < ShifterModel::BUTTON_COUNT; ++i) {
@@ -29,7 +29,8 @@ void HidReport::send(const ShifterModel::ButtonState& buttonState) {
     }
   }
 
-  buttonReport.buttons.at(0) = buttonsMask & 0xFFU;
-  buttonReport.buttons.at(1) = static_cast<uint8_t>(buttonsMask >> 8U) & 0xFFU;
-  usbHid.sendReport(0, &buttonReport, sizeof(buttonReport));
+  buttonReport.buttons.at(0) = static_cast<uint8_t>(buttonsMask & 0xFFU);
+  // NOLINTNEXTLINE(bugprone-signed-bitwise)
+  buttonReport.buttons.at(1) = static_cast<uint8_t>((buttonsMask >> 8U) & 0xFFU);
+  return usbHid.sendReport(0, &buttonReport, sizeof(buttonReport));
 }

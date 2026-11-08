@@ -1,6 +1,5 @@
 ---
 BasedOnStyle: LLVM
-AlignArrayOfStructures: Left
 AlignConsecutiveMacros:
   Enabled: true
 AlignConsecutiveShortCaseStatements:

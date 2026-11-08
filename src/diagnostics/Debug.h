@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ShifterInput.h>
-#include <ShifterModel.h>
+#include "shifter/ShifterInput.h"
+#include "shifter/ShifterModel.h"
 
 class Debug {
 public:

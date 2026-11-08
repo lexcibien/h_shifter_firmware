@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ShifterModel.h>
-#include <board.h>
+#include "ShifterModel.h"
+#include "config/BoardPins.h"
 
 class ShifterInput {
 private:
@@ -62,9 +62,8 @@ private:
   static bool readDebounced(Button& button);
 
   inline static bool handleConnected = false;
-  inline static bool handleConfigured = false;
   inline static bool sequentialEnabled = false;
-  inline static uint32_t lastScan;
+  inline static uint32_t nowMs = 0;
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inline static bool sequentialPressActive = false;

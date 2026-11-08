@@ -1,15 +1,14 @@
+#include "ShifterInput.h"
 #include <Arduino.h>
-#include <ShifterInput.h>
 
 bool ShifterInput::readDebounced(Button& button) {
-  // NOLINTNEXTLINE(cppcoreguidelines-init-variables) -- initialized by the Arduino GPIO read.
-  const bool raw = button.activeLow ? digitalRead(button.pin) == LOW : digitalRead(button.pin) == HIGH;
+  const bool raw = button.activeLow ? !digitalRead(button.pin) : digitalRead(button.pin);
 
   if (raw != button.lastRaw) {
-    button.lastChange = millis();
+    button.lastChange = nowMs;
     button.lastRaw = raw;
   }
-  if ((millis() - button.lastChange) > DEBOUNCE_MS) {
+  if ((nowMs - button.lastChange) > DEBOUNCE_MS) {
     button.stableState = raw;
   }
 
@@ -31,10 +30,9 @@ void ShifterInput::begin() {
   pinMode(PIN_5, INPUT_PULLUP);
   pinMode(PIN_6, INPUT_PULLUP);
 #endif
-
-  analogReadResolution(ADC_RESOLUTION);
-
+  analogReadResolution(ADC_RES);
   delay(2000);
+
   handleConnected = detectHandleConnection();
 
   if (handleConnected) {
@@ -53,8 +51,6 @@ void ShifterInput::configureHandle() {
   pinMode(SW_KNOB_RANGE, INPUT);
   pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
   pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
-
-  handleConfigured = true;
 }
 
 void ShifterInput::checkSequential() {
@@ -68,11 +64,11 @@ void ShifterInput::checkSequential() {
 
   if (!sequentialPressActive) {
     sequentialPressActive = true;
-    sequentialPressStartTime = millis();
+    sequentialPressStartTime = nowMs;
     return;
   }
 
-  if (!sequentialPressHandled && (millis() - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
+  if (!sequentialPressHandled && (nowMs - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
     sequentialEnabled = !sequentialEnabled;
     sequentialPressHandled = true;
   }
@@ -90,6 +86,7 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
 
 ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
+  nowMs = millis();
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inputs.swFront = readDebounced(frontButton);
@@ -107,14 +104,6 @@ ShifterModel::InputState ShifterInput::readInputs() {
   inputs.sw6 = readDebounced(button6);
   sequentialEnabled = !inputs.hPatternMode;
 #endif
-
-  if (millis() - lastScan >= 500) {
-    handleConnected = detectHandleConnection();
-    if (handleConnected && !handleConfigured) {
-      configureHandle();
-    }
-    lastScan = millis();
-  }
 
   if (handleConnected) {
     inputs.swRange = readDebounced(rangeButton);

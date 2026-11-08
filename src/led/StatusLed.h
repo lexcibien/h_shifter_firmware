@@ -10,7 +10,7 @@ enum class Color : uint32_t {
   OK = 255U << 8U,                          // GREEN
 };
 
-class LedMulti {
+class StatusLed {
 private:
   Adafruit_NeoPixel led;
   uint32_t lastChange = 0;

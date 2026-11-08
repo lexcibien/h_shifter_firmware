@@ -1,8 +1,10 @@
-#include <LedMulti.h>
+#include "StatusLed.h"
 #include <array>
 #include <utility>
 
-void LedMulti::begin() {
+static uint32_t nowMs() { return millis(); }
+
+void StatusLed::begin() {
   led.setPin(PIN_NEOPIXEL);
   led.updateLength(1);
   // NOLINTNEXTLINE(bugprone-signed-bitwise)
@@ -12,27 +14,27 @@ void LedMulti::begin() {
   led.show();
 }
 
-void LedMulti::showLed(Color color) {
+void StatusLed::showLed(Color color) {
   led.setPixelColor(0, std::to_underlying(color));
   led.show();
 }
 
-void LedMulti::connectHandle() {
+void StatusLed::connectHandle() {
   running = true;
-  step = 0;
-  lastChange = millis();
+  step = 1;
+  lastChange = nowMs();
   led.setPixelColor(0, std::to_underlying(Color::SEQUENTIAL));
   led.show();
 }
 
-void LedMulti::update() {
+void StatusLed::update() {
   if (!running) {
     return;
   }
 
-  if (millis() - lastChange >= 500) { // 500 ms por cor
+  if (nowMs() - lastChange >= 500) { // 500 ms por cor
     using enum Color;
-    lastChange = millis();
+    lastChange = nowMs();
 
     static constexpr std::array connectionColors = { SEQUENTIAL, OK, WARN };
     if (step >= connectionColors.size()) {

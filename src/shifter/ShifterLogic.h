@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ShifterModel.h>
+#include "ShifterModel.h"
 
 class ShifterLogic : public ShifterModel {
 private:

@@ -1,4 +1,4 @@
-#include <ShifterLogic.h>
+#include "ShifterLogic.h"
 
 ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inputs, const ShifterConfig& config) {
   ButtonState buttonState = {};

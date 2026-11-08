@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ShifterProject.h>
+#include "config/ShifterProject.h"
 #include <array>
 #include <cstdint>
 

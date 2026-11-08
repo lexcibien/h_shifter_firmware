@@ -2,7 +2,9 @@
 Checks: >-
   *,
   -altera-*,
+  -bugprone-easily-swappable-parameters,
   -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-non-const-global-variables,
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
@@ -11,6 +13,7 @@ Checks: >-
   -llvmlibc-*,
   -misc-header-include-cycle,
   -misc-include-cleaner,
+  -misc-use-anonymous-namespace,
   -modernize-use-std-print,
   -modernize-use-trailing-return-type,
   -portability-avoid-pragma-once,
