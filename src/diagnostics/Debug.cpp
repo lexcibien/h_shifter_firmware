@@ -2,17 +2,21 @@
 
 #include "Debug.h"
 #include <Adafruit_USBD_CDC.h>
+#include <array>
 
-void Debug::printRawAnalog(const ShifterInput::AnalogState& input) { Serial.printf("[DEBUG] analog: adc=%d voltage=%.2fV\n", input.adc, input.voltage); }
+void Debug::printRawAnalog(const ShifterInput::AnalogState& input) {
+  Serial.printf("[DEBUG] analog: adc=%d voltage=%.2fV\n", input.adc, input.voltage);
+}
 
 void Debug::printRawInputs(const ShifterModel::InputState& inputs) {
   Serial.print("[DEBUG] inputs: bits=");
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
-  const bool states[] = { inputs.swFront,   inputs.swLeft,  inputs.swRight, inputs.swBack,
-                          inputs.swReverse, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake };
+  const std::array<bool, 8> states = {
+    inputs.swFront, inputs.swLeft, inputs.swRight, inputs.swBack, inputs.swReverse, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake,
+  };
 #elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
-  const bool states[] = {
-    inputs.hPatternMode, inputs.sw3, inputs.sw4, inputs.sw5, inputs.sw6, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake
+  const std::array<bool, 8> states = {
+    inputs.hPatternMode, inputs.sw3, inputs.sw4, inputs.sw5, inputs.sw6, inputs.swRange, inputs.swSplit, inputs.btnEngineBrake,
   };
 #endif
 
