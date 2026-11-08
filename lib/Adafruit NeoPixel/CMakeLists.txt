@@ -15,11 +15,21 @@ target_include_directories(Adafruit_NeoPixel
 
 target_link_libraries(Adafruit_NeoPixel
   PUBLIC
-  pico_stdlib
-  hardware_pio
+  hardware_pio_headers
+  pico_time_headers
+  PRIVATE
+  hardware_clocks_headers
 )
 
-set_source_files_properties(Adafruit_NeoPixel.cpp PROPERTIES
-  COMPILE_OPTIONS "-Wall;-Wextra;-Wpedantic"
+target_compile_options(Adafruit_NeoPixel PRIVATE
+  -Wall
+  -Wextra
+  -Wpedantic
+  -ffunction-sections
+  -fdata-sections
+  -fno-exceptions
+  -fno-unwind-tables
+  -fno-rtti
+  -fno-use-cxa-atexit
 )
 

@@ -92,6 +92,7 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
 
 target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   Adafruit::NeoPixel
+  hardware_pio
   pico_stdlib
   tinyusb_device
   tinyusb_board
