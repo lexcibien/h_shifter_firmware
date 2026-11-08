@@ -3,6 +3,7 @@
 #include <Adafruit_NeoPixel.h>
 
 enum class Color : uint32_t {
+  // (red << 16) | (green << 8) | blue
   H_SHIFTER = (255U << 16U) | (128U << 8U), // ORANGE
   SEQUENTIAL = (255U << 16U) | 255U,        // PURPLE
   DANGER = 255U << 16U,                     // RED
