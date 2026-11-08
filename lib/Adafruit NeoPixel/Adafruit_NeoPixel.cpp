@@ -13,9 +13,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstdlib>
 #include <cstring>
-#include <limits>
 
 #include <hardware/gpio.h>
 #include <rp2040_pio.h>
@@ -23,20 +21,17 @@
 bool isValidPicoPin(int16_t pin) { return pin >= 0 && pin < static_cast<int16_t>(NUM_BANK0_GPIOS); }
 
 Adafruit_NeoPixel::Adafruit_NeoPixel(uint16_t n, int16_t p, neoPixelType t)
-    : is800KHz(true), begun(false), numLEDs(0), numBytes(0), pin(-1), brightness(0), pixels(nullptr), rOffset(1), gOffset(0), bOffset(2), wOffset(1),
-      endTime(0) {
+    : is800KHz(true), begun(false), numLEDs(0), numBytes(0), pin(-1), brightness(0), rOffset(1), gOffset(0), bOffset(2), wOffset(1), endTime(0) {
   updateType(t);
   updateLength(n);
   setPin(p);
 }
 
 Adafruit_NeoPixel::Adafruit_NeoPixel()
-    : is800KHz(true), begun(false), numLEDs(0), numBytes(0), pin(-1), brightness(0), pixels(nullptr), rOffset(1), gOffset(0), bOffset(2), wOffset(1),
-      endTime(0) {}
+    : is800KHz(true), begun(false), numLEDs(0), numBytes(0), pin(-1), brightness(0), rOffset(1), gOffset(0), bOffset(2), wOffset(1), endTime(0) {}
 
 Adafruit_NeoPixel::~Adafruit_NeoPixel() {
   rp2040releasePIO();
-  std::free(pixels);
   if (isValidPicoPin(pin)) {
     gpio_deinit(static_cast<uint>(pin));
   }
@@ -59,7 +54,7 @@ bool Adafruit_NeoPixel::begin() {
 }
 
 void Adafruit_NeoPixel::show() {
-  if (!begun || !pixels || !pio) {
+  if (!begun || numBytes == 0 || !pio) {
     return;
   }
 
@@ -90,22 +85,16 @@ void Adafruit_NeoPixel::setPin(int16_t p) {
 }
 
 void Adafruit_NeoPixel::updateLength(uint16_t n) {
-  std::free(pixels);
-  pixels = nullptr;
+  std::memset(pixels, 0, sizeof(pixels));
   numLEDs = 0;
   numBytes = 0;
 
-  const uint32_t bytesPerPixel = (wOffset == rOffset) ? 3U : 4U;
-  const uint32_t requestedBytes = static_cast<uint32_t>(n) * bytesPerPixel;
-  if (requestedBytes == 0 || requestedBytes > std::numeric_limits<uint16_t>::max()) {
+  if (n != 1) {
     return;
   }
 
-  pixels = static_cast<uint8_t*>(std::calloc(requestedBytes, 1));
-  if (pixels) {
-    numLEDs = n;
-    numBytes = static_cast<uint16_t>(requestedBytes);
-  }
+  numLEDs = 1;
+  numBytes = (wOffset == rOffset) ? 3U : 4U;
 }
 
 void Adafruit_NeoPixel::updateType(neoPixelType t) {
@@ -118,7 +107,7 @@ void Adafruit_NeoPixel::updateType(neoPixelType t) {
   bOffset = t & 0b11U;
   is800KHz = (t & NEO_KHZ400) == 0;
 
-  if (pixels && oldThreeBytesPerPixel != (wOffset == rOffset)) {
+  if (numLEDs != 0 && oldThreeBytesPerPixel != (wOffset == rOffset)) {
     updateLength(numLEDs);
   }
 
@@ -222,9 +211,7 @@ void Adafruit_NeoPixel::setBrightness(uint8_t value) {
 uint8_t Adafruit_NeoPixel::getBrightness() const { return brightness - 1; }
 
 void Adafruit_NeoPixel::clear() {
-  if (pixels) {
-    std::memset(pixels, 0, numBytes);
-  }
+  std::memset(pixels, 0, numBytes);
 }
 
 uint32_t Adafruit_NeoPixel::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {

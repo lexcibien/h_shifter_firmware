@@ -216,7 +216,8 @@ public:
              writes past the ends of the buffer. Great power, great
              responsibility and all that.
   */
-  uint8_t* getPixels(void) const { return pixels; };
+  uint8_t* getPixels(void) { return pixels; }
+  const uint8_t* getPixels(void) const { return pixels; }
   uint8_t getBrightness(void) const;
   /*!
     @brief   Retrieve the pin number used for NeoPixel data output.
@@ -318,7 +319,7 @@ protected:
   uint16_t numBytes;  ///< Size of 'pixels' buffer below
   int16_t pin;        ///< Output pin number (-1 if not yet set)
   uint8_t brightness; ///< Strip brightness 0-255 (stored as +1)
-  uint8_t* pixels;    ///< Holds LED color values (3 or 4 bytes each)
+  uint8_t pixels[4]{}; ///< Fixed buffer for the single RGB or RGBW LED
   uint8_t rOffset;    ///< Red index within each 3- or 4-byte pixel
   uint8_t gOffset;    ///< Index of green byte
   uint8_t bOffset;    ///< Index of blue byte
