@@ -1,12 +1,10 @@
 import json
-import os
-import re
 import shlex
 import shutil
 import subprocess
 from pathlib import Path
 
-from SCons.Script import DefaultEnvironment
+from SCons.Script import DefaultEnvironment  # pyright: ignore[reportMissingImports]
 
 env = DefaultEnvironment()
 
@@ -46,6 +44,7 @@ def run_clang_format(check_only=False):
         original_contents = {path: Path(project_dir, path).read_bytes() for path in files}
 
     result = subprocess.run([clang_format, *flags, *files], cwd=project_dir, check=False)
+    changed_files = []
     if not check_only:
         changed_files = [path for path, original in original_contents.items() if Path(project_dir, path).read_bytes() != original]
         if changed_files:
