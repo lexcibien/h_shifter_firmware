@@ -1,6 +1,9 @@
 #include "config/ShifterProject.h"
 #include <bsp/board_api.h>
 
+#include <pico/usb_reset_interface.h>
+#include <pico/usb_reset_tusb.h>
+
 #define USB_VID 0x2E8A
 #define USB_PID 0x0003
 #define USB_BCD 0x0200
@@ -85,13 +88,13 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
 }
 
 #if H_SHIFTER_ENABLE_CDC
-enum { ITF_NUM_CDC = 0, ITF_NUM_CDC_DATA, ITF_NUM_HID, ITF_NUM_TOTAL };
+enum { ITF_NUM_CDC = 0, ITF_NUM_CDC_DATA, ITF_NUM_HID, ITF_NUM_RESET, ITF_NUM_TOTAL };
 
-#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_DESC_LEN)
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_DESC_LEN + TUD_RPI_RESET_DESC_LEN)
 #else
-enum { ITF_NUM_HID = 0, ITF_NUM_TOTAL };
+enum { ITF_NUM_HID = 0, ITF_NUM_RESET, ITF_NUM_TOTAL };
 
-#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + TUD_RPI_RESET_DESC_LEN)
 #endif
 
 #define EPNUM_HID       0x81
@@ -105,6 +108,7 @@ uint8_t const desc_configuration[] = {
   TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 0, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64),
 #endif
   TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, 2, 5),
+  TUD_RPI_RESET_DESCRIPTOR(ITF_NUM_RESET, 0),
 };
 
 uint8_t const* tud_descriptor_configuration_cb(uint8_t index) {

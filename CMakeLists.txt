@@ -88,10 +88,13 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
   H_SHIFTER_LOG=$<BOOL:${H_SHIFTER_LOG}>
   H_SHIFTER_ENABLE_CDC=$<BOOL:${H_SHIFTER_LOG}>
   TINYUSB_NEED_POLLING_TASK
+  PICO_ENABLE_USB_RESET_VIA_VENDOR_INTERFACE=1
+  PICO_USB_RESET_INCLUDE_DEFAULT_APP_DRIVER_CB=1
 )
 
 target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   Adafruit::NeoPixel
+  pico_usb_reset
   hardware_pio
   pico_stdlib
   tinyusb_device
