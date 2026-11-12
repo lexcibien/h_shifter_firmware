@@ -44,5 +44,21 @@
       "name": "waveshare_rp2040_zero_v2",
       "configurePreset": "waveshare_rp2040_zero_v2"
     }
+  ],
+  "testPresets": [
+    {
+      "name": "waveshare_rp2040_zero_v1",
+      "configurePreset": "waveshare_rp2040_zero_v1",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "waveshare_rp2040_zero_v2",
+      "configurePreset": "waveshare_rp2040_zero_v2",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
   ]
 }

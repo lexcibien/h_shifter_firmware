@@ -55,6 +55,29 @@ a versão da lógica e o nome USB (`DAZ Shifter V1` ou `DAZ Shifter V2`). Os
 arquivos são gerados em `build/<preset>/`, incluindo
 `H_SHIFTER_JAPATECH.uf2` e `H_SHIFTER_JAPATECH.bin`.
 
+## Executar os testes
+
+Depois de configurar o projeto, execute os testes a partir da raiz do
+repositório usando o mesmo preset da versão desejada:
+
+```bash
+# Projeto V1
+ctest --preset waveshare_rp2040_zero_v1
+
+# Projeto V2
+ctest --preset waveshare_rp2040_zero_v2
+```
+
+É possível usar cmake com um target test também:
+
+```bash
+# Projeto V1
+cmake --build --preset waveshare_rp2040_zero_v1 --target test
+
+# Projeto V2
+cmake --build --preset waveshare_rp2040_zero_v2 --target test
+```
+
 ### Logs e diagnóstico
 
 Por padrão, o firmware expõe somente a interface HID. Para habilitar a porta
