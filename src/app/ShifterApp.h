@@ -7,9 +7,11 @@
 class ShifterApp {
 public:
   void initialize();
-  void update();
+  [[noreturn]] void run();
 
 private:
+  void update();
+
   HidReport hidReport;
   StatusLed statusLed;
 

@@ -7,7 +7,7 @@
 esse sistema desengata
 - [ ] Fazer a lógica com o botão para habilitar/desabilitar câmbio sequencial
   - [X] Adicionar dois botões adicionais para o sequencial quando ativado
-  - [ ] Mudar o NEOPIXEL de cor quando for H Shifter (violeta) e quando for Sequencial (laranja)
+  - [X] Mudar o NEOPIXEL de cor quando for H Shifter (violeta) e quando for Sequencial (laranja)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 - [X] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
   - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
@@ -23,9 +23,7 @@ esse sistema desengata
 
 - [X] Reimprimir peças em PLA+
 - [X] Colocar um conector no chicote para a manopla
-- [X] Adicionar um botão para trocar de H para sequencial
-- [ ] Adicionar um LED ou usar da própria board
-- [ ] Slot na peça de engatar ré para a mola, evitando descentralizar e travar ela na rosca
+- [X] Adicionar um switch para trocar de H para sequencial
 - [ ] Adicionar display 14 segmentos
   - [ ] Usar um multiplexador 595 para reduzir quantidade de pinos necessários
   - [ ] Mostrar marchas

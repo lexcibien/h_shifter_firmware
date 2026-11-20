@@ -1,14 +1,15 @@
 #include "ShifterInput.h"
-#include <Arduino.h>
+#include <hardware/adc.h>
+#include <pico/time.h>
 
 bool ShifterInput::readDebounced(Button& button) {
-  const bool raw = button.activeLow ? !digitalRead(button.pin) : digitalRead(button.pin);
+  const bool raw = button.activeLow ? !gpio_get(button.pin) : gpio_get(button.pin);
 
   if (raw != button.lastRaw) {
     button.lastChange = nowMs;
     button.lastRaw = raw;
   }
-  if ((nowMs - button.lastChange) > DEBOUNCE_MS) {
+  if (nowMs - button.lastChange > DEBOUNCE_MS) {
     button.stableState = raw;
   }
 
@@ -16,23 +17,56 @@ bool ShifterInput::readDebounced(Button& button) {
 }
 
 void ShifterInput::begin() {
-#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
-  pinMode(SW_FRONT, INPUT_PULLUP);
-  pinMode(SW_LEFT, INPUT_PULLUP);
-  pinMode(SW_RIGHT, INPUT_PULLUP);
-  pinMode(SW_BACK, INPUT_PULLUP);
-  pinMode(SW_REVERSE, INPUT_PULLUP);
-  pinMode(SW_ENABLE_SEQUENTIAL, INPUT_PULLUP);
-#elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
-  pinMode(PIN_MODE, INPUT_PULLUP);
-  pinMode(PIN_3, INPUT_PULLUP);
-  pinMode(PIN_4, INPUT_PULLUP);
-  pinMode(PIN_5, INPUT_PULLUP);
-  pinMode(PIN_6, INPUT_PULLUP);
-#endif
-  analogReadResolution(ADC_RES);
-  delay(2000);
+  adc_init();
+  adc_gpio_init(SW_KNOB_RANGE);
 
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  gpio_init(SW_FRONT);
+  gpio_set_dir(SW_FRONT, GPIO_IN);
+  gpio_pull_up(SW_FRONT);
+
+  gpio_init(SW_LEFT);
+  gpio_set_dir(SW_LEFT, GPIO_IN);
+  gpio_pull_up(SW_LEFT);
+
+  gpio_init(SW_RIGHT);
+  gpio_set_dir(SW_RIGHT, GPIO_IN);
+  gpio_pull_up(SW_RIGHT);
+
+  gpio_init(SW_BACK);
+  gpio_set_dir(SW_BACK, GPIO_IN);
+  gpio_pull_up(SW_BACK);
+
+  gpio_init(SW_REVERSE);
+  gpio_set_dir(SW_REVERSE, GPIO_IN);
+  gpio_pull_up(SW_REVERSE);
+
+  gpio_init(SW_ENABLE_SEQUENTIAL);
+  gpio_set_dir(SW_ENABLE_SEQUENTIAL, GPIO_IN);
+  gpio_pull_up(SW_ENABLE_SEQUENTIAL);
+#elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
+  gpio_init(PIN_3);
+  gpio_set_dir(PIN_3, GPIO_IN);
+  gpio_pull_up(PIN_3);
+
+  gpio_init(PIN_4);
+  gpio_set_dir(PIN_4, GPIO_IN);
+  gpio_pull_up(PIN_4);
+
+  gpio_init(PIN_5);
+  gpio_set_dir(PIN_5, GPIO_IN);
+  gpio_pull_up(PIN_5);
+
+  gpio_init(PIN_6);
+  gpio_set_dir(PIN_6, GPIO_IN);
+  gpio_pull_up(PIN_6);
+
+  gpio_init(PIN_MODE);
+  gpio_set_dir(PIN_MODE, GPIO_IN);
+  gpio_pull_up(PIN_MODE);
+#endif
+
+  sleep_ms(2000);
   handleConnected = detectHandleConnection();
 
   if (handleConnected) {
@@ -41,16 +75,23 @@ void ShifterInput::begin() {
 }
 
 bool ShifterInput::detectHandleConnection() {
+  adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
   const int DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
-  const int adc = analogRead(SW_KNOB_RANGE);
-
+  const int adc = adc_read();
   return adc < DETECT_VALUE;
 }
 
 void ShifterInput::configureHandle() {
-  pinMode(SW_KNOB_RANGE, INPUT);
-  pinMode(SW_KNOB_SPLIT, INPUT_PULLUP);
-  pinMode(BTN_KNOB_ENGINE_BRAKE, INPUT_PULLUP);
+  gpio_set_function(SW_KNOB_RANGE, GPIO_FUNC_SIO);
+  gpio_set_dir(SW_KNOB_RANGE, GPIO_IN);
+
+  gpio_init(SW_KNOB_SPLIT);
+  gpio_set_dir(SW_KNOB_SPLIT, GPIO_IN);
+  gpio_pull_up(SW_KNOB_SPLIT);
+
+  gpio_init(BTN_KNOB_ENGINE_BRAKE);
+  gpio_set_dir(BTN_KNOB_ENGINE_BRAKE, GPIO_IN);
+  gpio_pull_up(BTN_KNOB_ENGINE_BRAKE);
 }
 
 void ShifterInput::checkSequential() {
@@ -78,7 +119,8 @@ void ShifterInput::checkSequential() {
 ShifterInput::AnalogState ShifterInput::readAnalogInput() {
   ShifterInput::AnalogState input;
 
-  input.adc = analogRead(SW_KNOB_RANGE);
+  adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
+  input.adc = adc_read();
   input.voltage = static_cast<float>(input.adc) * CONVERSION_FACTOR;
 
   return input;
@@ -86,7 +128,7 @@ ShifterInput::AnalogState ShifterInput::readAnalogInput() {
 
 ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
-  nowMs = millis();
+  nowMs = to_ms_since_boot(get_absolute_time());
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inputs.swFront = readDebounced(frontButton);

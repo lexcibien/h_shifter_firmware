@@ -1,11 +1,12 @@
 #include "StatusLed.h"
 #include <array>
+#include <pico/time.h>
 #include <utility>
 
-static uint32_t nowMs() { return millis(); }
+uint32_t nowMs() { return to_ms_since_boot(get_absolute_time()); }
 
 void StatusLed::begin() {
-  led.setPin(PIN_NEOPIXEL);
+  led.setPin(PICO_DEFAULT_WS2812_PIN);
   led.updateLength(1);
   // NOLINTNEXTLINE(bugprone-signed-bitwise)
   led.updateType(NEO_GRB + NEO_KHZ800);

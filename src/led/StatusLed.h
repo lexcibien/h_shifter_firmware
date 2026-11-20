@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Adafruit_NeoPixel.h>
+#include "Adafruit_NeoPixel.h"
+#include <cstdint>
 
 enum class Color : uint32_t {
   // (red << 16) | (green << 8) | blue

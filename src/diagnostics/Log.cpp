@@ -1,12 +1,15 @@
 #if H_SHIFTER_LOG
 
 #include "Log.h"
-#include <Adafruit_USBD_CDC.h>
+#include <cstdio>
+#include <pico/stdio.h>
 
-static void writeLog(const char* level, const char* message) {
-  Serial.print(level);
-  Serial.println(message);
+namespace {
+void writeLog(const char* level, const char* message) {
+  stdio_put_string(level, -1, false, false);
+  puts(message);
 }
+} // namespace
 
 void Log::info(const char* message) { writeLog("[INFO] ", message); }
 
