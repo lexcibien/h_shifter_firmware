@@ -3,25 +3,20 @@ Checks: >-
   *,
   -altera-*,
   -bugprone-easily-swappable-parameters,
+  -bugprone-reserved-identifier,
+  -cert-dcl37-c,
+  -cert-dcl51-cpp,
   -cppcoreguidelines-avoid-magic-numbers,
-  -cppcoreguidelines-avoid-non-const-global-variables,
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
-  -fuchsia-*,
-  -llvm-header-guard,
   -llvmlibc-*,
-  -misc-header-include-cycle,
-  -misc-include-cleaner,
-  -misc-use-anonymous-namespace,
+  -misc-use-internal-linkage,
   -modernize-use-std-print,
   -modernize-use-trailing-return-type,
-  -portability-avoid-pragma-once,
   -readability-implicit-bool-conversion,
   -readability-magic-numbers,
-  -readability-uppercase-literal-suffix,
-  -zircon-*,
 
-HeaderFilterRegex: "(^|.*/)(src|lib)/.*"
+HeaderFilterRegex: '(^|.*/)(src)/.*'
 ExcludeHeaderFilterRegex: '(^|.*/)\.pio/.*'
 ...
