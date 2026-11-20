@@ -18,6 +18,7 @@ esse sistema desengata
   - Botão para checar se a manopla está conectada, sem precisar reiniciar o dispositivo
   - Botão para reiniciar o dispositivo
   - Usar uma sequência de marcha para habilitar a interface web (sequencial + switch direito)
+  - Alterar platformio para cmake no actions
 
 ## Hardware
 
