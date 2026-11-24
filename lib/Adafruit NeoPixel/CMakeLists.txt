@@ -9,7 +9,12 @@ add_library(Adafruit_NeoPixel STATIC
 add_library(Adafruit::NeoPixel ALIAS Adafruit_NeoPixel)
 
 target_include_directories(Adafruit_NeoPixel
-  PUBLIC
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_include_directories(Adafruit_NeoPixel
+  SYSTEM INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

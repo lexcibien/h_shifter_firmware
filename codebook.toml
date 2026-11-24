@@ -1,0 +1,16 @@
+words = [
+    "BGRW",
+    "BGWR",
+    "BRGW",
+    "BRWG",
+    "BWGR",
+    "BWRG",
+    "GBRW",
+    "GBWR",
+    "GRB",
+    "GRBW",
+    "GRWB",
+    "GWBR",
+    "GWRB",
+]
+ignore_paths = ["lib/Adafruit NeoPixel/Adafruit_NeoPixel.h"]
