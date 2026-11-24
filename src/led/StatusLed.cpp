@@ -1,30 +1,27 @@
 #include "StatusLed.h"
 #include <array>
+#include <pico/time.h>
 #include <utility>
 
-static uint32_t nowMs() { return millis(); }
+uint32_t nowMs() { return to_ms_since_boot(get_absolute_time()); }
 
 void StatusLed::begin() {
-  led.setPin(PIN_NEOPIXEL);
-  led.updateLength(1);
-  // NOLINTNEXTLINE(bugprone-signed-bitwise)
-  led.updateType(NEO_GRB + NEO_KHZ800);
-  led.begin();
+  if (!led.begin()) {
+    return;
+  }
   led.clear();
-  led.show();
 }
 
 void StatusLed::showLed(Color color) {
-  led.setPixelColor(0, std::to_underlying(color));
-  led.show();
+  const uint32_t rgb = std::to_underlying(color);
+  led.show(static_cast<uint8_t>(rgb >> 16U), static_cast<uint8_t>(rgb >> 8U), static_cast<uint8_t>(rgb));
 }
 
 void StatusLed::connectHandle() {
   running = true;
   step = 1;
   lastChange = nowMs();
-  led.setPixelColor(0, std::to_underlying(Color::SEQUENTIAL));
-  led.show();
+  showLed(Color::SEQUENTIAL);
 }
 
 void StatusLed::update() {
@@ -39,13 +36,11 @@ void StatusLed::update() {
     static constexpr std::array connectionColors = { SEQUENTIAL, OK, WARN };
     if (step >= connectionColors.size()) {
       led.clear();
-      led.show();
       running = false;
       return;
     }
 
-    led.setPixelColor(0, std::to_underlying(connectionColors.at(step)));
-    led.show();
+    showLed(connectionColors.at(step));
     step++;
   }
 }

@@ -1,46 +1,20 @@
 #pragma once
 
 #include "shifter/ShifterModel.h"
-#include <hid/Adafruit_USBD_HID.h>
 
 class HidReport {
 private:
-  static constexpr uint8_t HID_BUTTON_COUNT = ShifterModel::BUTTON_COUNT;
   struct __attribute__((packed)) ButtonsReport {
     std::array<uint8_t, SHIFTER_HID_REPORT_SIZE_BYTES> buttons;
   };
 
-  Adafruit_USBD_HID usbHid;
   ButtonsReport buttonReport = {};
-  // NOLINTBEGIN (bugprone-signed-bitwise)
-  static constexpr std::array<uint8_t, 29> hidReportDescriptor = {
-    HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),     //
-    HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),      //
-    HID_COLLECTION(HID_COLLECTION_APPLICATION), //
-
-    HID_USAGE_PAGE(HID_USAGE_PAGE_BUTTON), //
-    HID_USAGE_MIN(1),                      //
-    HID_USAGE_MAX(SHIFTER_BUTTON_COUNT),   //
-
-    HID_LOGICAL_MIN(0), //
-    HID_LOGICAL_MAX(1), //
-
-    HID_REPORT_SIZE(1),                                //
-    HID_REPORT_COUNT(SHIFTER_BUTTON_COUNT),            //
-    HID_INPUT(HID_DATA | HID_VARIABLE | HID_ABSOLUTE), //
-
-    // Completa o relatório ate 16 bits (4 bits na V1 e 3 bits na V2).
-    HID_REPORT_SIZE(1),                          //
-    HID_REPORT_COUNT(SHIFTER_HID_PADDING_COUNT), //
-    HID_INPUT(HID_CONSTANT),                     //
-
-    HID_COLLECTION_END //
-  };
-  // NOLINTEND
 
 public:
-  void begin();
+  static void begin();
+
   static bool mounted();
-  bool ready();
+  static bool ready();
+
   bool send(const ShifterModel::ButtonState& buttonState);
 };

@@ -1,24 +1,24 @@
 #include "HidReport.h"
-#include <../../../ArduinoCore-API/api/Common.h>
+#include <bsp/board_api.h>
+#include <class/hid/hid_device.h>
+#include <tusb.h>
 
 void HidReport::begin() {
-  if (!TinyUSBDevice.isInitialized()) {
-    TinyUSBDevice.begin(0);
+  if (!tud_inited()) {
+    const tusb_rhport_init_t rh_init = { .role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_FULL };
+    board_init();
+    tusb_init(0, &rh_init);
   }
 
-  usbHid.setPollInterval(2);
-  usbHid.setReportDescriptor(hidReportDescriptor.data(), hidReportDescriptor.size());
-  usbHid.begin();
-
-  if (TinyUSBDevice.mounted()) {
-    TinyUSBDevice.detach();
-    delay(10);
-    TinyUSBDevice.attach();
+  if (tud_mounted()) {
+    tud_disconnect();
+    sleep_ms(10);
+    tud_connect();
   }
 }
 
-bool HidReport::mounted() { return TinyUSBDevice.mounted(); }
-bool HidReport::ready() { return usbHid.ready(); }
+bool HidReport::mounted() { return tud_mounted(); }
+bool HidReport::ready() { return tud_hid_ready(); }
 
 bool HidReport::send(const ShifterModel::ButtonState& buttonState) {
   uint16_t buttonsMask = 0;
@@ -32,5 +32,5 @@ bool HidReport::send(const ShifterModel::ButtonState& buttonState) {
   buttonReport.buttons.at(0) = static_cast<uint8_t>(buttonsMask & 0xFFU);
   // NOLINTNEXTLINE(bugprone-signed-bitwise)
   buttonReport.buttons.at(1) = static_cast<uint8_t>((buttonsMask >> 8U) & 0xFFU);
-  return usbHid.sendReport(0, &buttonReport, sizeof(buttonReport));
+  return tud_hid_report(0, &buttonReport, sizeof(buttonReport));
 }

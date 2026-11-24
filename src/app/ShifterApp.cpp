@@ -6,18 +6,20 @@
 #include "diagnostics/Debug.h"
 #endif
 #ifdef TINYUSB_NEED_POLLING_TASK
-#include <arduino/Adafruit_USBD_Device.h>
+#include <device/usbd.h>
 #endif
+#if H_SHIFTER_LOG
+#include <pico/stdio.h>
+#endif
+#include <pico/time.h>
 
-static constexpr Color modeColor(bool sequentialEnabled) { return sequentialEnabled ? Color::SEQUENTIAL : Color::H_SHIFTER; }
+constexpr Color modeColor(bool sequentialEnabled) { return sequentialEnabled ? Color::SEQUENTIAL : Color::H_SHIFTER; }
 
 void ShifterApp::initialize() {
 #if H_SHIFTER_LOG
-  Serial.begin(115200);
-#else
-  Serial.end();
+  stdio_init_all();
 #endif
-  hidReport.begin();
+  HidReport::begin();
   statusLed.begin();
   statusLed.showLed(Color::WARN);
   ShifterInput::begin();
@@ -43,9 +45,15 @@ void ShifterApp::initialize() {
   Log::info(shifterConfig.sequentialEnabled ? "shifter: mode=sequential" : "shifter: mode=h-pattern");
 }
 
+[[noreturn]] void ShifterApp::run() {
+  while (true) {
+    update();
+  }
+}
+
 void ShifterApp::update() {
 #ifdef TINYUSB_NEED_POLLING_TASK
-  TinyUSBDevice.task();
+  tud_task();
 #endif
 
   const bool wasLedSignaling = statusLed.isSignaling();
@@ -58,7 +66,7 @@ void ShifterApp::update() {
   if (!mounted) {
     wasMounted = false;
     previousReportValid = false;
-    delay(10);
+    sleep_ms(10);
     return;
   }
 
@@ -89,8 +97,8 @@ void ShifterApp::update() {
 
   const ShifterModel::ButtonState buttonState = ShifterLogic::resolveButtonState(inputs, shifterConfig);
 
-  if (!hidReport.ready()) {
-    delay(10);
+  if (!HidReport::ready()) {
+    sleep_ms(10);
     return;
   }
 
@@ -106,5 +114,5 @@ void ShifterApp::update() {
     }
   }
 
-  delay(20);
+  sleep_ms(20);
 }

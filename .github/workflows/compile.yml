@@ -12,49 +12,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  compile_sketch:
-    name: Build ${{ matrix.board.name }}
+  build:
+    name: Build ${{ matrix.name }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - { name: "SHIFTER_PROJECT_V1", env: "waveshare_rp2040_zero_v1" }
-          - { name: "SHIFTER_PROJECT_V2", env: "waveshare_rp2040_zero_v2" }
+        include:
+          - name: SHIFTER_PROJECT_V1
+            preset: waveshare_rp2040_zero_v1
+          - name: SHIFTER_PROJECT_V2
+            preset: waveshare_rp2040_zero_v2
 
     steps:
       - uses: actions/checkout@v6
         with:
-          token: ${{ github.token }}
           submodules: recursive
-          persist-credentials: true
-      - uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cache/pip
-            ${{ github.workspace }}/.pio/cache
-            ${{ github.workspace }}/.pio/packages
-            ${{ github.workspace }}/.pio/platforms
-            ${{ github.workspace }}/.pio/buildcache
-          key: ${{ runner.os }}-pio-${{ matrix.board.env }}-${{ hashFiles('platformio.ini', 'boards/**/*.ini', 'boards/**/*.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pio-${{ matrix.board.env }}-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
 
-      - name: Install PlatformIO Core
-        run: pip install --upgrade platformio
+      - uses: ./.github/actions/setup-pico
 
-      - name: Run Compile
-        run: |
-          platformio run -e ${{ matrix.board.env }}
+      - name: Configure CMake
+        run: cmake --preset ${{ matrix.preset }}
 
-      - name: List Files
-        run: |
-          echo "Current Directory:"
-          pwd
-          echo "Contents:"
-          ls -R
+      - name: Build firmware
+        run: cmake --build --preset ${{ matrix.preset }}
