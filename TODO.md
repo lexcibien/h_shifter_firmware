@@ -2,11 +2,11 @@
 
 ## Programação
 
-- [ ] Adicionar marcha ré
-  - [ ] Talvez colocar um switch na base e um mecanismo na manopla que quando puxa e engata a 6a marcha, ativa a marcha ré, quando volta,
-esse sistema desengata
-- [ ] Fazer a lógica com o botão para habilitar/desabilitar câmbio sequencial
-  - [X] Adicionar dois botões adicionais para o sequencial quando ativado
+- [X] Adicionar marcha ré V1
+  - [X] Talvez colocar um switch na base e um mecanismo na manopla que quando puxa e engata a 6a marcha, ativa a marcha ré, quando volta,
+esse sistema desengata V1
+- [X] Fazer a lógica com o botão para habilitar/desabilitar câmbio sequencial V1
+  - [X] Adicionar dois botões adicionais para o sequencial quando ativado V1
   - [X] Mudar o NEOPIXEL de cor quando for H Shifter (violeta) e quando for Sequencial (laranja)
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 - [X] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
