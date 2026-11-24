@@ -12,8 +12,7 @@ constexpr uint32_t RECORD_MAGIC = 0x43465348; // "HSFC" in little-endian.
 constexpr size_t HEADER_AND_PAYLOAD_SIZE = 12 + DeviceConfig::WIRE_SIZE;
 constexpr size_t CRC_OFFSET = HEADER_AND_PAYLOAD_SIZE;
 constexpr uint32_t SLOT_SIZE = 4096;
-constexpr uint32_t RESERVED_SIZE = SLOT_SIZE * 2;
-constexpr uint32_t SLOT_OFFSETS[] = { PICO_FLASH_SIZE_BYTES - RESERVED_SIZE, PICO_FLASH_SIZE_BYTES - SLOT_SIZE };
+constexpr uint32_t SLOT_OFFSETS[] = { PICO_FLASH_SIZE_BYTES, PICO_FLASH_SIZE_BYTES + SLOT_SIZE };
 
 void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
   bytes[offset] = static_cast<uint8_t>(value);

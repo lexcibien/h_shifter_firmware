@@ -2,6 +2,14 @@ include_guard(GLOBAL)
 
 function(h_shifter_add_post_build_steps target)
   add_custom_command(TARGET ${target} POST_BUILD
+    COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/check_boot_image.py
+      --objdump ${CMAKE_OBJDUMP}
+      --file $<TARGET_FILE:${target}>
+    COMMENT "Validating RP2040 boot2 placement"
+    VERBATIM
+  )
+
+  add_custom_command(TARGET ${target} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_BINARY_DIR}/compile_commands.json
     ${PROJECT_SOURCE_DIR}/compile_commands.json

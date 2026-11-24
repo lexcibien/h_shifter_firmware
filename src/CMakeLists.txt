@@ -61,7 +61,10 @@ target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   pico_flash
 )
 
-pico_set_linker_script(H_SHIFTER_JAPATECH ${PROJECT_SOURCE_DIR}/assets/memmap_default_sdk.ld)
+# Keep the final two physical flash sectors outside the generated application
+# linker region. PICO_FLASH_SIZE_BYTES then marks the first configuration slot.
+math(EXPR H_SHIFTER_APPLICATION_FLASH_SIZE "(2 * 1024 * 1024) - (8 * 1024)")
+pico_override_flash_size(H_SHIFTER_JAPATECH ${H_SHIFTER_APPLICATION_FLASH_SIZE})
 
 pico_generate_pio_header(H_SHIFTER_JAPATECH
   ${CMAKE_CURRENT_LIST_DIR}/led/ws2812.pio

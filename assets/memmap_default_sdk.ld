@@ -23,8 +23,7 @@
 
 MEMORY
 {
-    /* Keep the final two 4 KiB sectors for atomic configuration slots. */
-    FLASH(rx) : ORIGIN = 0x10000000, LENGTH = ((2 * 1024 * 1024) - (8 * 1024))
+    FLASH(rx) : ORIGIN = 0x10000000, LENGTH = (2 * 1024 * 1024)
     RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 512k
     SCRATCH_X(rwx) : ORIGIN = 0x20080000, LENGTH = 4k
     SCRATCH_Y(rwx) : ORIGIN = 0x20081000, LENGTH = 4k
