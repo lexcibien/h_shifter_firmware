@@ -4,12 +4,10 @@
 #include <cstdio>
 #include <pico/stdio.h>
 
-namespace {
-void writeLog(const char* level, const char* message) {
+static void writeLog(const char* level, const char* message) {
   stdio_put_string(level, -1, false, false);
   puts(message);
 }
-} // namespace
 
 void Log::info(const char* message) { writeLog("[INFO] ", message); }
 

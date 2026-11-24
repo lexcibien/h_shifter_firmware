@@ -17,6 +17,12 @@ Checks: >-
   -readability-implicit-bool-conversion,
   -readability-magic-numbers,
   -cppcoreguidelines-special-member-functions,
+  -misc-include-cleaner,
+  -cppcoreguidelines-macro-to-enum,
+  -modernize-macro-to-enum,
+  -llvm-header-guard,
+  -portability-avoid-pragma-once,
+  -misc-use-anonymous-namespace,
 
 HeaderFilterRegex: "(^|.*/)(src)/.*"
 ExcludeHeaderFilterRegex: '(^|.*/)(build|pico-sdk)/.*'
