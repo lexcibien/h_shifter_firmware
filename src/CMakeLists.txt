@@ -5,6 +5,9 @@ target_sources(H_SHIFTER_JAPATECH PRIVATE
 
   app/ShifterApp.cpp
 
+  config/DeviceConfig.cpp
+  storage/ConfigStore.cpp
+
   shifter/ShifterInput.cpp
   shifter/ShifterLogic.cpp
 
@@ -53,7 +56,12 @@ target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   tinyusb_device
   tinyusb_board
   hardware_adc
+  hardware_flash
+  hardware_watchdog
+  pico_flash
 )
+
+pico_set_linker_script(H_SHIFTER_JAPATECH ${PROJECT_SOURCE_DIR}/assets/memmap_default_sdk.ld)
 
 pico_generate_pio_header(H_SHIFTER_JAPATECH
   ${CMAKE_CURRENT_LIST_DIR}/led/ws2812.pio

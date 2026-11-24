@@ -8,7 +8,7 @@ from ast import literal_eval
 from typing import Dict, Optional, Tuple
 
 filesystem_size = 0
-EEPROM_reserve = 4 * 1024  # 4 KiB EEPROM
+CONFIG_RESERVE = 8 * 1024  # Two atomic 4 KiB configuration slots.
 
 
 def convert_size_expression_to_int(expression):
@@ -277,7 +277,7 @@ def get_memory_usage(
         "program_used": mem_used["program_size"],
         "data_used": mem_used["data_size"],
         "flash_total": program_max_size,
-        "flash_sketch": program_max_size,
+        "flash_sketch": program_max_size - CONFIG_RESERVE,
         "ram_total": data_max_size,
         "flash_used": mem_used["program_size"],
         "ram_used": mem_used["data_size"],
@@ -310,7 +310,7 @@ def print_memory_usage(memory_info):
     print(f"Total Flash:          {memory_info['flash_total']} bytes ({format_bytes(memory_info['flash_total'])})")
     print(f"  - Sketch area:      {memory_info['flash_sketch']} bytes ({format_bytes(memory_info['flash_sketch'])})")
     print(f"  - Filesystem:       {filesystem_size} bytes ({format_bytes(filesystem_size)})")
-    print(f"  - EEPROM res:       {EEPROM_reserve} bytes ({format_bytes(EEPROM_reserve)})")
+    print(f"  - Config slots:     {CONFIG_RESERVE} bytes ({format_bytes(CONFIG_RESERVE)})")
     print(f"Total RAM:            {memory_info['ram_total']} bytes ({format_bytes(memory_info['ram_total'])})")
     print()
     print("=== Summary ===")
