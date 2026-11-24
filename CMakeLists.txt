@@ -30,8 +30,13 @@ endif()
 pico_sdk_init()
 
 include(cmake/FirmwareUtilities.cmake)
+include(cmake/ClangFormat.cmake)
+include(cmake/ClangTidy.cmake)
 
 add_subdirectory(src)
+
+h_shifter_add_clang_format_targets()
+h_shifter_add_clang_tidy_target(H_SHIFTER_JAPATECH)
 
 enable_testing()
 add_subdirectory(tests)

@@ -55,6 +55,29 @@ a versão da lógica e o nome USB (`DAZ Shifter V1` ou `DAZ Shifter V2`). Os
 arquivos são gerados em `build/<preset>/`, incluindo
 `H_SHIFTER_JAPATECH.uf2` e `H_SHIFTER_JAPATECH.bin`.
 
+### Formatação e análise estática
+
+O CMake disponibiliza targets para as mesmas verificações de qualidade usadas
+no fluxo anterior:
+
+```bash
+# Formatar os arquivos C/C++ do projeto
+cmake --build --preset waveshare_rp2040_zero_v1 --target format
+
+# Verificar sem alterar arquivos
+cmake --build --preset waveshare_rp2040_zero_v1 --target format-check
+
+# Compilar o firmware e executar clang-tidy usando o compile_commands.json
+cmake --build --preset waveshare_rp2040_zero_v1 --target lint
+```
+
+Os targets `format` e `format-check` usam o `.clang-format` da raiz. O target
+`lint` usa o `.clang-tidy` da raiz e o banco de compilação gerado pelo CMake,
+incluindo os defines e headers do pico-sdk para a placa e a versão escolhidas.
+
+Para executar `clang-tidy` automaticamente em cada compilação das fontes do
+projeto, configure com `-DH_SHIFTER_ENABLE_CLANG_TIDY=ON`.
+
 ## Executar os testes
 
 Depois de configurar o projeto, execute os testes a partir da raiz do

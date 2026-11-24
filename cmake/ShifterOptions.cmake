@@ -2,6 +2,7 @@ include_guard(GLOBAL)
 
 set(PICO_BOARD waveshare_rp2040_zero CACHE STRING "Board type")
 option(H_SHIFTER_LOG "Enable operational logs over USB CDC" OFF)
+option(H_SHIFTER_ENABLE_CLANG_TIDY "Run clang-tidy automatically while compiling project sources" OFF)
 set(SHIFTER_PROJECT_VERSION "SHIFTER_PROJECT_V1" CACHE STRING "H-shifter hardware/logic version")
 set_property(CACHE SHIFTER_PROJECT_VERSION PROPERTY STRINGS SHIFTER_PROJECT_V1 SHIFTER_PROJECT_V2)
 
