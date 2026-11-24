@@ -31,7 +31,6 @@ pico_sdk_init()
 
 include(cmake/FirmwareUtilities.cmake)
 
-add_subdirectory("lib/Adafruit NeoPixel")
 add_subdirectory(src)
 
 enable_testing()

@@ -1,8 +1,0 @@
----
-InheritParentConfig: true
-Checks: >-
-  -llvmlibc-*,
-  -readability-identifier-length,
-  -misc-redundant-expression,
-  -cppcoreguidelines-special-member-functions,
-  -fuchsia-*

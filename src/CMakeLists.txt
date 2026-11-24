@@ -12,6 +12,7 @@ target_sources(H_SHIFTER_JAPATECH PRIVATE
   usb/usb_descriptors.c
 
   led/StatusLed.cpp
+  led/Ws2812Led.cpp
 
   diagnostics/Log.cpp
   diagnostics/Debug.cpp
@@ -43,13 +44,16 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
 )
 
 target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
-  Adafruit::NeoPixel
   pico_usb_reset
   hardware_pio
   pico_stdlib
   tinyusb_device
   tinyusb_board
   hardware_adc
+)
+
+pico_generate_pio_header(H_SHIFTER_JAPATECH
+  ${CMAKE_CURRENT_LIST_DIR}/led/ws2812.pio
 )
 
 pico_enable_stdio_usb(H_SHIFTER_JAPATECH ${H_SHIFTER_LOG})

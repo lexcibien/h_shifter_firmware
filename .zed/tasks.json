@@ -1,0 +1,10 @@
+[
+  {
+    // This task need pioasm installed (install pico-sdk-tools)
+    "label": "Compilar PIOASM",
+    "command": "pioasm",
+    "args": ["$ZED_FILE", "$ZED_FILE.h"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+  },
+]

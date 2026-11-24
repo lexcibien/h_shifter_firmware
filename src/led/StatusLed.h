@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Adafruit_NeoPixel.h"
+#include "Ws2812Led.h"
 #include <cstdint>
+#include <pico/stdlib.h>
 
 enum class Color : uint32_t {
   // (red << 16) | (green << 8) | blue
@@ -14,7 +15,7 @@ enum class Color : uint32_t {
 
 class StatusLed {
 private:
-  Adafruit_NeoPixel led;
+  Ws2812Led led{ PICO_DEFAULT_WS2812_PIN };
   uint32_t lastChange = 0;
   uint8_t step = 0;
   bool running = false;
