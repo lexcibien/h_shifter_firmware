@@ -1,0 +1,2 @@
+# Allow members of plugdev to claim the WebUSB vendor interface on Linux.
+SUBSYSTEM=="usb", ATTR{idVendor}=="2e8a", ATTR{idProduct}=="0003", GROUP="plugdev", MODE="0660"
