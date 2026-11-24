@@ -11,14 +11,15 @@ esse sistema desengata V1
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 - [X] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
   - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
-- [ ] Desenvolver uma interface web, quando faz a conexão no computador, se acessar um endereço, abre as configurações para se fazer no dispositivo.
-  - Slider para a quantidade de marchas
-  - Habilitar/desabilitar o sequencial
-  - Habilitar/desabilitar marcha ré apertando por fora
-  - Botão para checar se a manopla está conectada, sem precisar reiniciar o dispositivo
-  - Botão para reiniciar o dispositivo
-  - Usar uma sequência de marcha para habilitar a interface web (sequencial + switch direito)
-  - Alterar platformio para cmake no actions
+- [X] Desenvolver uma interface WebUSB para configurar o dispositivo pelo navegador.
+  - [X] Slider para a quantidade de marchas
+  - [X] Configurar o modo inicial sequencial na V1
+  - [X] Habilitar/desabilitar marcha ré
+  - [X] Botão para checar se a manopla está conectada sem reiniciar o dispositivo
+  - [X] Botão para reiniciar o dispositivo
+  - [X] Usar a combinação sequencial + switch direito para liberar alterações
+  - [X] Persistir configurações na flash com recuperação em caso de gravação incompleta
+  - [X] Alterar PlatformIO para CMake nas Actions
 
 ## Hardware
 

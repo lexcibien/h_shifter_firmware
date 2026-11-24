@@ -23,8 +23,16 @@ jobs:
         include:
           - name: SHIFTER_PROJECT_V1
             preset: waveshare_rp2040_zero_v1
+            log: "OFF"
+          - name: SHIFTER_PROJECT_V1_CDC
+            preset: waveshare_rp2040_zero_v1
+            log: "ON"
           - name: SHIFTER_PROJECT_V2
             preset: waveshare_rp2040_zero_v2
+            log: "OFF"
+          - name: SHIFTER_PROJECT_V2_CDC
+            preset: waveshare_rp2040_zero_v2
+            log: "ON"
 
     steps:
       - uses: actions/checkout@v6
@@ -34,7 +42,10 @@ jobs:
       - uses: ./.github/actions/setup-pico
 
       - name: Configure CMake
-        run: cmake --preset ${{ matrix.preset }}
+        run: cmake --preset ${{ matrix.preset }} -DH_SHIFTER_LOG=${{ matrix.log }}
 
       - name: Build firmware
         run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Run tests
+        run: ctest --preset ${{ matrix.preset }} --output-on-failure

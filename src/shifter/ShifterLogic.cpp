@@ -4,6 +4,9 @@ ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inp
   ButtonState buttonState = {};
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  if (!config.reverseEnabled) {
+    isReverseGear = false;
+  }
   resetReverseGear(inputs);
   const bool sequentialMode = config.sequentialEnabled;
 #elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
@@ -14,7 +17,7 @@ ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inp
     resolveSequentialGears(inputs, buttonState);
   } else {
     // As combinações com mais chaves precisam vir primeiro.
-    if (!resolveSpecialGears(inputs, buttonState) && !resolveLateralGears(inputs, buttonState)) {
+    if (!resolveSpecialGears(inputs, config, buttonState) && !resolveLateralGears(inputs, buttonState)) {
       resolveCenterGears(inputs, buttonState);
     }
   }
@@ -22,6 +25,7 @@ ShifterLogic::ButtonState ShifterLogic::resolveButtonState(const InputState& inp
   if (config.handleConnected) {
     applyHandleButtons(inputs, buttonState);
   }
+  applyGearLimit(config, buttonState);
 
   return buttonState;
 }

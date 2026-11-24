@@ -23,6 +23,7 @@ private:
 public:
   void begin();
   void showLed(Color color);
+  void showRgb(uint32_t color);
   void connectHandle();
   void update();
   [[nodiscard]] bool isSignaling() const { return running; }

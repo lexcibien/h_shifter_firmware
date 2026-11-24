@@ -3,6 +3,35 @@
 Firmware para o câmbio H com uma placa Waveshare RP2040 Zero. A placa apresenta
 12 botões virtuais ao computador como um joystick.
 
+## Configurador WebUSB
+
+O firmware mantém o joystick HID e também expõe uma interface WebUSB para
+configuração. Abra `https://lexcibien.github.io/h_shifter_firmware/` no Chrome
+ou Edge, pressione **Conectar dispositivo** e escolha o DAZ Shifter.
+
+As leituras de diagnóstico ficam disponíveis após conectar. Para liberar
+gravação, restauração, redetecção da manopla e reinício:
+
+- V1: segure o botão de modo sequencial e o switch direito por um segundo;
+- V2: coloque a chave em sequencial e segure o switch direito por um segundo.
+
+O LED fica verde brevemente quando a configuração é liberada. O botão
+**Salvar na flash** grava em dois setores alternados e as opções persistem
+depois de desligar ou atualizar o firmware. O modo inicial configurável é
+exclusivo da V1; na V2 a chave física sempre determina o modo.
+
+No Linux pode ser necessário instalar `assets/99-daz-shifter.rules` em
+`/etc/udev/rules.d/`, recarregar as regras do udev e reconectar o dispositivo.
+WebUSB exige HTTPS e não é suportado pelo Firefox ou Safari.
+
+Para publicar um fork em outro endereço, configure o descritor antes de
+compilar, omitindo o prefixo `https://`:
+
+```bash
+cmake --preset waveshare_rp2040_zero_v1 \
+  -DH_SHIFTER_WEBUSB_URL=usuario.github.io/repositorio/
+```
+
 ## Requisitos
 
 - CMake 3.35 ou superior.

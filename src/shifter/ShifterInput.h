@@ -2,8 +2,15 @@
 
 #include "ShifterModel.h"
 #include "config/BoardPins.h"
+#include "config/DeviceConfig.h"
 
 class ShifterInput {
+public:
+  struct AnalogState {
+    int adc = 0;
+    float voltage = 0.0F;
+  };
+
 private:
   struct Button {
     uint8_t pin;
@@ -12,8 +19,6 @@ private:
     bool stableState;
     uint32_t lastChange;
   };
-
-  static constexpr uint32_t DEBOUNCE_MS = 15;
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inline static Button frontButton = { .pin = SW_FRONT, .activeLow = true, .lastRaw = false, .stableState = false, .lastChange = 0 };
@@ -60,28 +65,30 @@ private:
   // and at the uC, in the SW_KNOB_RANGE pin and the 3.3 V, use a 10 kΩ resistor.
   static bool detectHandleConnection();
   static bool readDebounced(Button& button);
+  static void resetButton(Button& button);
 
   inline static bool handleConnected = false;
   inline static bool sequentialEnabled = false;
+  inline static bool unlockGesture = false;
+  inline static DeviceConfig deviceConfig = DeviceConfig::defaults();
+  inline static int lastAdc = 0;
+  inline static float lastVoltage = 0.0F;
   inline static uint32_t nowMs = 0;
 
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   inline static bool sequentialPressActive = false;
   inline static bool sequentialPressHandled = false;
   inline static uint32_t sequentialPressStartTime = 0;
-  static constexpr uint32_t SEQUENTIAL_MODE_HOLD_TIME_MS = 1000;
+  static void checkSequential(bool isPressed, bool suppressToggle);
 #endif
 
 public:
-  struct AnalogState {
-    int adc = 0;
-    float voltage = 0.0F;
-  };
-
-  static void begin();
+  static void begin(const DeviceConfig& config);
+  static void setConfig(const DeviceConfig& config);
   static void configureHandle();
-  static void checkSequential();
+  static bool redetectHandle();
   static ShifterInput::AnalogState readAnalogInput();
   static ShifterModel::InputState readInputs();
   static ShifterModel::ShifterConfig configuration();
+  static bool configurationUnlockGesture();
 };

@@ -43,7 +43,6 @@ public:
 
   static_assert(COUNT == SHIFTER_BUTTON_COUNT, "The HID button count must match ControllerButtons");
   static constexpr uint8_t BUTTON_COUNT = SHIFTER_BUTTON_COUNT;
-  static constexpr bool ENABLE_REVERSE = true;
   using ButtonState = std::array<bool, BUTTON_COUNT>;
 
   struct InputState {
@@ -68,5 +67,7 @@ public:
   struct ShifterConfig {
     bool sequentialEnabled = false;
     bool handleConnected = false;
+    bool reverseEnabled = true;
+    uint8_t forwardGearCount = 0;
   };
 };

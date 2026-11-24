@@ -96,7 +96,7 @@ extern "C" {
 #define CFG_TUD_CDC             H_SHIFTER_ENABLE_CDC
 #define CFG_TUD_MSC             0
 #define CFG_TUD_MIDI            0
-#define CFG_TUD_VENDOR          0
+#define CFG_TUD_VENDOR          1
 #define CFG_TUD_VIDEO           0
 #define CFG_TUD_VIDEO_STREAMING 0
 #define CFG_TUD_NCM             0
@@ -111,7 +111,11 @@ extern "C" {
 #define CFG_TUD_CDC_TX_BUFSIZE 64
 #define CFG_TUD_CDC_EP_BUFSIZE 64
 #endif
-#define CFG_TUD_HID_EP_BUFSIZE 16
+#define CFG_TUD_HID_EP_BUFSIZE    16
+#define CFG_TUD_VENDOR_RX_BUFSIZE 128
+#define CFG_TUD_VENDOR_TX_BUFSIZE 128
+#define CFG_TUD_VENDOR_RX_EPSIZE  64
+#define CFG_TUD_VENDOR_TX_EPSIZE  64
 
 #ifdef __cplusplus
 }

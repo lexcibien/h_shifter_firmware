@@ -1,4 +1,6 @@
 #include "ShifterInput.h"
+#include <algorithm>
+#include <array>
 #include <hardware/adc.h>
 #include <pico/time.h>
 
@@ -9,14 +11,24 @@ bool ShifterInput::readDebounced(Button& button) {
     button.lastChange = nowMs;
     button.lastRaw = raw;
   }
-  if (nowMs - button.lastChange > DEBOUNCE_MS) {
+  if (nowMs - button.lastChange > deviceConfig.debounceMs) {
     button.stableState = raw;
   }
 
   return button.stableState;
 }
 
-void ShifterInput::begin() {
+void ShifterInput::resetButton(Button& button) {
+  button.lastRaw = false;
+  button.stableState = false;
+  button.lastChange = nowMs;
+}
+
+void ShifterInput::begin(const DeviceConfig& config) {
+  deviceConfig = config;
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+  sequentialEnabled = config.defaultSequentialMode;
+#endif
   adc_init();
   adc_gpio_init(SW_KNOB_RANGE);
 
@@ -67,18 +79,20 @@ void ShifterInput::begin() {
 #endif
 
   sleep_ms(2000);
-  handleConnected = detectHandleConnection();
-
-  if (handleConnected) {
-    configureHandle();
-  }
+  redetectHandle();
 }
 
 bool ShifterInput::detectHandleConnection() {
   adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
-  const int DETECT_VALUE = TARGET_ANG_VALUE + 700; // Needs to be less than 4095
-  const int adc = adc_read();
-  return adc < DETECT_VALUE;
+  std::array<int, 9> samples{};
+  for (int& sample : samples) {
+    sample = adc_read();
+    sleep_us(100);
+  }
+  std::sort(samples.begin(), samples.end());
+  lastAdc = samples[samples.size() / 2];
+  lastVoltage = static_cast<float>(lastAdc) * CONVERSION_FACTOR;
+  return lastAdc < deviceConfig.handleDetectThreshold;
 }
 
 void ShifterInput::configureHandle() {
@@ -94,9 +108,40 @@ void ShifterInput::configureHandle() {
   gpio_pull_up(BTN_KNOB_ENGINE_BRAKE);
 }
 
-void ShifterInput::checkSequential() {
+bool ShifterInput::redetectHandle() {
+  adc_gpio_init(SW_KNOB_RANGE);
+  sleep_ms(10);
+  handleConnected = detectHandleConnection();
+  if (handleConnected) {
+    configureHandle();
+  }
+  return handleConnected;
+}
+
+void ShifterInput::setConfig(const DeviceConfig& config) {
+  deviceConfig = config;
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
-  if (const bool isPressed = readDebounced(sequentialModeButton); !isPressed) {
+  resetButton(frontButton);
+  resetButton(leftButton);
+  resetButton(rightButton);
+  resetButton(backButton);
+  resetButton(reverseButton);
+  resetButton(sequentialModeButton);
+#else
+  resetButton(modeButton);
+  resetButton(button3);
+  resetButton(button4);
+  resetButton(button5);
+  resetButton(button6);
+#endif
+  resetButton(rangeButton);
+  resetButton(splitButton);
+  resetButton(engineBrakeButton);
+}
+
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
+void ShifterInput::checkSequential(bool isPressed, bool suppressToggle) {
+  if (!isPressed || suppressToggle) {
     sequentialPressActive = false;
     sequentialPressHandled = false;
     sequentialPressStartTime = 0;
@@ -109,22 +154,14 @@ void ShifterInput::checkSequential() {
     return;
   }
 
-  if (!sequentialPressHandled && (nowMs - sequentialPressStartTime) >= SEQUENTIAL_MODE_HOLD_TIME_MS) {
+  if (!sequentialPressHandled && (nowMs - sequentialPressStartTime) >= deviceConfig.sequentialHoldMs) {
     sequentialEnabled = !sequentialEnabled;
     sequentialPressHandled = true;
   }
+}
 #endif
-}
 
-ShifterInput::AnalogState ShifterInput::readAnalogInput() {
-  ShifterInput::AnalogState input;
-
-  adc_select_input(SW_KNOB_RANGE - ADC_BASE_PIN);
-  input.adc = adc_read();
-  input.voltage = static_cast<float>(input.adc) * CONVERSION_FACTOR;
-
-  return input;
-}
+ShifterInput::AnalogState ShifterInput::readAnalogInput() { return { .adc = lastAdc, .voltage = lastVoltage }; }
 
 ShifterModel::InputState ShifterInput::readInputs() {
   ShifterModel::InputState inputs;
@@ -136,8 +173,9 @@ ShifterModel::InputState ShifterInput::readInputs() {
   inputs.swRight = readDebounced(rightButton);
   inputs.swBack = readDebounced(backButton);
   inputs.swReverse = readDebounced(reverseButton);
-
-  checkSequential();
+  const bool sequentialButtonPressed = readDebounced(sequentialModeButton);
+  unlockGesture = sequentialButtonPressed && inputs.swRight;
+  checkSequential(sequentialButtonPressed, unlockGesture);
 #elif SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V2
   inputs.hPatternMode = readDebounced(modeButton);
   inputs.sw3 = readDebounced(button3);
@@ -145,6 +183,7 @@ ShifterModel::InputState ShifterInput::readInputs() {
   inputs.sw5 = readDebounced(button5);
   inputs.sw6 = readDebounced(button6);
   sequentialEnabled = !inputs.hPatternMode;
+  unlockGesture = sequentialEnabled && inputs.sw5;
 #endif
 
   if (handleConnected) {
@@ -156,4 +195,13 @@ ShifterModel::InputState ShifterInput::readInputs() {
   return inputs;
 }
 
-ShifterModel::ShifterConfig ShifterInput::configuration() { return { .sequentialEnabled = sequentialEnabled, .handleConnected = handleConnected }; }
+ShifterModel::ShifterConfig ShifterInput::configuration() {
+  return {
+    .sequentialEnabled = sequentialEnabled,
+    .handleConnected = handleConnected,
+    .reverseEnabled = deviceConfig.reverseEnabled,
+    .forwardGearCount = deviceConfig.forwardGearCount,
+  };
+}
+
+bool ShifterInput::configurationUnlockGesture() { return unlockGesture; }

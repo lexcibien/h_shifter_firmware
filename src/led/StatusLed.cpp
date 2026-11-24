@@ -12,8 +12,10 @@ void StatusLed::begin() {
   led.clear();
 }
 
-void StatusLed::showLed(Color color) {
-  const uint32_t rgb = std::to_underlying(color);
+void StatusLed::showLed(Color color) { showRgb(std::to_underlying(color)); }
+
+void StatusLed::showRgb(uint32_t color) {
+  const uint32_t rgb = color;
   led.show(static_cast<uint8_t>(rgb >> 16U), static_cast<uint8_t>(rgb >> 8U), static_cast<uint8_t>(rgb));
 }
 
