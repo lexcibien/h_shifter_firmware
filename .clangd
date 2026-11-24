@@ -9,6 +9,6 @@ Index:
 
 ---
 If:
-  PathMatch: '\.pio/.*'
+  PathMatch: "build/.*"
 Index:
   Background: Skip
