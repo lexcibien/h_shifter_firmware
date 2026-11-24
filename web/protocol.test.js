@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { crc32, decodeConfig, decodeFrame, encodeConfig, encodeFrame } from "./protocol.js";
+import { WebUsbClient, crc32, decodeConfig, decodeFrame, encodeConfig, encodeFrame } from "./protocol.js";
+
+function responseFrame(command, transaction, payload = new Uint8Array()) {
+  const response = encodeFrame(command, transaction, payload);
+  response[3] |= 0x80;
+  response[6] = payload.length + 1;
+  response[8] = 0;
+  response.set(payload, 9);
+  new DataView(response.buffer).setUint32(60, crc32(response.subarray(0, 60)), true);
+  return new DataView(response.buffer);
+}
 
 test("CRC-32 uses the IEEE reference vector", () => {
   assert.equal(crc32(new TextEncoder().encode("123456789")), 0xcbf43926);
@@ -32,4 +42,16 @@ test("configuration codec round-trips every public field", () => {
     sequentialModeColor: 0xaabbcc,
   };
   assert.deepEqual(decodeConfig(encodeConfig(expected)), expected);
+});
+
+test("client ignores TinyUSB zero-length terminator before a response", async () => {
+  const client = new WebUsbClient();
+  const reads = [new DataView(new ArrayBuffer(0)), responseFrame(1, 1, Uint8Array.of(7, 8))];
+  client.device = {
+    transferOut: async (_endpoint, frame) => ({ status: "ok", bytesWritten: frame.length }),
+    transferIn: async () => ({ status: "ok", data: reads.shift() }),
+  };
+
+  assert.deepEqual([...await client.performRequest(1, new Uint8Array())], [7, 8]);
+  assert.equal(reads.length, 0);
 });

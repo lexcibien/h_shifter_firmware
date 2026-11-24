@@ -10,6 +10,7 @@ Checks: >-
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-use-enum-class,
+  -fuchsia-*,
   -llvmlibc-*,
   -misc-use-internal-linkage,
   -modernize-use-std-print,

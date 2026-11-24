@@ -123,9 +123,19 @@ export class WebUsbClient {
     const frame = encodeFrame(command, this.transaction, payload);
     const sent = await this.device.transferOut(this.endpointOut, frame);
     if (sent.status !== "ok" || sent.bytesWritten !== frame.length) throw new Error("Falha ao enviar comando");
-    const received = await this.device.transferIn(this.endpointIn, FRAME_SIZE);
-    if (received.status !== "ok" || !received.data) throw new Error("Falha ao receber resposta");
-    return decodeFrame(received.data, command, this.transaction);
+
+    // TinyUSB terminates a full-size bulk transfer with a zero-length packet.
+    // Depending on timing, Chromium may return that terminator on the next
+    // transferIn() instead of consuming it with the preceding 64-byte frame.
+    // Discard at most one such packet before waiting for the current response.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const received = await this.device.transferIn(this.endpointIn, FRAME_SIZE);
+      if (received.status !== "ok" || !received.data) throw new Error("Falha ao receber resposta");
+      if (received.data.byteLength === 0 && attempt === 0) continue;
+      return decodeFrame(received.data, command, this.transaction);
+    }
+
+    throw new Error("Resposta WebUSB não recebida");
   }
 
   async close() {
