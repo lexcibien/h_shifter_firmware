@@ -10,7 +10,7 @@ configuração. Abra `https://lexcibien.github.io/h_shifter_firmware/` no Chrome
 ou Edge, pressione **Conectar dispositivo** e escolha o DAZ Shifter.
 
 As leituras de diagnóstico ficam disponíveis após conectar. Para liberar
-gravação, restauração, redetecção da manopla e reinício:
+gravação, restauração, re-detecção da manopla e reinício:
 
 - V1: segure o botão de modo sequencial e o switch direito por um segundo;
 - V2: coloque a chave em sequencial e segure o switch direito por um segundo.
