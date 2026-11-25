@@ -30,5 +30,8 @@ input[type="checkbox"] { width:42px; height:22px; accent-color:var(--accent); }
 input[type="color"] { width:56px; height:36px; padding:2px; background:transparent; border:1px solid var(--line); border-radius:8px; }
 .grid-two { display:grid; grid-template-columns:1.4fr 1fr; gap:42px; }
 .actions { justify-content:flex-end; flex-wrap:wrap; margin-top:20px; }
+.save-status { margin:12px 0 0; text-align:right; }
+.save-status.error { color:#ff9b9b; }
+.save-status:empty { margin:0; }
 .hidden { display:none !important; }
 @media (max-width:650px) { main{padding-top:24px} header{align-items:flex-start;flex-direction:column}.grid-two{grid-template-columns:1fr}.actions button{flex:1}.facts{align-items:flex-start;flex-direction:column;gap:8px} }

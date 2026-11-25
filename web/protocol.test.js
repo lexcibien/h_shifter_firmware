@@ -48,10 +48,36 @@ test("client ignores TinyUSB zero-length terminator before a response", async ()
   const client = new WebUsbClient();
   const reads = [new DataView(new ArrayBuffer(0)), responseFrame(1, 1, Uint8Array.of(7, 8))];
   client.device = {
+    opened: true,
     transferOut: async (_endpoint, frame) => ({ status: "ok", bytesWritten: frame.length }),
     transferIn: async () => ({ status: "ok", data: reads.shift() }),
   };
 
-  assert.deepEqual([...await client.performRequest(1, new Uint8Array())], [7, 8]);
+  assert.deepEqual([...await client.request(1)], [7, 8]);
   assert.equal(reads.length, 0);
+});
+
+test("a stalled WebUSB response times out, closes the device and cancels queued commands", async ({ mock }) => {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  const client = new WebUsbClient();
+  const reading = Promise.withResolvers();
+  const close = mock.fn(async () => {});
+  const transferOut = mock.fn(async (_endpoint, frame) => ({ status: "ok", bytesWritten: frame.length }));
+  client.device = {
+    opened: true,
+    close,
+    transferOut,
+    transferIn() {
+      reading.resolve();
+      return new Promise(() => {});
+    },
+  };
+
+  const save = assert.rejects(client.request(3), /câmbio não respondeu/);
+  const status = assert.rejects(client.request(5), /Dispositivo desconectado/);
+  await reading.promise;
+  mock.timers.runAll();
+  await Promise.all([save, status]);
+  assert.equal(close.mock.callCount(), 1);
+  assert.equal(transferOut.mock.callCount(), 1);
 });

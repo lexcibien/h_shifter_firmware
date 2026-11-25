@@ -61,10 +61,16 @@ target_link_libraries(H_SHIFTER_JAPATECH PRIVATE
   pico_flash
 )
 
-# Keep the final two physical flash sectors outside the generated application
-# linker region. PICO_FLASH_SIZE_BYTES then marks the first configuration slot.
-math(EXPR H_SHIFTER_APPLICATION_FLASH_SIZE "(2 * 1024 * 1024) - (8 * 1024)")
-pico_override_flash_size(H_SHIFTER_JAPATECH ${H_SHIFTER_APPLICATION_FLASH_SIZE})
+# Reserve the final two flash sectors in the linker only. The SDK flash
+# functions use the board's full PICO_FLASH_SIZE_BYTES to validate writes.
+math(EXPR PICO_FLASH_SIZE_BYTES_STRING "${PICO_FLASH_SIZE_BYTES} - (8 * 1024)")
+set(shifter_flash_region "${CMAKE_CURRENT_BINARY_DIR}/flash_layout")
+configure_file(
+  "${PICO_SDK_PATH}/src/rp2_common/pico_standard_link/pico_flash_region.template.ld"
+  "${shifter_flash_region}/pico_flash_region.ld"
+)
+pico_add_linker_script_override_path(H_SHIFTER_JAPATECH "${shifter_flash_region}" FILES pico_flash_region.ld)
+target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE H_SHIFTER_CONFIG_FLASH_OFFSET=${PICO_FLASH_SIZE_BYTES_STRING})
 
 pico_generate_pio_header(H_SHIFTER_JAPATECH
   ${CMAKE_CURRENT_LIST_DIR}/led/ws2812.pio

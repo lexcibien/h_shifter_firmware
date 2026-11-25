@@ -15,6 +15,7 @@ const STATUS_NAMES = ["OK", "Quadro inválido", "Versão incompatível", "Comand
 const FRAME_SIZE = 64;
 const PAYLOAD_OFFSET = 8;
 const CRC_OFFSET = 60;
+const REQUEST_TIMEOUT_MS = 4000;
 
 export function crc32(bytes) {
   let crc = 0xffffffff;
@@ -113,15 +114,32 @@ export class WebUsbClient {
   }
 
   request(command, payload = new Uint8Array()) {
-    const operation = this.requestQueue.then(() => this.performRequest(command, payload));
+    const device = this.device;
+    const operation = this.requestQueue.then(async () => {
+      if (!device?.opened || device !== this.device) throw new Error("Dispositivo desconectado");
+      let timer;
+      try {
+        return await Promise.race([
+          this.performRequest(device, command, payload),
+          new Promise((_, reject) => {
+            timer = setTimeout(() => {
+              if (this.device === device) this.close().catch(() => {});
+              reject(new Error("O câmbio não respondeu. Reconecte o dispositivo."));
+            }, REQUEST_TIMEOUT_MS);
+          }),
+        ]);
+      } finally {
+        clearTimeout(timer);
+      }
+    });
     this.requestQueue = operation.catch(() => {});
     return operation;
   }
 
-  async performRequest(command, payload) {
+  async performRequest(device, command, payload) {
     this.transaction = (this.transaction + 1) & 0xffff;
     const frame = encodeFrame(command, this.transaction, payload);
-    const sent = await this.device.transferOut(this.endpointOut, frame);
+    const sent = await device.transferOut(this.endpointOut, frame);
     if (sent.status !== "ok" || sent.bytesWritten !== frame.length) throw new Error("Falha ao enviar comando");
 
     // TinyUSB terminates a full-size bulk transfer with a zero-length packet.
@@ -129,7 +147,7 @@ export class WebUsbClient {
     // transferIn() instead of consuming it with the preceding 64-byte frame.
     // Discard at most one such packet before waiting for the current response.
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const received = await this.device.transferIn(this.endpointIn, FRAME_SIZE);
+      const received = await device.transferIn(this.endpointIn, FRAME_SIZE);
       if (received.status !== "ok" || !received.data) throw new Error("Falha ao receber resposta");
       if (received.data.byteLength === 0 && attempt === 0) continue;
       return decodeFrame(received.data, command, this.transaction);
@@ -139,8 +157,8 @@ export class WebUsbClient {
   }
 
   async close() {
-    if (!this.device?.opened) return;
-    await this.device.releaseInterface(this.interfaceNumber).catch(() => {});
-    await this.device.close();
+    const device = this.device;
+    this.device = null;
+    if (device?.opened) await device.close();
   }
 }

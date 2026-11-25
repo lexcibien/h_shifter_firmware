@@ -1,0 +1,18 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "v2-local",
+      "inherits": "waveshare_rp2040_zero_v2",
+      "cacheVariables": {
+        "CMAKE_SUPPRESS_REGENERATION": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "v2-local",
+      "configurePreset": "v2-local"
+    }
+  ]
+}
