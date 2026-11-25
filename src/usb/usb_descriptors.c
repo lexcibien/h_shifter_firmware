@@ -22,6 +22,7 @@
 #define DEVICE_PROTOCOL 0
 #endif
 
+// NOLINTNEXTLINE(misc-use-internal-linkage)
 tusb_desc_device_t const desc_device = {
   .bLength = sizeof(tusb_desc_device_t),
   .bDescriptorType = TUSB_DESC_DEVICE,
@@ -127,9 +128,13 @@ uint8_t const* tud_descriptor_configuration_cb(uint8_t index) {
 // WebUSB and Microsoft OS 2.0 descriptors. The latter binds only the two
 // vendor-specific functions to WinUSB while the HID interface remains owned
 // by the operating system's joystick driver.
-#define BOS_TOTAL_LEN       (TUD_BOS_DESC_LEN + TUD_BOS_WEBUSB_DESC_LEN + TUD_BOS_MICROSOFT_OS_DESC_LEN)
-#define WEBUSB_FUNCTION_LEN 0xA0
-#define MS_OS_20_DESC_LEN   (0x0A + 0x08 + WEBUSB_FUNCTION_LEN + RPI_RESET_MS_OS_20_DESC_LEN)
+#define BOS_TOTAL_LEN        (TUD_BOS_DESC_LEN + TUD_BOS_WEBUSB_DESC_LEN + TUD_BOS_MICROSOFT_OS_DESC_LEN)
+#define WEBUSB_PROPERTY_NAME u"DeviceInterfaceGUIDs"
+// REG_MULTI_SZ needs an extra NUL after the GUID string's terminator.
+#define WEBUSB_PROPERTY_DATA u"{1C3DA97A-88B7-4E5F-9AE0-2A57510D6430}\0"
+#define WEBUSB_PROPERTY_LEN  (0x0A + sizeof(WEBUSB_PROPERTY_NAME) + sizeof(WEBUSB_PROPERTY_DATA))
+#define WEBUSB_FUNCTION_LEN  (0x08 + 0x14 + WEBUSB_PROPERTY_LEN)
+#define MS_OS_20_DESC_LEN    (0x0A + 0x08 + WEBUSB_FUNCTION_LEN + RPI_RESET_MS_OS_20_DESC_LEN)
 
 uint8_t const desc_bos[] = {
   TUD_BOS_DESCRIPTOR(BOS_TOTAL_LEN, 2),
@@ -140,169 +145,56 @@ TU_VERIFY_STATIC(sizeof(desc_bos) == BOS_TOTAL_LEN, "Incorrect BOS descriptor si
 
 uint8_t const* tud_descriptor_bos_cb(void) { return desc_bos; }
 
-uint8_t const desc_ms_os_20[] = {
-  U16_TO_U8S_LE(0x000A),
-  U16_TO_U8S_LE(MS_OS_20_SET_HEADER_DESCRIPTOR),
-  U32_TO_U8S_LE(0x06030000),
-  U16_TO_U8S_LE(MS_OS_20_DESC_LEN),
-  U16_TO_U8S_LE(0x0008),
-  U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION),
-  0,
-  0,
-  U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A),
-
-  U16_TO_U8S_LE(0x0008),
-  U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION),
-  ITF_NUM_WEBUSB,
-  0,
-  U16_TO_U8S_LE(WEBUSB_FUNCTION_LEN),
-  U16_TO_U8S_LE(0x0014),
-  U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID),
-  'W',
-  'I',
-  'N',
-  'U',
-  'S',
-  'B',
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  U16_TO_U8S_LE(0x0084),
-  U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
-  U16_TO_U8S_LE(0x0007),
-  U16_TO_U8S_LE(0x002A),
-  'D',
-  0,
-  'e',
-  0,
-  'v',
-  0,
-  'i',
-  0,
-  'c',
-  0,
-  'e',
-  0,
-  'I',
-  0,
-  'n',
-  0,
-  't',
-  0,
-  'e',
-  0,
-  'r',
-  0,
-  'f',
-  0,
-  'a',
-  0,
-  'c',
-  0,
-  'e',
-  0,
-  'G',
-  0,
-  'U',
-  0,
-  'I',
-  0,
-  'D',
-  0,
-  's',
-  0,
-  0,
-  0,
-  U16_TO_U8S_LE(0x0050),
-  '{',
-  0,
-  '1',
-  0,
-  'C',
-  0,
-  '3',
-  0,
-  'D',
-  0,
-  'A',
-  0,
-  '9',
-  0,
-  '7',
-  0,
-  'A',
-  0,
-  '-',
-  0,
-  '8',
-  0,
-  '8',
-  0,
-  'B',
-  0,
-  '7',
-  0,
-  '-',
-  0,
-  '4',
-  0,
-  'E',
-  0,
-  '5',
-  0,
-  'F',
-  0,
-  '-',
-  0,
-  '9',
-  0,
-  'A',
-  0,
-  'E',
-  0,
-  '0',
-  0,
-  '-',
-  0,
-  '2',
-  0,
-  'A',
-  0,
-  '5',
-  0,
-  '7',
-  0,
-  '5',
-  0,
-  '1',
-  0,
-  '0',
-  0,
-  'D',
-  0,
-  '6',
-  0,
-  '4',
-  0,
-  '3',
-  0,
-  '0',
-  0,
-  '}',
-  0,
-  0,
-  0,
-  0,
-  0,
-
-  RPI_RESET_MS_OS_20_DESCRIPTOR(ITF_NUM_RESET),
+// The RP2040 stores the UTF-16 code units in little-endian order.
+struct TU_ATTR_PACKED {
+  uint8_t set_header[0x0A];
+  uint8_t configuration_header[0x08];
+  uint8_t function_header[0x08];
+  uint8_t compatible_id_header[0x04];
+  char compatible_id[8];
+  char sub_compatible_id[8];
+  uint8_t property_header[0x08];
+  uint16_t property_name[sizeof(WEBUSB_PROPERTY_NAME) / sizeof(uint16_t)];
+  uint8_t property_data_length[2];
+  uint16_t property_data[sizeof(WEBUSB_PROPERTY_DATA) / sizeof(uint16_t)];
+  uint8_t reset_function[RPI_RESET_MS_OS_20_DESC_LEN];
+} const desc_ms_os_20 = {
+  .set_header = {
+    U16_TO_U8S_LE(0x000A),
+    U16_TO_U8S_LE(MS_OS_20_SET_HEADER_DESCRIPTOR),
+    U32_TO_U8S_LE(0x06030000),
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN),
+  },
+  .configuration_header = {
+    U16_TO_U8S_LE(0x0008),
+    U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION),
+    0,
+    0,
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A),
+  },
+  .function_header = {
+    U16_TO_U8S_LE(0x0008),
+    U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION),
+    ITF_NUM_WEBUSB,
+    0,
+    U16_TO_U8S_LE(WEBUSB_FUNCTION_LEN),
+  },
+  .compatible_id_header = {
+    U16_TO_U8S_LE(0x0014),
+    U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID),
+  },
+  .compatible_id = "WINUSB",
+  .sub_compatible_id = { 0 },
+  .property_header = {
+    U16_TO_U8S_LE(WEBUSB_PROPERTY_LEN),
+    U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
+    U16_TO_U8S_LE(0x0007), // REG_MULTI_SZ
+    U16_TO_U8S_LE(sizeof(WEBUSB_PROPERTY_NAME)),
+  },
+  .property_name = WEBUSB_PROPERTY_NAME,
+  .property_data_length = { U16_TO_U8S_LE(sizeof(WEBUSB_PROPERTY_DATA)) },
+  .property_data = WEBUSB_PROPERTY_DATA,
+  .reset_function = { RPI_RESET_MS_OS_20_DESCRIPTOR(ITF_NUM_RESET) },
 };
 
 TU_VERIFY_STATIC(sizeof(desc_ms_os_20) == MS_OS_20_DESC_LEN, "Incorrect Microsoft OS 2.0 descriptor size");
@@ -330,7 +222,7 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
     return tud_control_xfer(rhport, request, (void*)(uintptr_t)&desc_url, desc_url.bLength);
   }
   if (request->bRequest == VENDOR_REQUEST_MICROSOFT && request->wIndex == 7) {
-    return tud_control_xfer(rhport, request, (void*)(uintptr_t)desc_ms_os_20, sizeof(desc_ms_os_20));
+    return tud_control_xfer(rhport, request, (void*)(uintptr_t)&desc_ms_os_20, sizeof(desc_ms_os_20));
   }
   return false;
 }
