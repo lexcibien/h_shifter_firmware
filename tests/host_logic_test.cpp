@@ -3,14 +3,14 @@
 #include <cassert>
 
 int main() {
-  DeviceConfig config = DeviceConfig::defaults();
+  DeviceConfig const config = DeviceConfig::defaults();
   assert(config.isValid());
   const auto encoded = config.encode();
   DeviceConfig decoded;
   assert(DeviceConfig::decode(encoded, decoded));
   assert(decoded == config);
 
-  ShifterModel::ShifterConfig runtime{
+  ShifterModel::ShifterConfig const runtime{
     .sequentialEnabled = false,
     .handleConnected = false,
     .reverseEnabled = false,

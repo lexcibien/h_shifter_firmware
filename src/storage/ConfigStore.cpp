@@ -7,31 +7,31 @@
 #include <pico/flash.h>
 #include <pico/platform.h>
 
-namespace {
 constexpr uint32_t RECORD_MAGIC = 0x43465348; // "HSFC" in little-endian.
 constexpr size_t HEADER_AND_PAYLOAD_SIZE = 12 + DeviceConfig::WIRE_SIZE;
 constexpr size_t CRC_OFFSET = HEADER_AND_PAYLOAD_SIZE;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
 constexpr uint32_t SLOT_OFFSETS[] = { H_SHIFTER_CONFIG_FLASH_OFFSET, H_SHIFTER_CONFIG_FLASH_OFFSET + FLASH_SECTOR_SIZE };
 static_assert(SLOT_OFFSETS[0] % FLASH_SECTOR_SIZE == 0);
 static_assert(SLOT_OFFSETS[1] + FLASH_SECTOR_SIZE == PICO_FLASH_SIZE_BYTES);
 static_assert(ConfigStore::RECORD_SIZE == FLASH_PAGE_SIZE);
 
-void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
+static void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
   bytes[offset] = static_cast<uint8_t>(value);
   bytes[offset + 1] = static_cast<uint8_t>(value >> 8U);
 }
 
-void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
+static void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
   for (size_t index = 0; index < sizeof(value); ++index) {
     bytes[offset + index] = static_cast<uint8_t>(value >> (index * 8U));
   }
 }
 
-uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
-  return static_cast<uint16_t>(bytes[offset]) | (static_cast<uint16_t>(bytes[offset + 1]) << 8U);
+static uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
+  return static_cast<uint16_t>(bytes[offset]) | static_cast<uint16_t>(bytes[offset + 1] << 8U);
 }
 
-uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
+static uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
   uint32_t value = 0;
   for (size_t index = 0; index < sizeof(value); ++index) {
     value |= static_cast<uint32_t>(bytes[offset + index]) << (index * 8U);
@@ -69,12 +69,12 @@ struct FlashOperation {
   const uint8_t* record;
 };
 
+// NOLINTNEXTLINE(misc-const-correctness)
 void __not_in_flash_func(programSlot)(void* parameter) {
   const auto* operation = static_cast<const FlashOperation*>(parameter);
   flash_range_erase(operation->offset, FLASH_SECTOR_SIZE);
   flash_range_program(operation->offset, operation->record, FLASH_PAGE_SIZE);
 }
-} // namespace
 
 ConfigStore::LoadResult ConfigStore::load() {
   const SlotRecord first = readSlot(0);
@@ -103,8 +103,8 @@ bool ConfigStore::save(const DeviceConfig& config) {
   record.fill(0xFF);
   writeU32(record, 0, RECORD_MAGIC);
   writeU16(record, 4, DeviceConfig::SCHEMA_VERSION);
-  record[6] = SHIFTER_PROJECT_VERSION;
-  record[7] = DeviceConfig::WIRE_SIZE;
+  record.at(6) = SHIFTER_PROJECT_VERSION;
+  record.at(7) = DeviceConfig::WIRE_SIZE;
   const uint32_t nextGeneration = generation_ + 1;
   writeU32(record, 8, nextGeneration);
   const auto payload = config.encode();

@@ -38,7 +38,7 @@ public:
     virtual Status handleWebUsbCommand(Command command, std::span<const uint8_t> request, std::span<uint8_t> response, uint8_t& responseSize) = 0;
   };
 
-  explicit WebUsbProtocol(Handler& handler) : handler_(handler) {}
+  explicit WebUsbProtocol(Handler* handler) : handler_(handler) {}
   void update();
   void reset();
 
@@ -48,7 +48,7 @@ private:
   void processFrame();
   void prepareResponse(uint8_t command, uint16_t transaction, Status status, std::span<const uint8_t> payload = {});
 
-  Handler& handler_;
+  Handler* handler_;
   std::array<uint8_t, FRAME_SIZE> receiveBuffer_{};
   std::array<uint8_t, FRAME_SIZE> responseBuffer_{};
   size_t received_ = 0;

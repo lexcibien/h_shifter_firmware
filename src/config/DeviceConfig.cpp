@@ -1,29 +1,27 @@
 #include "DeviceConfig.h"
 
-namespace {
-void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
+static void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
   bytes[offset] = static_cast<uint8_t>(value);
   bytes[offset + 1] = static_cast<uint8_t>(value >> 8U);
 }
 
-void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
+static void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
   for (size_t index = 0; index < sizeof(value); ++index) {
     bytes[offset + index] = static_cast<uint8_t>(value >> (index * 8U));
   }
 }
 
-uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
-  return static_cast<uint16_t>(bytes[offset]) | (static_cast<uint16_t>(bytes[offset + 1]) << 8U);
+static uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
+  return static_cast<uint16_t>(bytes[offset]) | static_cast<uint16_t>(bytes[offset + 1] << 8U);
 }
 
-uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
+static uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
   uint32_t value = 0;
   for (size_t index = 0; index < sizeof(value); ++index) {
     value |= static_cast<uint32_t>(bytes[offset + index]) << (index * 8U);
   }
   return value;
 }
-} // namespace
 
 bool DeviceConfig::isValid() const {
   if (forwardGearCount < 4 || forwardGearCount > MAX_FORWARD_GEARS) {
@@ -40,10 +38,10 @@ bool DeviceConfig::isValid() const {
 
 std::array<uint8_t, DeviceConfig::WIRE_SIZE> DeviceConfig::encode() const {
   std::array<uint8_t, WIRE_SIZE> bytes{};
-  bytes[0] = SCHEMA_VERSION;
-  bytes[1] = forwardGearCount;
-  bytes[2] = static_cast<uint8_t>(defaultSequentialMode);
-  bytes[3] = static_cast<uint8_t>(reverseEnabled);
+  bytes.at(0) = SCHEMA_VERSION;
+  bytes.at(1) = forwardGearCount;
+  bytes.at(2) = static_cast<uint8_t>(defaultSequentialMode);
+  bytes.at(3) = static_cast<uint8_t>(reverseEnabled);
   writeU16(bytes, 4, debounceMs);
   writeU16(bytes, 6, sequentialHoldMs);
   writeU16(bytes, 8, handleDetectThreshold);

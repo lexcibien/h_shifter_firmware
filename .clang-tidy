@@ -12,7 +12,6 @@ Checks: >-
   -cppcoreguidelines-use-enum-class,
   -fuchsia-*,
   -llvmlibc-*,
-  -misc-use-internal-linkage,
   -modernize-use-std-print,
   -modernize-use-trailing-return-type,
   -readability-implicit-bool-conversion,
@@ -24,7 +23,9 @@ Checks: >-
   -llvm-header-guard,
   -portability-avoid-pragma-once,
   -misc-use-anonymous-namespace,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
 
 HeaderFilterRegex: "(^|.*/)(src)/.*"
-ExcludeHeaderFilterRegex: '(^|.*/)(build|pico-sdk)/.*'
+ExcludeHeaderFilterRegex: "(^|.*/)(build|pico-sdk)/.*"
 ...

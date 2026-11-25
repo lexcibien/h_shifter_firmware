@@ -89,8 +89,8 @@ bool ShifterInput::detectHandleConnection() {
     sample = adc_read();
     sleep_us(100);
   }
-  std::sort(samples.begin(), samples.end());
-  lastAdc = samples[samples.size() / 2];
+  std::ranges::sort(samples);
+  lastAdc = samples.at(samples.size() / 2);
   lastVoltage = static_cast<float>(lastAdc) * CONVERSION_FACTOR;
   return lastAdc < deviceConfig.handleDetectThreshold;
 }

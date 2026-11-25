@@ -15,20 +15,21 @@
 #include <hardware/watchdog.h>
 #include <pico/time.h>
 
-namespace {
+#if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
 constexpr uint16_t CAP_DEFAULT_MODE = 1U << 0U;
 constexpr uint16_t CAP_SEQUENTIAL_HOLD = 1U << 1U;
+#endif
 constexpr uint16_t CAP_REVERSE = 1U << 2U;
 constexpr uint16_t CAP_HANDLE = 1U << 3U;
 constexpr uint16_t CAP_COLORS = 1U << 4U;
 constexpr uint16_t CAP_DEBOUNCE = 1U << 5U;
 
-void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
+static void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
   bytes[offset] = static_cast<uint8_t>(value);
   bytes[offset + 1] = static_cast<uint8_t>(value >> 8U);
 }
 
-void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
+static void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
   for (size_t index = 0; index < sizeof(value); ++index) {
     bytes[offset + index] = static_cast<uint8_t>(value >> (index * 8U));
   }
@@ -37,34 +38,33 @@ void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
 uint16_t rawInputMask(const ShifterModel::InputState& inputs) {
   uint16_t mask = 0;
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
-  mask |= static_cast<uint16_t>(inputs.swFront) << 0U;
-  mask |= static_cast<uint16_t>(inputs.swBack) << 1U;
-  mask |= static_cast<uint16_t>(inputs.swLeft) << 2U;
-  mask |= static_cast<uint16_t>(inputs.swRight) << 3U;
-  mask |= static_cast<uint16_t>(inputs.swReverse) << 4U;
+  mask |= static_cast<uint16_t>(inputs.swFront << 0U);
+  mask |= static_cast<uint16_t>(inputs.swBack << 1U);
+  mask |= static_cast<uint16_t>(inputs.swLeft << 2U);
+  mask |= static_cast<uint16_t>(inputs.swRight << 3U);
+  mask |= static_cast<uint16_t>(inputs.swReverse << 4U);
 #else
-  mask |= static_cast<uint16_t>(inputs.hPatternMode) << 0U;
-  mask |= static_cast<uint16_t>(inputs.sw3) << 1U;
-  mask |= static_cast<uint16_t>(inputs.sw4) << 2U;
-  mask |= static_cast<uint16_t>(inputs.sw5) << 3U;
-  mask |= static_cast<uint16_t>(inputs.sw6) << 4U;
+  mask |= static_cast<uint16_t>(inputs.hPatternMode << 0U);
+  mask |= static_cast<uint16_t>(inputs.sw3 << 1U);
+  mask |= static_cast<uint16_t>(inputs.sw4 << 2U);
+  mask |= static_cast<uint16_t>(inputs.sw5 << 3U);
+  mask |= static_cast<uint16_t>(inputs.sw6 << 4U);
 #endif
-  mask |= static_cast<uint16_t>(inputs.swRange) << 5U;
-  mask |= static_cast<uint16_t>(inputs.swSplit) << 6U;
-  mask |= static_cast<uint16_t>(inputs.btnEngineBrake) << 7U;
+  mask |= static_cast<uint16_t>(inputs.swRange << 5U);
+  mask |= static_cast<uint16_t>(inputs.swSplit << 6U);
+  mask |= static_cast<uint16_t>(inputs.btnEngineBrake << 7U);
   return mask;
 }
 
 uint16_t buttonMask(const ShifterModel::ButtonState& buttons) {
   uint16_t mask = 0;
   for (size_t index = 0; index < buttons.size(); ++index) {
-    mask |= static_cast<uint16_t>(buttons[index]) << index;
+    mask |= static_cast<uint16_t>(buttons.at(index) << index);
   }
   return mask;
 }
-} // namespace
 
-ShifterApp::ShifterApp() : webUsbProtocol(*this) {}
+ShifterApp::ShifterApp() : webUsbProtocol(this) {}
 
 void ShifterApp::showModeColor() { statusLed.showRgb(shifterConfig.sequentialEnabled ? deviceConfig.sequentialModeColor : deviceConfig.hModeColor); }
 
@@ -218,7 +218,7 @@ WebUsbProtocol::Status ShifterApp::handleWebUsbCommand(WebUsbProtocol::Command c
       if (!request.empty()) {
         return Status::BAD_FRAME;
       }
-      uint16_t capabilities = CAP_REVERSE | CAP_HANDLE | CAP_COLORS | CAP_DEBOUNCE;
+      uint16_t capabilities = static_cast<uint16_t>(static_cast<uint16_t>(CAP_REVERSE | CAP_HANDLE) | CAP_COLORS) | CAP_DEBOUNCE;
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
       capabilities |= CAP_DEFAULT_MODE | CAP_SEQUENTIAL_HOLD;
 #endif
@@ -237,7 +237,7 @@ WebUsbProtocol::Status ShifterApp::handleWebUsbCommand(WebUsbProtocol::Command c
         return Status::BAD_FRAME;
       }
       const auto encoded = deviceConfig.encode();
-      std::copy(encoded.begin(), encoded.end(), response.begin());
+      std::ranges::copy(encoded, response.begin());
       writeU32(response, encoded.size(), configStore.generation());
       response[encoded.size() + 4] = static_cast<uint8_t>(configStore.source());
       responseSize = encoded.size() + 5;
@@ -276,9 +276,9 @@ WebUsbProtocol::Status ShifterApp::handleWebUsbCommand(WebUsbProtocol::Command c
         return Status::BAD_FRAME;
       }
       uint8_t flags = 0;
-      flags |= static_cast<uint8_t>(configurationUnlocked) << 0U;
-      flags |= static_cast<uint8_t>(shifterConfig.sequentialEnabled) << 1U;
-      flags |= static_cast<uint8_t>(shifterConfig.handleConnected) << 2U;
+      flags |= static_cast<uint8_t>(configurationUnlocked << 0U);
+      flags |= static_cast<uint8_t>(shifterConfig.sequentialEnabled << 1U);
+      flags |= static_cast<uint8_t>(shifterConfig.handleConnected << 2U);
       response[0] = flags;
       writeU16(response, 1, static_cast<uint16_t>(ShifterInput::readAnalogInput().adc));
       writeU16(response, 3, rawInputMask(currentInputs));

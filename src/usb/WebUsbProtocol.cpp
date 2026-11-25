@@ -3,20 +3,19 @@
 #include <class/vendor/vendor_device.h>
 #include <cstring>
 
-namespace {
 constexpr size_t PAYLOAD_OFFSET = 8;
 constexpr size_t CRC_OFFSET = 60;
 
-uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
+static uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
   return static_cast<uint16_t>(bytes[offset]) | (static_cast<uint16_t>(bytes[offset + 1]) << 8U);
 }
 
-void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
+static void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
   bytes[offset] = static_cast<uint8_t>(value);
   bytes[offset + 1] = static_cast<uint8_t>(value >> 8U);
 }
 
-uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
+static uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
   uint32_t value = 0;
   for (size_t index = 0; index < sizeof(value); ++index) {
     value |= static_cast<uint32_t>(bytes[offset + index]) << (index * 8U);
@@ -24,12 +23,11 @@ uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
   return value;
 }
 
-void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
+static void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
   for (size_t index = 0; index < sizeof(value); ++index) {
     bytes[offset + index] = static_cast<uint8_t>(value >> (index * 8U));
   }
 }
-} // namespace
 
 uint32_t WebUsbProtocol::crc32(std::span<const uint8_t> bytes) {
   uint32_t crc = 0xFFFFFFFF;
@@ -88,7 +86,10 @@ void WebUsbProtocol::processFrame() {
 
   std::array<uint8_t, PAYLOAD_SIZE - 1> response{};
   uint8_t responseSize = 0;
-  const auto status = handler_.handleWebUsbCommand(static_cast<Command>(command), frame.subspan(PAYLOAD_OFFSET, frame[6]), response, responseSize);
+  if (!handler_) { return;
+}
+    
+  const auto status = handler_->handleWebUsbCommand(static_cast<Command>(command), frame.subspan(PAYLOAD_OFFSET, frame[6]), response, responseSize);
   if (responseSize > response.size()) {
     prepareResponse(command, transaction, Status::BAD_FRAME);
     return;
@@ -98,14 +99,14 @@ void WebUsbProtocol::processFrame() {
 
 void WebUsbProtocol::prepareResponse(uint8_t command, uint16_t transaction, Status status, std::span<const uint8_t> payload) {
   responseBuffer_.fill(0);
-  responseBuffer_[0] = 'H';
-  responseBuffer_[1] = 'S';
-  responseBuffer_[2] = VERSION;
-  responseBuffer_[3] = command | 0x80U;
+  responseBuffer_.at(0) = 'H';
+  responseBuffer_.at(1) = 'S';
+  responseBuffer_.at(2) = VERSION;
+  responseBuffer_.at(3) = command | 0x80U;
   writeU16(responseBuffer_, 4, transaction);
-  responseBuffer_[6] = static_cast<uint8_t>(payload.size() + 1);
-  responseBuffer_[PAYLOAD_OFFSET] = static_cast<uint8_t>(status);
-  std::copy(payload.begin(), payload.end(), responseBuffer_.begin() + PAYLOAD_OFFSET + 1);
+  responseBuffer_.at(6) = static_cast<uint8_t>(payload.size() + 1);
+  responseBuffer_.at(PAYLOAD_OFFSET) = static_cast<uint8_t>(status);
+  std::ranges::copy(payload, responseBuffer_.begin() + PAYLOAD_OFFSET + 1);
   writeU32(responseBuffer_, CRC_OFFSET, crc32(std::span<const uint8_t>(responseBuffer_).first(CRC_OFFSET)));
   responsePending_ = true;
 }
