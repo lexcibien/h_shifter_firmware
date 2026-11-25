@@ -5,7 +5,7 @@ import re
 import shutil
 import subprocess
 from ast import literal_eval
-from typing import Dict, Optional, Tuple
+from pathlib import Path
 
 filesystem_size = 0
 CONFIG_RESERVE = 8 * 1024  # Two atomic 4 KiB configuration slots.
@@ -47,11 +47,11 @@ def find_linker_scripts(search_dirs=None):
     return found
 
 
-def parse_memory_from_ld(path: str) -> Dict[str, int]:
+def parse_memory_from_ld(path: str) -> dict[str, int]:
     with open(path, "r", encoding="utf-8", errors="ignore") as fh:
         text = fh.read()
 
-    mem_block = re.search(r"MEMORY\s*\{(.+?)\}", text, re.S)
+    mem_block = re.search(r"MEMORY\s*\{(.+?)\}", text, re.DOTALL)
     if not mem_block:
         return {}
 
@@ -105,7 +105,7 @@ def parse_memory_from_ld(path: str) -> Dict[str, int]:
     return memories
 
 
-def find_board_config_path(board_name: Optional[str] = None, config_path: Optional[str] = None) -> Optional[str]:
+def find_board_config_path(board_name: str | None = None, config_path: str | None = None) -> str | None:
     if config_path:
         path = os.path.abspath(config_path)
         if os.path.exists(path):
@@ -135,7 +135,7 @@ def find_board_config_path(board_name: Optional[str] = None, config_path: Option
     return None
 
 
-def parse_size_output(output: str) -> Dict[str, int]:
+def parse_size_output(output: str) -> dict[str, int]:
     def _calculate_size(output_text: str, pattern: str) -> int:
         if not output_text or not pattern:
             return -1
@@ -161,7 +161,7 @@ def parse_size_output(output: str) -> Dict[str, int]:
     return {"program_size": program_size, "data_size": data_size}
 
 
-def find_elf_file(explicit_path: Optional[str] = None):
+def find_elf_file(explicit_path: str | None = None):
     if explicit_path:
         if os.path.exists(explicit_path):
             return explicit_path
@@ -182,7 +182,7 @@ def find_elf_file(explicit_path: Optional[str] = None):
     return None
 
 
-def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optional[str] = None, board_name: Optional[str] = None) -> Tuple[int, int]:
+def detect_memory_limits(config_path: str | None = None, linker_path: str | None = None, board_name: str | None = None) -> tuple[int, int]:
     board_limits = None
     resolved_config = find_board_config_path(board_name=board_name, config_path=config_path)
     if resolved_config:
@@ -254,7 +254,7 @@ def detect_memory_limits(config_path: Optional[str] = None, linker_path: Optiona
 
 
 def get_memory_usage(
-    elf_path: Optional[str] = None, config_path: Optional[str] = None, linker_path: Optional[str] = None, board_name: Optional[str] = None
+    elf_path: str | None = None, config_path: str | None = None, linker_path: str | None = None, board_name: str | None = None
 ):
     size_bin = shutil.which("arm-none-eabi-size") or "arm-none-eabi-size"
     elf_path = find_elf_file(elf_path)
@@ -262,8 +262,10 @@ def get_memory_usage(
         return None
 
     try:
+        # GNU size expands @response files even after the option terminator.
+        elf_path = str(Path(elf_path).absolute())
         output = subprocess.check_output(
-            [size_bin, "-A", "-d", elf_path],
+            [size_bin, "-A", "-d", "--", elf_path],
             universal_newlines=True,
             stderr=subprocess.STDOUT,
         )
@@ -288,7 +290,7 @@ def get_memory_usage(
 def _format_available_bytes(value, total):
     percent_raw = float(value) / float(total) if total else 0.0
     blocks_per_progress = 10
-    used_blocks = min(int(round(blocks_per_progress * percent_raw)), blocks_per_progress)
+    used_blocks = min(round(blocks_per_progress * percent_raw), blocks_per_progress)
     progress_bar = "=" * used_blocks
     return f"[{progress_bar:{blocks_per_progress}}] {percent_raw: 6.1%} (used {value:d} bytes from {total:d} bytes)"
 

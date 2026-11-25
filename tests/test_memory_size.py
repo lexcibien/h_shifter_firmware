@@ -1,6 +1,7 @@
 import importlib.util
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location("memory_size", Path(__file__).resolve().parents[1] / "scripts" / "memory_size.py")
 memory_size = importlib.util.module_from_spec(spec)
@@ -8,6 +9,21 @@ spec.loader.exec_module(memory_size)
 
 
 class MemorySizeTests(unittest.TestCase):
+    def test_size_receives_relative_elf_names_as_literal_paths(self):
+        with patch.object(memory_size.os.path, "exists", return_value=True), \
+             patch.object(memory_size.shutil, "which", return_value="/toolchain/arm-none-eabi-size"), \
+             patch.object(memory_size.subprocess, "check_output", return_value=".text 42 0\n") as size, \
+             patch.object(memory_size, "detect_memory_limits", return_value=(1024, 512)):
+            for elf_path in ("@firmware.elf", "-firmware.elf", "firmware build.elf"):
+                with self.subTest(elf_path=elf_path):
+                    result = memory_size.get_memory_usage(elf_path)
+
+                    self.assertEqual(
+                        size.call_args[0][0],
+                        ["/toolchain/arm-none-eabi-size", "-A", "-d", "--", str(Path.cwd() / elf_path)],
+                    )
+                    self.assertEqual(result["program_used"], 42)
+
     def test_parse_size_output_counts_pico_sdk_flash_and_static_ram(self):
         output = """.pio/build/waveshare_rp2040_zero/firmware.elf  :
 section                size        addr
