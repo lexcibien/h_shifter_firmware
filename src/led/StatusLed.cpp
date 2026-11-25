@@ -3,7 +3,7 @@
 #include <pico/time.h>
 #include <utility>
 
-uint32_t nowMs() { return to_ms_since_boot(get_absolute_time()); }
+static uint32_t nowMs() { return to_ms_since_boot(get_absolute_time()); }
 
 void StatusLed::begin() {
   if (!led.begin()) {

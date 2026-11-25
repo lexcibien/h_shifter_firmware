@@ -7,7 +7,7 @@ constexpr size_t PAYLOAD_OFFSET = 8;
 constexpr size_t CRC_OFFSET = 60;
 
 static uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
-  return static_cast<uint16_t>(bytes[offset]) | (static_cast<uint16_t>(bytes[offset + 1]) << 8U);
+  return static_cast<uint16_t>(bytes[offset]) | static_cast<uint16_t>(static_cast<uint16_t>(bytes[offset + 1]) << 8U);
 }
 
 static void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {

@@ -71,7 +71,7 @@ private:
   inline static bool sequentialEnabled = false;
   inline static bool unlockGesture = false;
   inline static DeviceConfig deviceConfig = DeviceConfig::defaults();
-  inline static int lastAdc = 0;
+  inline static uint16_t lastAdc = 0;
   inline static float lastVoltage = 0.0F;
   inline static uint32_t nowMs = 0;
 

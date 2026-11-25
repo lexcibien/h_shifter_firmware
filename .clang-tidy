@@ -24,7 +24,10 @@ Checks: >-
   -portability-avoid-pragma-once,
   -misc-use-anonymous-namespace,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
-  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -llvm-prefer-static-over-anonymous-namespace,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -zircon-*
 
 HeaderFilterRegex: "(^|.*/)(src)/.*"
 ExcludeHeaderFilterRegex: "(^|.*/)(build|pico-sdk)/.*"

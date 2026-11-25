@@ -35,7 +35,7 @@ static void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
   }
 }
 
-uint16_t rawInputMask(const ShifterModel::InputState& inputs) {
+static uint16_t rawInputMask(const ShifterModel::InputState& inputs) {
   uint16_t mask = 0;
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
   mask |= static_cast<uint16_t>(inputs.swFront << 0U);
@@ -56,7 +56,7 @@ uint16_t rawInputMask(const ShifterModel::InputState& inputs) {
   return mask;
 }
 
-uint16_t buttonMask(const ShifterModel::ButtonState& buttons) {
+static uint16_t buttonMask(const ShifterModel::ButtonState& buttons) {
   uint16_t mask = 0;
   for (size_t index = 0; index < buttons.size(); ++index) {
     mask |= static_cast<uint16_t>(buttons.at(index) << index);
@@ -218,7 +218,7 @@ WebUsbProtocol::Status ShifterApp::handleWebUsbCommand(WebUsbProtocol::Command c
       if (!request.empty()) {
         return Status::BAD_FRAME;
       }
-      uint16_t capabilities = static_cast<uint16_t>(static_cast<uint16_t>(CAP_REVERSE | CAP_HANDLE) | CAP_COLORS) | CAP_DEBOUNCE;
+      uint16_t const capabilities = static_cast<uint16_t>(static_cast<uint16_t>(CAP_REVERSE | CAP_HANDLE) | CAP_COLORS) | CAP_DEBOUNCE;
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
       capabilities |= CAP_DEFAULT_MODE | CAP_SEQUENTIAL_HOLD;
 #endif

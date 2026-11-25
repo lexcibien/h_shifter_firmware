@@ -21,6 +21,7 @@ struct DeviceConfig {
   static constexpr uint8_t MAX_FORWARD_GEARS = 7;
 #endif
 
+  // NOLINTBEGIN (misc-non-private-member-variables-in-classes)
   uint8_t forwardGearCount = MAX_FORWARD_GEARS;
   bool defaultSequentialMode = false;
   bool reverseEnabled = true;
@@ -29,7 +30,7 @@ struct DeviceConfig {
   uint16_t handleDetectThreshold = DEFAULT_HANDLE_THRESHOLD;
   uint32_t hModeColor = DEFAULT_H_COLOR;
   uint32_t sequentialModeColor = DEFAULT_SEQUENTIAL_COLOR;
-
+  // NOLINTEND
   static constexpr DeviceConfig defaults() { return {}; }
   [[nodiscard]] bool isValid() const;
   [[nodiscard]] std::array<uint8_t, WIRE_SIZE> encode() const;

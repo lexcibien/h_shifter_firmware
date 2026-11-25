@@ -15,23 +15,23 @@ constexpr uint32_t SLOT_OFFSETS[] = { H_SHIFTER_CONFIG_FLASH_OFFSET, H_SHIFTER_C
 static_assert(SLOT_OFFSETS[0] % FLASH_SECTOR_SIZE == 0);
 static_assert(SLOT_OFFSETS[1] + FLASH_SECTOR_SIZE == PICO_FLASH_SIZE_BYTES);
 static_assert(ConfigStore::RECORD_SIZE == FLASH_PAGE_SIZE);
-
-static void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
+namespace {
+void writeU16(std::span<uint8_t> bytes, size_t offset, uint16_t value) {
   bytes[offset] = static_cast<uint8_t>(value);
   bytes[offset + 1] = static_cast<uint8_t>(value >> 8U);
 }
 
-static void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
+void writeU32(std::span<uint8_t> bytes, size_t offset, uint32_t value) {
   for (size_t index = 0; index < sizeof(value); ++index) {
     bytes[offset + index] = static_cast<uint8_t>(value >> (index * 8U));
   }
 }
 
-static uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
+uint16_t readU16(std::span<const uint8_t> bytes, size_t offset) {
   return static_cast<uint16_t>(bytes[offset]) | static_cast<uint16_t>(bytes[offset + 1] << 8U);
 }
 
-static uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
+uint32_t readU32(std::span<const uint8_t> bytes, size_t offset) {
   uint32_t value = 0;
   for (size_t index = 0; index < sizeof(value); ++index) {
     value |= static_cast<uint32_t>(bytes[offset + index]) << (index * 8U);
@@ -46,6 +46,7 @@ struct SlotRecord {
 };
 
 SlotRecord readSlot(uint8_t slot) {
+  // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-constant-array-index,performance-no-int-to-ptr)
   const auto* address = reinterpret_cast<const uint8_t*>(XIP_BASE + SLOT_OFFSETS[slot]);
   const std::span<const uint8_t> record(address, ConfigStore::RECORD_SIZE);
   SlotRecord result;
@@ -68,8 +69,9 @@ struct FlashOperation {
   uint32_t offset;
   const uint8_t* record;
 };
+}  // namespace
 
-// NOLINTNEXTLINE(misc-const-correctness)
+// NOLINTNEXTLINE(misc-const-correctness,misc-use-internal-linkage)
 void __not_in_flash_func(programSlot)(void* parameter) {
   const auto* operation = static_cast<const FlashOperation*>(parameter);
   flash_range_erase(operation->offset, FLASH_SECTOR_SIZE);
@@ -112,6 +114,7 @@ bool ConfigStore::save(const DeviceConfig& config) {
   writeU32(record, CRC_OFFSET, WebUsbProtocol::crc32(std::span<const uint8_t>(record).first(CRC_OFFSET)));
 
   const uint8_t targetSlot = activeSlot_ == 0 ? 1 : 0;
+  // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-constant-array-index)
   FlashOperation operation{ .offset = SLOT_OFFSETS[targetSlot], .record = record.data() };
   if (flash_safe_execute(programSlot, &operation, 1000) != PICO_OK) {
     return false;
