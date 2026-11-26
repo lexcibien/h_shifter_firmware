@@ -59,6 +59,7 @@ __pycache__
 build/
 Build/
 build-*/
+/desktop/target/
 
 # CMake generated files
 CMakeFiles/

@@ -3,6 +3,12 @@
 Firmware para o câmbio H com uma placa Waveshare RP2040 Zero. A placa apresenta
 12 botões virtuais ao computador como um joystick.
 
+## Configurador desktop em GPUI
+
+O projeto em [`desktop/`](desktop/) abre uma janela com conexão simulada e ajuste
+local de marchas. Veja como executar e onde começar no
+[guia de migração para GPUI e USB serial](desktop/README.md).
+
 ## Configurador WebUSB
 
 O firmware mantém o joystick HID e também expõe uma interface WebUSB para
@@ -132,8 +138,9 @@ cmake --build --preset waveshare_rp2040_zero_v2 --target test
 
 ### Logs e diagnóstico
 
-Por padrão, o firmware expõe somente a interface HID. Para habilitar a porta
-USB CDC e os logs operacionais padronizados, configure com:
+Por padrão, o firmware expõe o joystick HID, a interface WebUSB de configuração
+e a interface de reset do Pico. Para adicionar a porta USB CDC e os logs
+operacionais padronizados, configure com:
 
 ```bash
 cmake --preset waveshare_rp2040_zero_v1 -DH_SHIFTER_LOG=ON
