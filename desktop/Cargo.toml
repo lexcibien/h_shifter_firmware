@@ -1,0 +1,8 @@
+[package]
+name = "daz-shifter-desktop"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+gpui = "0.2.2"
