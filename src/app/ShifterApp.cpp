@@ -64,18 +64,18 @@ static uint16_t buttonMask(const ShifterModel::ButtonState& buttons) {
   return mask;
 }
 
-ShifterApp::ShifterApp() : webUsbProtocol(this) {}
+ShifterApp::ShifterApp() : usbConfiguration(*this) {}
 
 void ShifterApp::showModeColor() { statusLed.showRgb(shifterConfig.sequentialEnabled ? deviceConfig.sequentialModeColor : deviceConfig.hModeColor); }
 
 void ShifterApp::initialize() {
+  HidReport::begin();
 #if H_SHIFTER_LOG
   stdio_init_all();
 #endif
   const ConfigStore::LoadResult stored = configStore.load();
   deviceConfig = stored.config;
 
-  HidReport::begin();
   statusLed.begin();
   statusLed.showLed(Color::WARN);
   ShifterInput::begin(deviceConfig);
@@ -120,7 +120,7 @@ void ShifterApp::updateConfigurationUnlock() {
     configurationUnlocked = true;
     unlockLedUntil = now + 500;
     statusLed.showLed(Color::OK);
-    Log::event("webusb: configuration-unlocked");
+    Log::event("config: unlocked");
   }
 }
 
@@ -128,7 +128,6 @@ void ShifterApp::update() {
 #ifdef TINYUSB_NEED_POLLING_TASK
   tud_task();
 #endif
-  webUsbProtocol.update();
 
   const uint32_t now = to_ms_since_boot(get_absolute_time());
   if (rebootAt != 0 && now >= rebootAt) {
@@ -146,7 +145,7 @@ void ShifterApp::update() {
   if (!mounted) {
     if (wasMounted) {
       configurationUnlocked = false;
-      webUsbProtocol.reset();
+      usbConfiguration.reset();
     }
     wasMounted = false;
     previousReportValid = false;
@@ -158,6 +157,8 @@ void ShifterApp::update() {
     wasMounted = true;
     hasMounted = true;
   }
+
+  usbConfiguration.update();
 
   currentInputs = ShifterInput::readInputs();
   shifterConfig = ShifterInput::configuration();
@@ -201,10 +202,10 @@ void ShifterApp::applyConfig(const DeviceConfig& config) {
   }
 }
 
-WebUsbProtocol::Status ShifterApp::handleWebUsbCommand(WebUsbProtocol::Command command, std::span<const uint8_t> request, std::span<uint8_t> response,
+ConfigProtocol::Status ShifterApp::handleConfigCommand(ConfigProtocol::Command command, std::span<const uint8_t> request, std::span<uint8_t> response,
                                                        uint8_t& responseSize) {
-  using Command = WebUsbProtocol::Command;
-  using Status = WebUsbProtocol::Status;
+  using Command = ConfigProtocol::Command;
+  using Status = ConfigProtocol::Status;
   responseSize = 0;
 
   const bool mutableCommand =
@@ -218,14 +219,16 @@ WebUsbProtocol::Status ShifterApp::handleWebUsbCommand(WebUsbProtocol::Command c
       if (!request.empty()) {
         return Status::BAD_FRAME;
       }
-      uint16_t const capabilities = static_cast<uint16_t>(static_cast<uint16_t>(CAP_REVERSE | CAP_HANDLE) | CAP_COLORS) | CAP_DEBOUNCE;
+      constexpr uint16_t commonCapabilities = static_cast<uint16_t>(static_cast<uint16_t>(CAP_REVERSE | CAP_HANDLE) | CAP_COLORS) | CAP_DEBOUNCE;
 #if SHIFTER_PROJECT_VERSION == SHIFTER_PROJECT_V1
-      capabilities |= CAP_DEFAULT_MODE | CAP_SEQUENTIAL_HOLD;
+      constexpr uint16_t capabilities = commonCapabilities | CAP_DEFAULT_MODE | CAP_SEQUENTIAL_HOLD;
+#else
+      constexpr uint16_t capabilities = commonCapabilities;
 #endif
       response[0] = DeviceConfig::SCHEMA_VERSION;
       response[1] = SHIFTER_PROJECT_VERSION;
       response[2] = DeviceConfig::MAX_FORWARD_GEARS;
-      writeU16(response, 3, capabilities);
+      writeU16(response, 3, static_cast<uint16_t>(capabilities));
       response[5] = 1;
       response[6] = 0;
       response[7] = 0;

@@ -2,6 +2,7 @@ include_guard(GLOBAL)
 
 set(PICO_BOARD waveshare_rp2040_zero CACHE STRING "Board type")
 option(H_SHIFTER_LOG "Enable operational logs over USB CDC" OFF)
+option(H_SHIFTER_CONFIG_CDC "Enable the USB CDC configuration port" ON)
 option(H_SHIFTER_ENABLE_CLANG_TIDY "Run clang-tidy automatically while compiling project sources" OFF)
 set(H_SHIFTER_WEBUSB_URL "lexcibien.github.io/h_shifter_firmware/" CACHE STRING "WebUSB landing page without the https:// prefix")
 set(SHIFTER_PROJECT_VERSION "SHIFTER_PROJECT_V1" CACHE STRING "H-shifter hardware/logic version")

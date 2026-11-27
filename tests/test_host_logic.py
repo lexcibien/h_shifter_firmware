@@ -31,6 +31,30 @@ class HostLogicTests(unittest.TestCase):
                 )
                 subprocess.run([str(executable)], check=True)
 
+    def test_config_protocol_on_webusb_and_cdc_streams(self):
+        compiler = shutil.which("c++")
+        if compiler is None:
+            self.skipTest("host C++ compiler is not available")
+
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / "config_protocol_test"
+            subprocess.run(
+                [
+                    compiler,
+                    "-std=c++23",
+                    "-Wall",
+                    "-Werror",
+                    f"-I{root / 'src'}",
+                    str(root / "tests/config_protocol_test.cpp"),
+                    str(root / "src/usb/ConfigProtocol.cpp"),
+                    "-o",
+                    str(executable),
+                ],
+                check=True,
+            )
+            subprocess.run([str(executable)], check=True)
+
 
 if __name__ == "__main__":
     unittest.main()

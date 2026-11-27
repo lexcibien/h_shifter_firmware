@@ -5,9 +5,9 @@
 #include "shifter/ShifterModel.h"
 #include "storage/ConfigStore.h"
 #include "usb/HidReport.h"
-#include "usb/WebUsbProtocol.h"
+#include "usb/UsbConfiguration.h"
 
-class ShifterApp : private WebUsbProtocol::Handler {
+class ShifterApp : private ConfigProtocol::Handler {
 public:
   ShifterApp();
   void initialize();
@@ -18,13 +18,13 @@ private:
   void updateConfigurationUnlock();
   void applyConfig(const DeviceConfig& config);
   void showModeColor();
-  WebUsbProtocol::Status
-  handleWebUsbCommand(WebUsbProtocol::Command command, std::span<const uint8_t> request, std::span<uint8_t> response, uint8_t& responseSize) override;
+  ConfigProtocol::Status
+  handleConfigCommand(ConfigProtocol::Command command, std::span<const uint8_t> request, std::span<uint8_t> response, uint8_t& responseSize) override;
 
   HidReport hidReport;
   StatusLed statusLed;
   ConfigStore configStore;
-  WebUsbProtocol webUsbProtocol;
+  UsbConfiguration usbConfiguration;
   DeviceConfig deviceConfig = DeviceConfig::defaults();
 
   ShifterModel::ShifterConfig shifterConfig{};

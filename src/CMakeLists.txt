@@ -12,7 +12,8 @@ target_sources(H_SHIFTER_JAPATECH PRIVATE
   shifter/ShifterLogic.cpp
 
   usb/HidReport.cpp
-  usb/WebUsbProtocol.cpp
+  usb/ConfigProtocol.cpp
+  usb/UsbConfiguration.cpp
   usb/usb_descriptors.c
 
   led/StatusLed.cpp
@@ -41,7 +42,7 @@ target_compile_definitions(H_SHIFTER_JAPATECH PRIVATE
   USB_MANUFACTURER="Japatech Projects"
   USB_PRODUCT="${H_SHIFTER_USB_PRODUCT}"
   H_SHIFTER_LOG=$<BOOL:${H_SHIFTER_LOG}>
-  H_SHIFTER_ENABLE_CDC=$<BOOL:${H_SHIFTER_LOG}>
+  H_SHIFTER_CONFIG_CDC=$<BOOL:${H_SHIFTER_CONFIG_CDC}>
   TINYUSB_NEED_POLLING_TASK
   PICO_ENABLE_USB_RESET_VIA_VENDOR_INTERFACE=1
   PICO_USB_RESET_INCLUDE_DEFAULT_APP_DRIVER_CB=1

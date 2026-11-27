@@ -1,5 +1,5 @@
 #include "ConfigStore.h"
-#include "usb/WebUsbProtocol.h"
+#include "usb/ConfigProtocol.h"
 #include <array>
 #include <cstring>
 #include <hardware/flash.h>
@@ -54,7 +54,7 @@ SlotRecord readSlot(uint8_t slot) {
       record[7] != DeviceConfig::WIRE_SIZE) {
     return result;
   }
-  if (readU32(record, CRC_OFFSET) != WebUsbProtocol::crc32(record.first(CRC_OFFSET))) {
+  if (readU32(record, CRC_OFFSET) != ConfigProtocol::crc32(record.first(CRC_OFFSET))) {
     return result;
   }
   if (!DeviceConfig::decode(record.subspan(12, DeviceConfig::WIRE_SIZE), result.config)) {
@@ -111,7 +111,7 @@ bool ConfigStore::save(const DeviceConfig& config) {
   writeU32(record, 8, nextGeneration);
   const auto payload = config.encode();
   std::memcpy(record.data() + 12, payload.data(), payload.size());
-  writeU32(record, CRC_OFFSET, WebUsbProtocol::crc32(std::span<const uint8_t>(record).first(CRC_OFFSET)));
+  writeU32(record, CRC_OFFSET, ConfigProtocol::crc32(std::span<const uint8_t>(record).first(CRC_OFFSET)));
 
   const uint8_t targetSlot = activeSlot_ == 0 ? 1 : 0;
   // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-constant-array-index)

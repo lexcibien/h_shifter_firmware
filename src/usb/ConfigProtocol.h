@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <span>
 
-class WebUsbProtocol {
+class ConfigProtocol {
 public:
   static constexpr uint8_t VERSION = 1;
   static constexpr size_t FRAME_SIZE = 64;
@@ -35,22 +35,30 @@ public:
   class Handler {
   public:
     virtual ~Handler() = default;
-    virtual Status handleWebUsbCommand(Command command, std::span<const uint8_t> request, std::span<uint8_t> response, uint8_t& responseSize) = 0;
+    virtual Status handleConfigCommand(Command command, std::span<const uint8_t> request, std::span<uint8_t> response, uint8_t& responseSize) = 0;
   };
 
-  explicit WebUsbProtocol(Handler* handler) : handler_(handler) {}
-  void update();
+  enum class Framing : uint8_t { ALIGNED, STREAM };
+
+  explicit ConfigProtocol(Handler& handler, Framing framing) : handler_(&handler), framing_(framing) {}
+  [[nodiscard]] std::span<uint8_t> incoming();
+  void receive(size_t count);
+  [[nodiscard]] std::span<const uint8_t> outgoing() const;
+  void transmit(size_t count);
   void reset();
 
   static uint32_t crc32(std::span<const uint8_t> bytes);
 
 private:
+  void discardStreamPrefix();
+  [[nodiscard]] bool hasValidCrc() const;
   void processFrame();
   void prepareResponse(uint8_t command, uint16_t transaction, Status status, std::span<const uint8_t> payload = {});
 
   Handler* handler_;
+  Framing framing_;
   std::array<uint8_t, FRAME_SIZE> receiveBuffer_{};
   std::array<uint8_t, FRAME_SIZE> responseBuffer_{};
   size_t received_ = 0;
-  bool responsePending_ = false;
+  size_t transmitted_ = FRAME_SIZE;
 };
