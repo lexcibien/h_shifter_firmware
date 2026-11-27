@@ -33,12 +33,13 @@ pub(super) fn ports() -> Result<Vec<Port>, ConnectionError> {
 }
 
 fn configuration_port(usb: &UsbPortInfo) -> bool {
-    // USB CDC uses interfaces 3/4 by default and 5/6 when logs use 0/1.
+    // Config CDC starts at interface 2 or 4. Older firmware starts at 3 or 5.
+    // Some platforms report the adjacent data interface instead.
     usb.vid == USB_VENDOR_ID
         && usb.pid == USB_PRODUCT_ID
         && usb
             .interface
-            .is_none_or(|interface| (3..=6).contains(&interface))
+            .is_none_or(|interface| (2..=6).contains(&interface))
 }
 
 pub(super) struct Serial {
@@ -161,7 +162,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn discovery_should_exclude_the_usb_log_port() {
+    fn discovery_should_match_configuration_interfaces() {
         let mut usb = UsbPortInfo {
             vid: USB_VENDOR_ID,
             pid: USB_PRODUCT_ID,
@@ -171,10 +172,12 @@ mod tests {
             interface: Some(0),
         };
         assert!(!configuration_port(&usb));
-        usb.interface = Some(3);
-        assert!(configuration_port(&usb));
-        usb.interface = Some(5);
-        assert!(configuration_port(&usb));
+        usb.interface = Some(1);
+        assert!(!configuration_port(&usb));
+        for interface in 2..=6 {
+            usb.interface = Some(interface);
+            assert!(configuration_port(&usb));
+        }
         usb.interface = None;
         assert!(configuration_port(&usb));
     }

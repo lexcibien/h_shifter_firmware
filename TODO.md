@@ -11,7 +11,7 @@ esse sistema desengata V1
 - [X] Adicionar botões da manopla do caminhão para usar ela junta
 - [X] Adicionar um resistor (4k7 ou 6k8) em um dos botões em paralelo
   - Isso é para ver se a manopla está conectada (assim não fica flutuando os botões)
-- [X] Desenvolver uma interface WebUSB para configurar o dispositivo pelo navegador.
+- [X] Desenvolver um configurador desktop em Rust para o dispositivo via USB CDC.
   - [X] Slider para a quantidade de marchas
   - [X] Configurar o modo inicial sequencial na V1
   - [X] Habilitar/desabilitar marcha ré
@@ -19,7 +19,7 @@ esse sistema desengata V1
   - [X] Botão para reiniciar o dispositivo
   - [X] Usar a combinação sequencial + switch direito para liberar alterações
   - [X] Persistir configurações na flash com recuperação em caso de gravação incompleta
-  - [X] Alterar PlatformIO para CMake nas Actions
+- [X] Alterar PlatformIO para CMake nas Actions
 
 ## Hardware
 

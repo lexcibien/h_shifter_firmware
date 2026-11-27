@@ -38,9 +38,7 @@ public:
     virtual Status handleConfigCommand(Command command, std::span<const uint8_t> request, std::span<uint8_t> response, uint8_t& responseSize) = 0;
   };
 
-  enum class Framing : uint8_t { ALIGNED, STREAM };
-
-  explicit ConfigProtocol(Handler& handler, Framing framing) : handler_(&handler), framing_(framing) {}
+  explicit ConfigProtocol(Handler& handler) : handler_(&handler) {}
   [[nodiscard]] std::span<uint8_t> incoming();
   void receive(size_t count);
   [[nodiscard]] std::span<const uint8_t> outgoing() const;
@@ -56,7 +54,6 @@ private:
   void prepareResponse(uint8_t command, uint16_t transaction, Status status, std::span<const uint8_t> payload = {});
 
   Handler* handler_;
-  Framing framing_;
   std::array<uint8_t, FRAME_SIZE> receiveBuffer_{};
   std::array<uint8_t, FRAME_SIZE> responseBuffer_{};
   size_t received_ = 0;

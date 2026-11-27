@@ -17,13 +17,13 @@ cargo run --locked --manifest-path desktop/Cargo.toml
 
 ### Conectar por USB CDC
 
-Grave na placa o firmware deste repositório. Os builds padrão de V1 e V2 habilitam a porta CDC de configuração e mantêm HID e WebUSB.
+Grave na placa o firmware deste repositório. O firmware de V1 e V2 oferece a porta CDC de configuração e o joystick HID.
 `H_SHIFTER_LOG=ON` cria uma porta CDC separada para logs. [Instruções de gravação](../README.md#gravar-o-firmware-na-placa)
 
 Conecte o câmbio, clique em **Buscar portas**, selecione a porta de configuração e clique em **Conectar**.
 No Linux, a porta costuma aparecer como `/dev/ttyACM*` e requer acesso de leitura e escrita ao dispositivo `tty`.
 No Windows, aparece como porta `COM`. O aplicativo valida o dispositivo com `GET_INFO` antes de liberar o formulário.
-Use o [gesto de desbloqueio da placa](../README.md#configurador-webusb) para habilitar as ações.
+Use o [gesto de desbloqueio da placa](../README.md#desbloqueio-da-configuração) para habilitar as ações.
 Se a gravação ficar sem confirmação, reconecte e confira a configuração lida antes de salvar novamente.
 
 Na V1, o formulário oferece até 6 marchas e ajustes de modo inicial e tempo de acionamento sequencial.
@@ -49,5 +49,5 @@ cargo test --locked
 cargo clippy --all-targets --all-features --locked -- -D warnings
 ```
 
-Os testes cobrem a paridade binária com o [codec JavaScript](../web/protocol.js), a remontagem de quadros e a comunicação por uma porta serial virtual.
+Os testes cobrem o formato binário do protocolo v1, a remontagem de quadros e a comunicação por uma porta serial virtual.
 Com uma V1 e uma V2, confira descoberta de porta, diagnóstico, gravação na flash, remoção do cabo e persistência após desligar e ligar.

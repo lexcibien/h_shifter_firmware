@@ -79,7 +79,7 @@ void ConfigProtocol::receive(size_t count) {
     return;
   }
   // Only a CRC-checked candidate can establish the next CDC frame boundary.
-  if (framing_ == Framing::STREAM && (receiveBuffer_[0] != MAGIC_FIRST || receiveBuffer_[1] != MAGIC_SECOND || !hasValidCrc())) {
+  if (receiveBuffer_[0] != MAGIC_FIRST || receiveBuffer_[1] != MAGIC_SECOND || !hasValidCrc()) {
     discardStreamPrefix();
     return;
   }
@@ -91,8 +91,7 @@ void ConfigProtocol::processFrame() {
   const std::span<const uint8_t> frame(receiveBuffer_);
   const uint8_t command = frame[3];
   const uint16_t transaction = readU16(frame, 4);
-  if (frame[0] != MAGIC_FIRST || frame[1] != MAGIC_SECOND || frame[6] > PAYLOAD_SIZE || frame[7] != 0 ||
-      (framing_ == Framing::ALIGNED && !hasValidCrc())) {
+  if (frame[6] > PAYLOAD_SIZE || frame[7] != 0) {
     prepareResponse(command, transaction, Status::BAD_FRAME);
     return;
   }

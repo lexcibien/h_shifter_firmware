@@ -9,8 +9,5 @@ public:
   void reset();
 
 private:
-  ConfigProtocol web_;
-#if H_SHIFTER_CONFIG_CDC
-  ConfigProtocol serial_;
-#endif
+  ConfigProtocol protocol_;
 };

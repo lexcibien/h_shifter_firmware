@@ -24,13 +24,13 @@ jobs:
           - name: SHIFTER_PROJECT_V1
             preset: waveshare_rp2040_zero_v1
             log: "OFF"
-          - name: SHIFTER_PROJECT_V1_CDC
+          - name: SHIFTER_PROJECT_V1_LOGS
             preset: waveshare_rp2040_zero_v1
             log: "ON"
           - name: SHIFTER_PROJECT_V2
             preset: waveshare_rp2040_zero_v2
             log: "OFF"
-          - name: SHIFTER_PROJECT_V2_CDC
+          - name: SHIFTER_PROJECT_V2_LOGS
             preset: waveshare_rp2040_zero_v2
             log: "ON"
 

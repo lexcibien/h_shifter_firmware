@@ -31,7 +31,7 @@ class HostLogicTests(unittest.TestCase):
                 )
                 subprocess.run([str(executable)], check=True)
 
-    def test_config_protocol_on_webusb_and_cdc_streams(self):
+    def test_config_protocol_on_cdc_streams(self):
         compiler = shutil.which("c++")
         if compiler is None:
             self.skipTest("host C++ compiler is not available")

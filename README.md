@@ -6,15 +6,11 @@ Firmware para o câmbio H com uma placa Waveshare RP2040 Zero. A placa apresenta
 ## Configurador desktop em GPUI
 
 O projeto em [`desktop/`](desktop/) configura e diagnostica o DAZ Shifter V1 ou
-V2 pela porta USB CDC habilitada nos builds padrão. Grave o firmware da sua
+V2 pela porta USB CDC. Grave o firmware da sua
 versão e selecione a porta de configuração na janela do aplicativo.
 [Guia do configurador desktop](desktop/README.md)
 
-## Configurador WebUSB
-
-O firmware mantém o joystick HID e também expõe uma interface WebUSB para
-configuração. Abra `https://lexcibien.github.io/h_shifter_firmware/` no Chrome
-ou Edge, pressione **Conectar dispositivo** e escolha o DAZ Shifter.
+### Desbloqueio da configuração
 
 As leituras de diagnóstico ficam disponíveis após conectar. Para liberar
 gravação, restauração, re-detecção da manopla e reinício:
@@ -27,25 +23,13 @@ O LED fica verde brevemente quando a configuração é liberada. O botão
 depois de desligar ou atualizar o firmware. O modo inicial configurável é
 exclusivo da V1; na V2 a chave física sempre determina o modo.
 
-No Linux pode ser necessário instalar `assets/99-daz-shifter.rules` em
-`/etc/udev/rules.d/`, recarregar as regras do udev e reconectar o dispositivo.
-WebUSB exige HTTPS e não é suportado pelo Firefox ou Safari.
-
-Para publicar um fork em outro endereço, configure o descritor antes de
-compilar, omitindo o prefixo `https://`:
-
-```bash
-cmake --preset waveshare_rp2040_zero_v1 \
-  -DH_SHIFTER_WEBUSB_URL=usuario.github.io/repositorio/
-```
-
 ## Requisitos
 
 - CMake 3.35 ou superior.
 - Raspberry Pi Pico SDK 2.3.0 ou superior, com os submódulos inicializados.
 - Toolchain GNU para ARM (`arm-none-eabi-gcc`) disponível no `PATH`.
 - Python disponível como `python` no `PATH` (usado para gerar o relatório de memória durante a compilação).
-- `picotool` disponível no `PATH` para gravar o firmware pelo alvo `flash`.
+- `picotool` disponível no `PATH` para gravar o firmware pelo alvo `upload`.
 
 Instale o Pico SDK e o `picotool` seguindo as instruções dos respectivos
 projetos: [pico-sdk](https://github.com/raspberrypi/pico-sdk) e
@@ -139,7 +123,7 @@ cmake --build --preset waveshare_rp2040_zero_v2 --target test
 
 ### Logs e diagnóstico
 
-Por padrão, o firmware expõe o joystick HID, WebUSB, a porta USB CDC de
+Por padrão, o firmware expõe o joystick HID, a porta USB CDC de
 configuração e a interface de reset do Pico. Para habilitar os logs
 operacionais em uma segunda porta USB CDC, configure com:
 
@@ -147,9 +131,6 @@ operacionais em uma segunda porta USB CDC, configure com:
 cmake --preset waveshare_rp2040_zero_v1 -DH_SHIFTER_LOG=ON
 cmake --build --preset waveshare_rp2040_zero_v1
 ```
-
-Para compilar sem a porta de configuração do desktop, use
-`-DH_SHIFTER_CONFIG_CDC=OFF`.
 
 Os logs operacionais registram inicialização, configuração, montagem USB e
 mudanças entre os modos H e sequencial. Para incluir também o diagnóstico
@@ -172,7 +153,7 @@ segure o botão **BOOT** enquanto conecta o cabo USB e solte o botão quando ela
 for reconhecida. Na raiz do repositório, execute:
 
 ```bash
-cmake --build --preset waveshare_rp2040_zero_v1 --target flash
+cmake --build --preset waveshare_rp2040_zero_v1 --target upload
 ```
 
 Esse alvo compila o firmware, se necessário, e chama `picotool` para gravar o
