@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>DAZ Shifter</title>
+    <options customize="never" require-scripts="false" hostArchitectures="@DAZ_MACOS_PKG_ARCH@"/>
+    <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="true"/>
+    <volume-check script="true">
+        <allowed-os-versions>
+            <os-version min="@DAZ_MACOS_MIN_VERSION@"/>
+        </allowed-os-versions>
+    </volume-check>
+    <choices-outline>
+        <line choice="daz-shifter"/>
+    </choices-outline>
+    <choice id="daz-shifter" title="DAZ Shifter" description="Configurador desktop do DAZ Shifter">
+        <pkg-ref id="io.github.lexcibien.daz-shifter"/>
+    </choice>
+    <pkg-ref id="io.github.lexcibien.daz-shifter" version="@DAZ_VERSION@">component.pkg</pkg-ref>
+</installer-gui-script>

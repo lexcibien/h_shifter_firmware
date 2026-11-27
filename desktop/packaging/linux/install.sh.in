@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf '%s\n' "Uso: $0 [--user | --system] [--uninstall]"
+}
+
+fail() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+
+scope=
+uninstall=false
+for argument in "$@"; do
+  case "$argument" in
+    --user|--system)
+      [[ -z "$scope" || "$scope" == "$argument" ]] || fail 'Escolha um único escopo de instalação.'
+      scope=$argument
+      ;;
+    --uninstall) uninstall=true ;;
+    --help|-h) usage; exit 0 ;;
+    *) usage >&2; exit 2 ;;
+  esac
+done
+scope=${scope:---user}
+
+if [[ "$scope" == --system ]]; then
+  (( EUID == 0 )) || fail 'Execute com sudo para instalar ou remover no sistema.'
+  bin_dir=/usr/local/bin
+  share_dir=/usr/local/share
+  rule=/etc/udev/rules.d/70-daz-shifter.rules
+else
+  (( EUID != 0 )) || fail 'Use uma conta comum para a instalação por usuário, ou selecione --system.'
+  [[ "${HOME:-}" == /* ]] || fail 'HOME deve indicar um caminho absoluto.'
+  bin_dir=$HOME/.local/bin
+  share_dir=$HOME/.local/share
+  if [[ "${XDG_DATA_HOME:-}" == /* ]]; then
+    share_dir=$XDG_DATA_HOME
+  fi
+  rule=
+fi
+
+binary=$bin_dir/daz-shifter-desktop
+launcher=$share_dir/applications/io.github.lexcibien.daz-shifter.desktop
+license=$share_dir/licenses/daz-shifter-desktop/LICENSE
+
+reload_udev() {
+  if command -v udevadm >/dev/null 2>&1; then
+    udevadm control --reload-rules || printf '%s\n' 'As regras serão carregadas na próxima inicialização.' >&2
+  fi
+}
+
+if "$uninstall"; then
+  rm -f -- "$launcher" "$binary" "$license"
+  if [[ -n "$rule" && -f "$rule" ]]; then
+    rm -f -- "$rule"
+    reload_udev
+  fi
+  printf '%s\n' 'DAZ Shifter removido.'
+  exit 0
+fi
+
+[[ "$(uname -s)" == Linux && "$(uname -m)" == "@DAZ_ARCH@" ]] ||
+  fail 'Este instalador exige Linux @DAZ_ARCH@.'
+[[ "$binary" != *$'\n'* && "$binary" != *$'\r'* ]] ||
+  fail 'O caminho do executável não pode conter quebras de linha.'
+
+payload_line=$(awk '/^__DAZ_SHIFTER_PAYLOAD__$/ { print NR + 1; exit }' "$0")
+[[ -n "$payload_line" ]] || fail 'O instalador está incompleto.'
+stage=$(mktemp -d)
+temporary=
+trap 'if [[ -n "$temporary" ]]; then rm -f -- "$temporary"; fi; rm -rf -- "$stage"' EXIT
+
+tail -n "+$payload_line" -- "$0" |
+  tar -xzf - --no-same-owner --no-same-permissions -C "$stage"
+for name in daz-shifter-desktop LICENSE 70-daz-shifter.rules; do
+  [[ -f "$stage/$name" && ! -L "$stage/$name" ]] || fail 'O instalador está incompleto.'
+done
+
+install_file() {
+  local mode=$1 source=$2 destination=$3
+  local directory=${destination%/*}
+  mkdir -p -- "$directory"
+  temporary=$(mktemp -- "$directory/.daz-shifter.XXXXXX")
+  install -m "$mode" -- "$source" "$temporary"
+  mv -fT -- "$temporary" "$destination"
+  temporary=
+}
+
+# Desktop entries parse string escapes before interpreting a quoted Exec path.
+exec_path=${binary//\\/\\\\\\\\}
+exec_path=${exec_path//\"/\\\\\"}
+exec_path=${exec_path//\$/\\\\\$}
+exec_path=${exec_path//\`/\\\\\`}
+exec_path=${exec_path//%/%%}
+cat >"$stage/daz-shifter-desktop.desktop" <<ENTRY
+[Desktop Entry]
+Type=Application
+Name=DAZ Shifter
+Comment=Configurar o DAZ Shifter pela porta USB
+Exec="$exec_path"
+Icon=input-gaming
+StartupWMClass=io.github.lexcibien.daz-shifter
+Terminal=false
+Categories=Settings;HardwareSettings;
+ENTRY
+
+install_file 0755 "$stage/daz-shifter-desktop" "$binary"
+install_file 0644 "$stage/LICENSE" "$license"
+install_file 0644 "$stage/daz-shifter-desktop.desktop" "$launcher"
+if [[ -n "$rule" ]]; then
+  install_file 0644 "$stage/70-daz-shifter.rules" "$rule"
+  reload_udev
+  printf '%s\n' 'Reconecte o shifter para aplicar a regra de acesso à porta.'
+fi
+printf 'DAZ Shifter @DAZ_VERSION@ instalado em %s\n' "$binary"
+exit 0
+__DAZ_SHIFTER_PAYLOAD__

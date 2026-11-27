@@ -1,3 +1,8 @@
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
 mod app;
 mod connection;
 mod device;
@@ -11,8 +16,11 @@ use gpui_kit::{
     px, size,
 };
 
+const APP_ID: &str = "io.github.lexcibien.daz-shifter";
+
 fn main() {
     application().with_assets(assets::Assets).run(|cx| {
+        cx.set_app_identity(APP_ID, "DAZ Shifter");
         gpui_kit::init(cx);
         set_locale("pt-BR");
         Theme::change(ThemeMode::Dark, None, cx);
@@ -24,6 +32,7 @@ fn main() {
                     ..Default::default()
                 }),
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
+                app_id: Some(APP_ID.into()),
                 window_min_size: Some(size(px(460.), px(360.))),
                 ..Default::default()
             },

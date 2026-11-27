@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>io.github.lexcibien.daz-shifter</string>
+    <key>CFBundleName</key>
+    <string>DAZ Shifter</string>
+    <key>CFBundleDisplayName</key>
+    <string>DAZ Shifter</string>
+    <key>CFBundleExecutable</key>
+    <string>daz-shifter-desktop</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>@DAZ_VERSION@</string>
+    <key>CFBundleVersion</key>
+    <string>@DAZ_VERSION@</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>@DAZ_MACOS_MIN_VERSION@</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>

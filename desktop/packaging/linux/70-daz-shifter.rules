@@ -1,0 +1,2 @@
+# Give the active local session access to the DAZ Shifter configuration port.
+SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="0003", ATTRS{manufacturer}=="Japatech Projects", ATTRS{product}=="DAZ Shifter V[12]", ENV{ID_USB_INTERFACE_NUM}=="0[2-6]", TAG+="uaccess"

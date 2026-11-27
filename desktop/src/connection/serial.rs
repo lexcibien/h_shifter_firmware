@@ -19,6 +19,11 @@ pub(super) fn ports() -> Result<Vec<Port>, ConnectionError> {
     let mut ports: Vec<_> = serialport::available_ports()?
         .into_iter()
         .filter_map(|port| {
+            // IOKit lists both callout and dial-in names for each USB serial device.
+            #[cfg(target_os = "macos")]
+            if !port.port_name.starts_with("/dev/cu.") {
+                return None;
+            }
             let SerialPortType::UsbPort(usb) = port.port_type else {
                 return None;
             };

@@ -1,0 +1,131 @@
+name: Desktop installers
+
+on:
+  pull_request:
+    paths:
+      - "desktop/**"
+      - ".github/workflows/desktop-installers.yml"
+      - "LICENSE"
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            runner: ubuntu-24.04
+            target: installer-linux
+          - name: linux-aarch64
+            runner: ubuntu-24.04-arm
+            target: installer-linux
+          - name: windows-x86_64
+            runner: windows-2022
+            target: installer-windows
+          - name: macos-aarch64
+            runner: macos-15
+            target: installer-macos
+          - name: macos-x86_64
+            runner: macos-15-intel
+            target: installer-macos
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config clang libfontconfig-dev libwayland-dev libwebkit2gtk-4.1-dev \
+            libxkbcommon-dev libxkbcommon-x11-dev libx11-xcb-dev libudev-dev \
+            libssl-dev libzstd-dev libvulkan1 desktop-file-utils
+
+      - name: Install Inno Setup
+        if: runner.os == 'Windows'
+        run: choco install innosetup --yes --no-progress
+
+      - name: Select Rust stable
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Build installer
+        run: |
+          cmake -S desktop -B desktop/build -G Ninja
+          cmake --build desktop/build --target ${{ matrix.target }}
+
+      - name: Verify Linux installation and removal
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          packages=(desktop/build/dist/*.sh)
+          package="${packages[0]}"
+          user_home=$(mktemp -d)
+          entry=applications/io.github.lexcibien.daz-shifter.desktop
+          export HOME="$user_home" XDG_DATA_HOME="$user_home/data"
+          "$package" --user
+          test -x "$HOME/.local/bin/daz-shifter-desktop"
+          desktop-file-validate "$XDG_DATA_HOME/$entry"
+          "$package" --user --uninstall
+          test ! -e "$HOME/.local/bin/daz-shifter-desktop"
+          test ! -e "$XDG_DATA_HOME/$entry"
+
+          sudo "$package" --system
+          test -x /usr/local/bin/daz-shifter-desktop
+          desktop-file-validate "/usr/local/share/$entry"
+          test -f /etc/udev/rules.d/70-daz-shifter.rules
+          sudo "$package" --system --uninstall
+          test ! -e /usr/local/bin/daz-shifter-desktop
+          test ! -e "/usr/local/share/$entry"
+          test ! -e /etc/udev/rules.d/70-daz-shifter.rules
+
+      - name: Verify Windows installation and removal
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $package = (Get-ChildItem desktop/build/dist/*.exe).FullName
+          $scopes = @{
+            CURRENTUSER = Join-Path $env:LOCALAPPDATA 'Programs\DAZ Shifter'
+            ALLUSERS = Join-Path $env:ProgramFiles 'DAZ Shifter'
+          }
+          $silentOptions = @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART')
+          foreach ($scope in $scopes.Keys) {
+            $directory = $scopes[$scope]
+            $installOptions = @("/$scope") + $silentOptions
+            $install = Start-Process -FilePath $package -ArgumentList $installOptions -Wait -PassThru
+            if ($install.ExitCode -ne 0) { throw "Installer failed for $scope ($($install.ExitCode))" }
+            $binary = Join-Path $directory 'daz-shifter-desktop.exe'
+            if (-not (Test-Path $binary)) { throw "Executable missing in $directory" }
+
+            $uninstaller = (Get-ChildItem $directory -Filter 'unins*.exe').FullName
+            $uninstall = Start-Process -FilePath $uninstaller -ArgumentList $silentOptions -Wait -PassThru
+            if ($uninstall.ExitCode -ne 0 -or (Test-Path $binary)) { throw "Uninstall failed for $scope" }
+          }
+
+      - name: Verify macOS installation in both domains
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          packages=(desktop/build/dist/*.pkg)
+          package="${packages[0]}"
+          executable='DAZ Shifter.app/Contents/MacOS/daz-shifter-desktop'
+          /usr/sbin/installer -pkg "$package" -target CurrentUserHomeDirectory
+          test -x "$HOME/Applications/$executable"
+          sudo /usr/sbin/installer -pkg "$package" -target /
+          test -x "/Applications/$executable"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: daz-shifter-${{ matrix.name }}
+          path: desktop/build/dist/
+          if-no-files-found: error

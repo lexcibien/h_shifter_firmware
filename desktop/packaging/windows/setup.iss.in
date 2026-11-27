@@ -1,0 +1,30 @@
+[Setup]
+AppId=io.github.lexcibien.daz-shifter
+AppName=DAZ Shifter
+AppVersion=@DAZ_VERSION@
+AppPublisher=Japatech Projects
+DefaultDirName={autopf}\DAZ Shifter
+DefaultGroupName=DAZ Shifter
+DisableProgramGroupPage=yes
+PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog commandline
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+MinVersion=10.0
+OutputDir=@DAZ_WINDOWS_DIST@
+OutputBaseFilename=@DAZ_ARTIFACT_NAME@
+UninstallDisplayIcon={app}\daz-shifter-desktop.exe
+Compression=lzma2
+SolidCompression=yes
+WizardStyle=modern
+
+[Languages]
+Name: "ptbr"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+Name: "en"; MessagesFile: "compiler:Default.isl"
+
+[Files]
+Source: "@DAZ_WINDOWS_EXE@"; DestDir: "{app}"; Flags: ignoreversion
+Source: "@DAZ_WINDOWS_LICENSE@"; DestDir: "{app}"; DestName: "LICENSE.txt"
+
+[Icons]
+Name: "{group}\DAZ Shifter"; Filename: "{app}\daz-shifter-desktop.exe"
