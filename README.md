@@ -5,9 +5,10 @@ Firmware para o câmbio H com uma placa Waveshare RP2040 Zero. A placa apresenta
 
 ## Configurador desktop em GPUI
 
-O projeto em [`desktop/`](desktop/) abre uma janela com conexão simulada e ajuste
-local de marchas. Veja como executar e onde começar no
-[guia de migração para GPUI e USB serial](desktop/README.md).
+O projeto em [`desktop/`](desktop/) configura e diagnostica o DAZ Shifter V1 ou
+V2 pela porta USB CDC habilitada nos builds padrão. Grave o firmware da sua
+versão e selecione a porta de configuração na janela do aplicativo.
+[Guia do configurador desktop](desktop/README.md)
 
 ## Configurador WebUSB
 
@@ -138,14 +139,17 @@ cmake --build --preset waveshare_rp2040_zero_v2 --target test
 
 ### Logs e diagnóstico
 
-Por padrão, o firmware expõe o joystick HID, a interface WebUSB de configuração
-e a interface de reset do Pico. Para adicionar a porta USB CDC e os logs
-operacionais padronizados, configure com:
+Por padrão, o firmware expõe o joystick HID, WebUSB, a porta USB CDC de
+configuração e a interface de reset do Pico. Para habilitar os logs
+operacionais em uma segunda porta USB CDC, configure com:
 
 ```bash
 cmake --preset waveshare_rp2040_zero_v1 -DH_SHIFTER_LOG=ON
 cmake --build --preset waveshare_rp2040_zero_v1
 ```
+
+Para compilar sem a porta de configuração do desktop, use
+`-DH_SHIFTER_CONFIG_CDC=OFF`.
 
 Os logs operacionais registram inicialização, configuração, montagem USB e
 mudanças entre os modos H e sequencial. Para incluir também o diagnóstico

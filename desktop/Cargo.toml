@@ -5,4 +5,8 @@ edition = "2024"
 publish = false
 
 [dependencies]
-gpui = "0.2.2"
+async-channel = "2.5"
+crc32fast = "1.5"
+gpui-kit = "0.11.0"
+serialport = { version = "4.9", features = ["usbportinfo-interface"] }
+thiserror = "2"
