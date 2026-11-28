@@ -13,7 +13,9 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "MinSizeRel",
-        "PICO_BOARD": "waveshare_rp2040_zero"
+        "PICO_BOARD": "waveshare_rp2040_zero",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
       }
     },
     {
