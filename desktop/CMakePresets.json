@@ -1,0 +1,75 @@
+{
+  "version": 5,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "desktop-native",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "desktop-linux",
+      "inherits": "desktop-native",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "desktop-windows",
+      "inherits": "desktop-native",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "desktop-macos",
+      "inherits": "desktop-native",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "installer-linux",
+      "configurePreset": "desktop-linux",
+      "targets": ["installer-linux"]
+    },
+    {
+      "name": "installer-windows",
+      "configurePreset": "desktop-windows",
+      "targets": ["installer-windows"]
+    },
+    {
+      "name": "installer-macos",
+      "configurePreset": "desktop-macos",
+      "targets": ["installer-macos"]
+    },
+    {
+      "name": "desktop-linux-release",
+      "configurePreset": "desktop-linux",
+      "targets": ["desktop-release"]
+    },
+    {
+      "name": "desktop-windows-release",
+      "configurePreset": "desktop-windows",
+      "targets": ["desktop-release"]
+    },
+    {
+      "name": "desktop-macos-release",
+      "configurePreset": "desktop-macos",
+      "targets": ["desktop-release"]
+    }
+  ]
+}

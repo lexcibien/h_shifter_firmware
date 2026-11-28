@@ -24,19 +24,19 @@ jobs:
         include:
           - name: linux-x86_64
             runner: ubuntu-24.04
-            target: installer-linux
+            platform: linux
           - name: linux-aarch64
             runner: ubuntu-24.04-arm
-            target: installer-linux
+            platform: linux
           - name: windows-x86_64
             runner: windows-2022
-            target: installer-windows
+            platform: windows
           - name: macos-aarch64
             runner: macos-15
-            target: installer-macos
+            platform: macos
           - name: macos-x86_64
             runner: macos-15-intel
-            target: installer-macos
+            platform: macos
 
     steps:
       - uses: actions/checkout@v6
@@ -60,9 +60,10 @@ jobs:
           rustup default stable
 
       - name: Build installer
+        working-directory: desktop
         run: |
-          cmake -S desktop -B desktop/build -G Ninja
-          cmake --build desktop/build --target ${{ matrix.target }}
+          cmake --preset desktop-${{ matrix.platform }}
+          cmake --build --preset installer-${{ matrix.platform }}
 
       - name: Verify Linux installation and removal
         if: runner.os == 'Linux'
